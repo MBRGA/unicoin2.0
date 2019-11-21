@@ -167,6 +167,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
+        uint256 _fixed_sell_price,
+        uint256 _maxNumberOfLicences,
         uint256[] memory _contributors,
         uint256[] memory _contributors_weightings
     ) public {
@@ -179,8 +181,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             _pricing_stratergy,
             _publication_uri,
             author_id,
-            fixed_sell_price,
-            maxNumberOfLicences,
+            _fixed_sell_price,
+            _maxNumberOfLicences,
             _contributors,
             _contributors_weightings
         );

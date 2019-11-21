@@ -31,7 +31,7 @@ contract PublicationManager is Initializable {
     event NewPublication(
         uint256 indexed _author_id,
         string _publication_uri,
-        PricingStratergy _pricingStratergy,
+        PricingStratergy _pricingStratergy
     );
 
     function initialize(address _unicoinRegistry) public initializer {
@@ -42,10 +42,10 @@ contract PublicationManager is Initializable {
         uint8 _pricing_stratergy,
         string memory _publication_uri,
         uint256 _author_id,
-        uint256 fixed_sell_price,
+        uint256 _fixed_sell_price,
         uint256 _maxNumberOfLicences,
         uint256[] memory _contributors,
-        uint256[] memory _contributors_weightings,
+        uint256[] memory _contributors_weightings
     ) public onlyRegistry returns (uint256) {
         require(
             bytes(_publication_uri).length > 0,
@@ -53,10 +53,10 @@ contract PublicationManager is Initializable {
         );
 
         if(PricingStratergy(_pricing_stratergy) == PricingStratergy.fixedRate){
-            require(fixed_sell_price >= 0, "Fixed sell price cant be zero");
+            require(_fixed_sell_price >= 0, "Fixed sell price cant be zero");
         }
         else {
-            require(fixed_sell_price == 0, "Fixed sell price must be zero for auction");
+            require(_fixed_sell_price == 0, "Fixed sell price must be zero for auction");
         }
         
         uint256[] memory auction_ids;
@@ -65,10 +65,10 @@ contract PublicationManager is Initializable {
             _publication_uri,
             _author_id,
             _fixed_sell_price,
-            _maxNumberOfLicences
+            _maxNumberOfLicences,
             auction_ids,
             _contributors,
-            _contributors_weightings,
+            _contributors_weightings
         );
         uint256 publicationId = publications.push(publication) - 1;
         publicationOwners[_author_id].push(publicationId);
@@ -76,8 +76,7 @@ contract PublicationManager is Initializable {
         emit NewPublication(
             _author_id,
             _publication_uri,
-            PricingStratergy(_pricing_stratergy),
-
+            PricingStratergy(_pricing_stratergy)
         );
 
         return (publicationId);
