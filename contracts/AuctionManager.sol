@@ -15,6 +15,8 @@ contract AuctionManager is Initializable {
     enum AuctionStatus {commit, reveal, finalized, open, closed}
 
     struct Auction {
+        uint256 starting_time;
+        uint256 duration;
         uint256 publication_Id;
         uint256[] auction_bid_ids;
         AuctionStatus status;
@@ -35,7 +37,11 @@ contract AuctionManager is Initializable {
         registry = _unicoinRegistry;
     }
 
-    function createAuction(AuctionType _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){
+    function _createAuction(uint8 _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){
+        return 0;
+    }
+
+    function makeBidPublicBid(uint256 offer) public returns(uint256){
         return 0;
     }
 }

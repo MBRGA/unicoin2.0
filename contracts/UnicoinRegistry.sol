@@ -14,15 +14,17 @@ import "./PublicationManager.sol";
 import "./UserManager.sol";
 
 contract UnicoinRegistry is Initializable, GSNRecipient {
-    
     address owner;
-    
+
     AuctionManager private auctionManager;
     LicenceManager private licenceManager;
     PublicationManager private publicationManager;
     UserManager private userManager;
 
-    
+    enum PricingStratergy {fixedRate, controlledAuction, privateAuction}
+
+    enum AuctionType {controlledAuction, privateAuction}
+
     /// @notice struct for users of the plaform, needs their Ethereum address and profile URL
     struct User {
         address owned_address;
@@ -50,14 +52,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     /// @notice The mapping below maps all bidders' IDs to their userID
     mapping(uint256 => uint256[]) public bidOwners;
 
-    /// @notice Creates a struct for all publications
-    /// @param author_Id The array below will contain all bids received for that work
-    /// @param publication_uri If the researcher has chosen the auction pricing structure, the below is TRUE.
-    /// @param publication_bids If the auction is still running, the below is TRUE, because the researcher can choose to stop the auction at any point.
-    /// @param isAuction If both of the booleans above are FALSE, the price below is the flat sale price of the work.
-    /// @param isRunning The value of the publication
-    /// @param sell_price The co-authors/ contributors of the publication
-    /// @param contributors_weightings The contributor's respective weighting contributions
     struct Publication {
         uint256 author_Id;
         string publication_uri;
@@ -93,7 +87,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     event NewPublication(
         address indexed _from,
         string _publication_uri,
-        bool _isAuction,
+        bool _pricing_stratergy,
         uint256 _sell_price
     );
 
@@ -131,24 +125,26 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         uint256 indexed _publication_Id,
         bool _isRunning
     );
-
-    
-    ERC20 daiContract;
-    
-    ERC721Metadata licenceNFT;
-    
-    function initialize(address _daiContractAddress)
-        public
-        initializer
-    {
+    function initialize(
+        address _auctionManager,
+        address _licenceManager,
+        address _publicationManager,
+        address _userManager
+    ) public initializer {
         // users.push(User(address(0), ""));
-        // licences.push(LicenceDesign(0, 0, 0));    
+        // licences.push(LicenceDesign(0, 0, 0));
 
         owner = msg.sender;
+
+        auctionManager = AuctionManager(_auctionManager);
+        licenceManager = LicenceManager(_licenceManager);
+        publicationManager = PublicationManager(_publicationManager);
+        userManager = UserManager(_userManager);
+
     }
 
     function setOwner(address _owner) public {
-        require(owner == msg.sender, "Only owner can change the ");
+        require(owner == msg.sender, "Only owner can change the owner address");
         owner = _owner;
     }
 
@@ -157,13 +153,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     /// @dev If the user's addresowners is in position 0 of the userAddresses array, they are unregistered
     /// @dev Create an instance of the user and add the Id to their address
     function registerUser(string memory _profile_uri) public {
-        require(
-            bytes(_profile_uri).length > 0,
-            "Profile URI should not be empty."
-        );
-        require(userAddresses[msg.sender] == 0, "User already registered.");
-        uint256 id = users.push(User(msg.sender, _profile_uri));
-        userAddresses[msg.sender] = id - 1;
+        userManager._registerUser(_profile_uri);
     }
 
     /// @notice This function creates a publication on the system, with blank arrays for publication bids and owners,
@@ -173,126 +163,105 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     function createPublication(
         string memory _publication_uri,
-        bool _isAuction,
-        bool _isRunning,
-        uint256 _sell_price,
+        uint8 _pricing_stratergy,
+        uint256 _auctionFloor,
+        uint256 _auctionStartTime,
+        uint256 _auctionDuration,
         uint256[] memory _contributors,
         uint256[] memory _contributors_weightings
     ) public {
         require(
-            bytes(_publication_uri).length > 0,
-            "Publication URI should not be empty."
+            isCallerRegistered(),
+            "Cant create a publication if you are not registered"
         );
-        require(
-            userAddresses[msg.sender] != 0,
-            "User address is not registered."
-        );
-        if (_isAuction) {
-            require(
-                _sell_price == 0,
-                "Should not specify sell price for auction."
-            );
-        } else {
-            require(_sell_price > 0, "Sell price not specified.");
-        }
-        uint256 _author_Id = userAddresses[msg.sender];
-        uint256[] memory _publication_bids;
-        Publication memory _publication = Publication(
-            _author_Id,
+        uint256 author_id = getCallerId();
+        uint256 publicationId = publicationManager._createPublication(
             _publication_uri,
-            _publication_bids,
-            _isAuction,
-            _isRunning,
-            _sell_price,
+            author_id,
+            _pricing_stratergy,
             _contributors,
             _contributors_weightings
         );
-        uint256 _id = publications.push(_publication);
-        publicationOwners[_author_Id].push(_id - 1);
 
-        emit NewPublication(
-            msg.sender,
-            _publication_uri,
-            _isAuction,
-            _sell_price
-        );
+        if (
+            PricingStratergy(_pricing_stratergy) ==
+            PricingStratergy.privateAuction
+        ) {
+            uint256 auctionId = auctionManager._createAuction(
+                AuctionType.privateAuction,
+                _auctionFloor,
+                _auctionStartTime,
+                _auctionDuration
+            );
+            publicationManager._addAuctionToPublication(
+                publicationId,
+                auctionId
+            );
+        }
     }
 
-    /// @notice This function creates a new bid for a particular publication
-    /// @param _offer for the research
-    /// @param _publication_Id is the index for the publication Id
-    /// @dev The bidder should only be able to submit a bid if the publication's pricing structure is an auction and the auction is running
-    /// @dev By default the bid will have a status of Pending until it is accepted or rejected by the author
-    /// @dev If the author has specified a flat rate, the buyer doesn't submit a bid but just sends the funds.
-    /// @dev The funds sent should match the sale price specified by the author.
-    /// @dev This 'bid' has a status of sale because the author does not need to evaluate and accept/reject these bids.
-    /// @dev Transfer Dai from buyer to seller
-    /// @dev parameters of licence design: buyer_id, publication id, bid_id
     function makeBid(uint256 _offer, uint256 _publication_Id) public {
-        require(
-            publications[_publication_Id].author_Id != 0,
-            "Publication not enlisted."
-        );
-        require(
-            userAddresses[msg.sender] != 0,
-            "Bidder address is not registered."
-        );
-        if (publications[_publication_Id].isAuction) {
-            require(
-                publications[_publication_Id].isRunning,
-                "Auction is not running."
-            );
-            uint256 _id = bids.push(
-                Bid(
-                    _offer,
-                    bidStatus.Pending,
-                    _publication_Id,
-                    userAddresses[msg.sender]
-                )
-            );
-            publications[_publication_Id].publication_bids.push(_id - 1);
-            bidOwners[userAddresses[msg.sender]].push(_id - 1);
-
-            emit NewBid(msg.sender, _publication_Id, _offer);
-        }
-        if (!publications[_publication_Id].isAuction) {
-            require(
-                _offer == publications[_publication_Id].sell_price,
-                "Incorrect funds sent."
-            );
-            uint256 _id = bids.push(
-                Bid(
-                    _offer,
-                    bidStatus.Sale,
-                    _publication_Id,
-                    userAddresses[msg.sender]
-                )
-            ) -
-                1;
-            publications[_publication_Id].publication_bids.push(_id);
-            bidOwners[userAddresses[msg.sender]].push(_id);
-
-            require(
-                daiContract.allowance(msg.sender, address(this)) >= _offer,
-                "Insufficient fund allowance"
-            );
-            address publisherAddress = users[publications[_publication_Id]
-                .author_Id]
-                .owned_address;
-            require(
-                daiContract.transferFrom(msg.sender, publisherAddress, _offer),
-                "dai Transfer failed"
-            );
-
-            uint256 _licence_Id = licences.push(
-                LicenceDesign(bids[_id].owner_Id, _publication_Id, _id)
-            );
-            licenceOwners[bids[_id].owner_Id].push(_licence_Id);
-            publicationLicences[_publication_Id].push(_licence_Id);
-            // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
-
-            emit NewBid(msg.sender, _publication_Id, _offer);
-        }
+        // auctionManager.makeBid
+        // require(
+        //     publications[_publication_Id].author_Id != 0,
+        //     "Publication not enlisted."
+        // );
+        // require(
+        //     userAddresses[msg.sender] != 0,
+        //     "Bidder address is not registered."
+        // );
+        // if (publications[_publication_Id].isAuction) {
+        //     require(
+        //         publications[_publication_Id].isRunning,
+        //         "Auction is not running."
+        //     );
+        //     uint256 _id = bids.push(
+        //         Bid(
+        //             _offer,
+        //             bidStatus.Pending,
+        //             _publication_Id,
+        //             userAddresses[msg.sender]
+        //         )
+        //     );
+        //     publications[_publication_Id].publication_bids.push(_id - 1);
+        //     bidOwners[userAddresses[msg.sender]].push(_id - 1);
+        //     emit NewBid(msg.sender, _publication_Id, _offer);
+        // }
+        // if (!publications[_publication_Id].isAuction) {
+        //     require(
+        //         _offer == publications[_publication_Id].sell_price,
+        //         "Incorrect funds sent."
+        //     );
+        //     uint256 _id = bids.push(
+        //         Bid(
+        //             _offer,
+        //             bidStatus.Sale,
+        //             _publication_Id,
+        //             userAddresses[msg.sender]
+        //         )
+        //     ) -
+        //         1;
+        //     publications[_publication_Id].publication_bids.push(_id);
+        //     bidOwners[userAddresses[msg.sender]].push(_id);
+        //     require(
+        //         daiContract.allowance(msg.sender, address(this)) >= _offer,
+        //         "Insufficient fund allowance"
+        //     );
+        //     address publisherAddress = users[publications[_publication_Id]
+        //         .author_Id]
+        //         .owned_address;
+        //     require(
+        //         daiContract.transferFrom(msg.sender, publisherAddress, _offer),
+        //         "dai Transfer failed"
+        //     );
+        //     uint256 _licence_Id = licences.push(
+        //         LicenceDesign(bids[_id].owner_Id, _publication_Id, _id)
+        //     );
+        //     licenceOwners[bids[_id].owner_Id].push(_licence_Id);
+        //     publicationLicences[_publication_Id].push(_licence_Id);
+        //     // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
+        //     emit NewBid(msg.sender, _publication_Id, _offer);
+        // }
     }
 
     /// @notice This function allows the auctioneer to accept the bids
@@ -542,17 +511,25 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     /// @param _publication_Id The id of the publication
     /// @param _value the amount that is being donated
     function donate(uint256 _publication_Id, uint256 _value) public {
-        require(
-            userAddresses[msg.sender] != 0,
-            "User address is not registered."
-        );
-        require(
-            daiContract.allowance(msg.sender, address(this)) >= _value,
-            "Insufficient fund allowance"
-        );
-        address publisherAddress = users[publications[_publication_Id]
-            .author_Id]
-            .owned_address;
-        daiContract.transferFrom(msg.sender, publisherAddress, _value);
+        // require(
+        //     userAddresses[msg.sender] != 0,
+        //     "User address is not registered."
+        // );
+        // require(
+        //     daiContract.allowance(msg.sender, address(this)) >= _value,
+        //     "Insufficient fund allowance"
+        // );
+        // address publisherAddress = users[publications[_publication_Id]
+        //     .author_Id]
+        //     .owned_address;
+        // daiContract.transferFrom(msg.sender, publisherAddress, _value);
+    }
+
+    function isCallerRegistered() public view returns (bool) {
+        return userManager._isAddressRegistered(msg.sender);
+    }
+
+    function getCallerId() public view returns (uint256) {
+        return userManager._getUserId(msg.sender);
     }
 }

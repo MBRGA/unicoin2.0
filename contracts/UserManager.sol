@@ -12,6 +12,10 @@ contract UserManager is Initializable {
     /// @notice Array of regististred users
     User[] public users;
 
+
+    /// @notice maps all users' addresses to their userID
+    mapping(address => uint256) public userAddresses;
+
     address registry;
 
     modifier onlyRegistry(){
@@ -24,5 +28,23 @@ contract UserManager is Initializable {
         users.push(User(address(0), ""));
 
         registry = _unicoinRegistry;
+    }
+
+    function _registerUser(string memory _profile_uri) public onlyRegistry {
+        require(
+            bytes(_profile_uri).length > 0,
+            "Profile URI should not be empty."
+        );
+        require(userAddresses[msg.sender] == 0, "User already registered.");
+        uint256 id = users.push(User(msg.sender, _profile_uri));
+        userAddresses[msg.sender] = id - 1;
+    }
+
+    function _isAddressRegistered(address _userAddress) public view returns (bool){
+        return userAddresses[_userAddress] != 0;
+    }
+
+    function _getUserId(address _userAddress) public view returns (uint256) {
+        return userAddresses[_userAddress];
     }
 }

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Fu
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol";
 contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
 
-    modifier onlyRegistry(){
+    modifier onlyRegistry() {
         require(msg.sender == registry,"Can only be called by registry");
         _;
     }

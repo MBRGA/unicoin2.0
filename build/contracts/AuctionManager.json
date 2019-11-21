@@ -45,23 +45,42 @@
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "offer",
+          "type": "uint256"
+        }
+      ],
+      "name": "makeBidPublicBid",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"_daiContractAddress\",\"type\":\"address\"},{\"name\":\"_unicoinRegistry\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_auctionType\",\"type\":\"uint8\"},{\"name\":\"_auctionFloor\",\"type\":\"uint256\"},{\"name\":\"_auctionStartTime\",\"type\":\"uint256\"}],\"name\":\"createAuction\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":\"AuctionManager\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":{\"keccak256\":\"0x469432d1579671d393fd460fe091f1886970a916a392c785f44d43d7bc371bde\",\"urls\":[\"bzzr://fb41cada29f4c7e60fb9fd3f9a8f02b84c6de0a8e7719f773f4af54abdb7ce92\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzzr://5cddbf3b74b775a8670757a6b8e108dac17dac20253f35f4c729e9cb6bea4ed3\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzzr://292843005e754e752644f767477ec5ad7a1ffc91ddb18c38b8079c62f3993cad\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x1eee490bb6b1751e8d39e2670fa0d04dd2e8b7af6da33e1fb4c1593e771b56fb\",\"urls\":[\"bzzr://353641d4df43022f4c0fabe991ff64d95033a850333fa10151a48ec51ea15d0a\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xe5bb0f57cff3e299f360052ba50f1ea0fff046df2be070b6943e0e3c3fdad8a9\",\"urls\":[\"bzzr://cf2d583b8dce38d0617fdcd65f2fd9f126fe17b7f683b5a515ea9d2762d8b062\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0xf79d9851c085aa8412e87d7a26d3485488fe12538ecb4e317ce41fc1f2c3a16a\",\"urls\":[\"bzzr://e45c5a995f57637b2300a376647ee345cc9cb30ee1984735091fcd4b10ff3500\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b506102f2806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063485cc9551461003b578063c7b8fdc41461009f575b600080fd5b61009d6004803603604081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100f8565b005b6100e2600480360360608110156100b557600080fd5b81019080803560ff169060200190929190803590602001909291908035906020019092919050505061027b565b6040518082815260200191505060405180910390f35b600060019054906101000a900460ff16806101175750610116610287565b5b8061012e57506000809054906101000a900460ff16155b610183576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e815260200180610299602e913960400191505060405180910390fd5b60008060019054906101000a900460ff1615905080156101d3576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102765760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a72305820552b3542824f2f53bb407df22afc6e1c8a4a4ff56dbbd331771f5dc2e3dda4920029",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063485cc9551461003b578063c7b8fdc41461009f575b600080fd5b61009d6004803603604081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100f8565b005b6100e2600480360360608110156100b557600080fd5b81019080803560ff169060200190929190803590602001909291908035906020019092919050505061027b565b6040518082815260200191505060405180910390f35b600060019054906101000a900460ff16806101175750610116610287565b5b8061012e57506000809054906101000a900460ff16155b610183576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e815260200180610299602e913960400191505060405180910390fd5b60008060019054906101000a900460ff1615905080156101d3576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102765760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a72305820552b3542824f2f53bb407df22afc6e1c8a4a4ff56dbbd331771f5dc2e3dda4920029",
-  "sourceMap": "171:928:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:928:0;;;;;;;",
-  "deployedSourceMap": "171:928:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:928:0;;;;;;;;;;;;;;;;;;;;;;;;735:208;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;735:208:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;949:148;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;949:148:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;735:208;1024:12:30;;;;;;;;;;;:31;;;;1040:15;:13;:15::i;:::-;1024:31;:47;;;;1060:11;;;;;;;;;;;1059:12;1024:47;1016:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1129:19;1152:12;;;;;;;;;;;1151:13;1129:35;;1174:14;1170:80;;;1213:4;1198:12;;:19;;;;;;;;;;;;;;;;;;1239:4;1225:11;;:18;;;;;;;;;;;;;;;;;;1170:80;879:19:0;859:11;;:40;;;;;;;;;;;;;;;;;;920:16;909:8;;:27;;;;;;;;;;;;;;;;;;1268:14:30;1264:55;;;1307:5;1292:12;;:20;;;;;;;;;;;;;;;;;;1264:55;735:208:0;;;:::o;949:148::-;1064:7;1089:1;1082:8;;949:148;;;;;:::o;1409:467:30:-;1456:4;1797:10;1842:7;1830:20;1824:26;;1870:1;1864:2;:7;1857:14;;;1409:467;:::o",
-  "source": "pragma solidity ^0.5.0;\n\nimport \"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\";\n\nimport \"@openzeppelin/upgrades/contracts/Initializable.sol\";\n\ncontract AuctionManager is Initializable {\n\n    ERC20 daiContract;\n\n    enum AuctionType {controlledAuction, privateAuction}\n    \n    enum BidStatus {committed, revealed, winner,pending, accepted, rejected, sale, cancelled}\n\n    enum AuctionStatus {commit, reveal, finalized, open, closed}\n\n    struct Auction {\n        uint256 publication_Id;\n        uint256[] auction_bid_ids;\n        AuctionStatus status;\n    }\n\n    address registry;\n\n    modifier onlyRegistry(){\n        require(msg.sender == registry,\"Can only be called by registry\");\n        _;\n    }\n\n    function initialize(address _daiContractAddress, address _unicoinRegistry)\n        public\n        initializer\n    {\n        daiContract = ERC20(_daiContractAddress);\n        registry = _unicoinRegistry;\n    }\n\n    function createAuction(AuctionType _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){\n        return 0;\n    }\n}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"offer\",\"type\":\"uint256\"}],\"name\":\"makeBidPublicBid\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_daiContractAddress\",\"type\":\"address\"},{\"name\":\"_unicoinRegistry\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_auctionType\",\"type\":\"uint8\"},{\"name\":\"_auctionFloor\",\"type\":\"uint256\"},{\"name\":\"_auctionStartTime\",\"type\":\"uint256\"}],\"name\":\"createAuction\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":\"AuctionManager\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":{\"keccak256\":\"0xf70288ba23cc5da23cd0fed00a6555307a6372a061044e5f15e0c7a36376e117\",\"urls\":[\"bzzr://47ba3525825f4d1149f3699fcdd7705ce7e3b0ed0e66ba6c2280f2ac3d83e046\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzzr://5cddbf3b74b775a8670757a6b8e108dac17dac20253f35f4c729e9cb6bea4ed3\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzzr://292843005e754e752644f767477ec5ad7a1ffc91ddb18c38b8079c62f3993cad\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x1eee490bb6b1751e8d39e2670fa0d04dd2e8b7af6da33e1fb4c1593e771b56fb\",\"urls\":[\"bzzr://353641d4df43022f4c0fabe991ff64d95033a850333fa10151a48ec51ea15d0a\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xe5bb0f57cff3e299f360052ba50f1ea0fff046df2be070b6943e0e3c3fdad8a9\",\"urls\":[\"bzzr://cf2d583b8dce38d0617fdcd65f2fd9f126fe17b7f683b5a515ea9d2762d8b062\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0xf79d9851c085aa8412e87d7a26d3485488fe12538ecb4e317ce41fc1f2c3a16a\",\"urls\":[\"bzzr://e45c5a995f57637b2300a376647ee345cc9cb30ee1984735091fcd4b10ff3500\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610349806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80632363860914610046578063485cc95514610088578063c7b8fdc4146100ec575b600080fd5b6100726004803603602081101561005c57600080fd5b8101908080359060200190929190505050610145565b6040518082815260200191505060405180910390f35b6100ea6004803603604081101561009e57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014f565b005b61012f6004803603606081101561010257600080fd5b81019080803560ff16906020019092919080359060200190929190803590602001909291905050506102d2565b6040518082815260200191505060405180910390f35b6000809050919050565b600060019054906101000a900460ff168061016e575061016d6102de565b5b8061018557506000809054906101000a900460ff16155b6101da576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e8152602001806102f0602e913960400191505060405180910390fd5b60008060019054906101000a900460ff16159050801561022a576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102cd5760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a723058202cd315cfa04ada85dc8f894f9f94c2da143ca8ec8cccb352a13c3a69c304f0b00029",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80632363860914610046578063485cc95514610088578063c7b8fdc4146100ec575b600080fd5b6100726004803603602081101561005c57600080fd5b8101908080359060200190929190505050610145565b6040518082815260200191505060405180910390f35b6100ea6004803603604081101561009e57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014f565b005b61012f6004803603606081101561010257600080fd5b81019080803560ff16906020019092919080359060200190929190803590602001909291905050506102d2565b6040518082815260200191505060405180910390f35b6000809050919050565b600060019054906101000a900460ff168061016e575061016d6102de565b5b8061018557506000809054906101000a900460ff16155b6101da576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e8152602001806102f0602e913960400191505060405180910390fd5b60008060019054906101000a900460ff16159050801561022a576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102cd5760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a723058202cd315cfa04ada85dc8f894f9f94c2da143ca8ec8cccb352a13c3a69c304f0b00029",
+  "sourceMap": "171:1023:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:1023:0;;;;;;;",
+  "deployedSourceMap": "171:1023:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:1023:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1103:89;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;1103:89:0;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;735:208;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;735:208:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;949:148;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;949:148:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;1103:89;1159:7;1184:1;1177:8;;1103:89;;;:::o;735:208::-;1024:12:30;;;;;;;;;;;:31;;;;1040:15;:13;:15::i;:::-;1024:31;:47;;;;1060:11;;;;;;;;;;;1059:12;1024:47;1016:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1129:19;1152:12;;;;;;;;;;;1151:13;1129:35;;1174:14;1170:80;;;1213:4;1198:12;;:19;;;;;;;;;;;;;;;;;;1239:4;1225:11;;:18;;;;;;;;;;;;;;;;;;1170:80;879:19:0;859:11;;:40;;;;;;;;;;;;;;;;;;920:16;909:8;;:27;;;;;;;;;;;;;;;;;;1268:14:30;1264:55;;;1307:5;1292:12;;:20;;;;;;;;;;;;;;;;;;1264:55;735:208:0;;;:::o;949:148::-;1064:7;1089:1;1082:8;;949:148;;;;;:::o;1409:467:30:-;1456:4;1797:10;1842:7;1830:20;1824:26;;1870:1;1864:2;:7;1857:14;;;1409:467;:::o",
+  "source": "pragma solidity ^0.5.0;\n\nimport \"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\";\n\nimport \"@openzeppelin/upgrades/contracts/Initializable.sol\";\n\ncontract AuctionManager is Initializable {\n\n    ERC20 daiContract;\n\n    enum AuctionType {controlledAuction, privateAuction}\n    \n    enum BidStatus {committed, revealed, winner,pending, accepted, rejected, sale, cancelled}\n\n    enum AuctionStatus {commit, reveal, finalized, open, closed}\n\n    struct Auction {\n        uint256 publication_Id;\n        uint256[] auction_bid_ids;\n        AuctionStatus status;\n    }\n\n    address registry;\n\n    modifier onlyRegistry(){\n        require(msg.sender == registry,\"Can only be called by registry\");\n        _;\n    }\n\n    function initialize(address _daiContractAddress, address _unicoinRegistry)\n        public\n        initializer\n    {\n        daiContract = ERC20(_daiContractAddress);\n        registry = _unicoinRegistry;\n    }\n\n    function createAuction(AuctionType _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){\n        return 0;\n    }\n\n    function makeBidPublicBid(uint256 offer) public returns(uint256){\n        return 0;\n    }\n}",
   "sourcePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
   "ast": {
     "absolutePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
     "exportedSymbols": {
       "AuctionManager": [
-        82
+        92
       ]
     },
-    "id": 83,
+    "id": 93,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -80,8 +99,8 @@
         "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
         "id": 2,
         "nodeType": "ImportDirective",
-        "scope": 83,
-        "sourceUnit": 3221,
+        "scope": 93,
+        "sourceUnit": 3009,
         "src": "25:82:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -91,8 +110,8 @@
         "file": "@openzeppelin/upgrades/contracts/Initializable.sol",
         "id": 3,
         "nodeType": "ImportDirective",
-        "scope": 83,
-        "sourceUnit": 4904,
+        "scope": 93,
+        "sourceUnit": 4692,
         "src": "109:60:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -106,10 +125,10 @@
               "id": 4,
               "name": "Initializable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4903,
+              "referencedDeclaration": 4691,
               "src": "198:13:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Initializable_$4903",
+                "typeIdentifier": "t_contract$_Initializable_$4691",
                 "typeString": "contract Initializable"
               }
             },
@@ -119,15 +138,15 @@
           }
         ],
         "contractDependencies": [
-          4903
+          4691
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 82,
+        "id": 92,
         "linearizedBaseContracts": [
-          82,
-          4903
+          92,
+          4691
         ],
         "name": "AuctionManager",
         "nodeType": "ContractDefinition",
@@ -137,12 +156,12 @@
             "id": 7,
             "name": "daiContract",
             "nodeType": "VariableDeclaration",
-            "scope": 82,
+            "scope": 92,
             "src": "219:17:0",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_ERC20_$3220",
+              "typeIdentifier": "t_contract$_ERC20_$3008",
               "typeString": "contract ERC20"
             },
             "typeName": {
@@ -150,10 +169,10 @@
               "id": 6,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 3220,
+              "referencedDeclaration": 3008,
               "src": "219:5:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$3220",
+                "typeIdentifier": "t_contract$_ERC20_$3008",
                 "typeString": "contract ERC20"
               }
             },
@@ -374,7 +393,7 @@
             ],
             "name": "Auction",
             "nodeType": "StructDefinition",
-            "scope": 82,
+            "scope": 92,
             "src": "466:119:0",
             "visibility": "public"
           },
@@ -383,7 +402,7 @@
             "id": 35,
             "name": "registry",
             "nodeType": "VariableDeclaration",
-            "scope": 82,
+            "scope": 92,
             "src": "591:16:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -434,7 +453,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4918,
+                            "referencedDeclaration": 4706,
                             "src": "655:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -510,10 +529,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        4921,
-                        4922
+                        4709,
+                        4710
                       ],
-                      "referencedDeclaration": 4922,
+                      "referencedDeclaration": 4710,
                       "src": "647:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
@@ -581,7 +600,7 @@
                       "referencedDeclaration": 7,
                       "src": "859:11:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeIdentifier": "t_contract$_ERC20_$3008",
                         "typeString": "contract ERC20"
                       }
                     },
@@ -615,10 +634,10 @@
                         "name": "ERC20",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 3220,
+                        "referencedDeclaration": 3008,
                         "src": "873:5:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3220_$",
+                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3008_$",
                           "typeString": "type(contract ERC20)"
                         }
                       },
@@ -632,13 +651,13 @@
                       "nodeType": "FunctionCall",
                       "src": "873:26:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeIdentifier": "t_contract$_ERC20_$3008",
                         "typeString": "contract ERC20"
                       }
                     },
                     "src": "859:40:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_ERC20_$3220",
+                      "typeIdentifier": "t_contract$_ERC20_$3008",
                       "typeString": "contract ERC20"
                     }
                   },
@@ -708,7 +727,7 @@
                   "name": "initializer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 4884,
+                  "referencedDeclaration": 4672,
                   "src": "833:11:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -788,7 +807,7 @@
               "parameters": [],
               "src": "849:0:0"
             },
-            "scope": 82,
+            "scope": 92,
             "src": "735:208:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -953,27 +972,138 @@
               ],
               "src": "1063:9:0"
             },
-            "scope": 82,
+            "scope": 92,
             "src": "949:148:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 90,
+              "nodeType": "Block",
+              "src": "1167:25:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "30",
+                    "id": 88,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1184:1:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_0_by_1",
+                      "typeString": "int_const 0"
+                    },
+                    "value": "0"
+                  },
+                  "functionReturnParameters": 87,
+                  "id": 89,
+                  "nodeType": "Return",
+                  "src": "1177:8:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 91,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "makeBidPublicBid",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 84,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 83,
+                  "name": "offer",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 91,
+                  "src": "1129:13:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 82,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1129:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1128:15:0"
+            },
+            "returnParameters": {
+              "id": 87,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 86,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 91,
+                  "src": "1159:7:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 85,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1159:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1158:9:0"
+            },
+            "scope": 92,
+            "src": "1103:89:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 83,
-        "src": "171:928:0"
+        "scope": 93,
+        "src": "171:1023:0"
       }
     ],
-    "src": "0:1099:0"
+    "src": "0:1194:0"
   },
   "legacyAST": {
     "absolutePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
     "exportedSymbols": {
       "AuctionManager": [
-        82
+        92
       ]
     },
-    "id": 83,
+    "id": 93,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -992,8 +1122,8 @@
         "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
         "id": 2,
         "nodeType": "ImportDirective",
-        "scope": 83,
-        "sourceUnit": 3221,
+        "scope": 93,
+        "sourceUnit": 3009,
         "src": "25:82:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1003,8 +1133,8 @@
         "file": "@openzeppelin/upgrades/contracts/Initializable.sol",
         "id": 3,
         "nodeType": "ImportDirective",
-        "scope": 83,
-        "sourceUnit": 4904,
+        "scope": 93,
+        "sourceUnit": 4692,
         "src": "109:60:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1018,10 +1148,10 @@
               "id": 4,
               "name": "Initializable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4903,
+              "referencedDeclaration": 4691,
               "src": "198:13:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Initializable_$4903",
+                "typeIdentifier": "t_contract$_Initializable_$4691",
                 "typeString": "contract Initializable"
               }
             },
@@ -1031,15 +1161,15 @@
           }
         ],
         "contractDependencies": [
-          4903
+          4691
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 82,
+        "id": 92,
         "linearizedBaseContracts": [
-          82,
-          4903
+          92,
+          4691
         ],
         "name": "AuctionManager",
         "nodeType": "ContractDefinition",
@@ -1049,12 +1179,12 @@
             "id": 7,
             "name": "daiContract",
             "nodeType": "VariableDeclaration",
-            "scope": 82,
+            "scope": 92,
             "src": "219:17:0",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_ERC20_$3220",
+              "typeIdentifier": "t_contract$_ERC20_$3008",
               "typeString": "contract ERC20"
             },
             "typeName": {
@@ -1062,10 +1192,10 @@
               "id": 6,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 3220,
+              "referencedDeclaration": 3008,
               "src": "219:5:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$3220",
+                "typeIdentifier": "t_contract$_ERC20_$3008",
                 "typeString": "contract ERC20"
               }
             },
@@ -1286,7 +1416,7 @@
             ],
             "name": "Auction",
             "nodeType": "StructDefinition",
-            "scope": 82,
+            "scope": 92,
             "src": "466:119:0",
             "visibility": "public"
           },
@@ -1295,7 +1425,7 @@
             "id": 35,
             "name": "registry",
             "nodeType": "VariableDeclaration",
-            "scope": 82,
+            "scope": 92,
             "src": "591:16:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1346,7 +1476,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4918,
+                            "referencedDeclaration": 4706,
                             "src": "655:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -1422,10 +1552,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        4921,
-                        4922
+                        4709,
+                        4710
                       ],
-                      "referencedDeclaration": 4922,
+                      "referencedDeclaration": 4710,
                       "src": "647:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
@@ -1493,7 +1623,7 @@
                       "referencedDeclaration": 7,
                       "src": "859:11:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeIdentifier": "t_contract$_ERC20_$3008",
                         "typeString": "contract ERC20"
                       }
                     },
@@ -1527,10 +1657,10 @@
                         "name": "ERC20",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 3220,
+                        "referencedDeclaration": 3008,
                         "src": "873:5:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3220_$",
+                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3008_$",
                           "typeString": "type(contract ERC20)"
                         }
                       },
@@ -1544,13 +1674,13 @@
                       "nodeType": "FunctionCall",
                       "src": "873:26:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeIdentifier": "t_contract$_ERC20_$3008",
                         "typeString": "contract ERC20"
                       }
                     },
                     "src": "859:40:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_ERC20_$3220",
+                      "typeIdentifier": "t_contract$_ERC20_$3008",
                       "typeString": "contract ERC20"
                     }
                   },
@@ -1620,7 +1750,7 @@
                   "name": "initializer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 4884,
+                  "referencedDeclaration": 4672,
                   "src": "833:11:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -1700,7 +1830,7 @@
               "parameters": [],
               "src": "849:0:0"
             },
-            "scope": 82,
+            "scope": 92,
             "src": "735:208:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1865,18 +1995,129 @@
               ],
               "src": "1063:9:0"
             },
-            "scope": 82,
+            "scope": 92,
             "src": "949:148:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 90,
+              "nodeType": "Block",
+              "src": "1167:25:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "30",
+                    "id": 88,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1184:1:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_0_by_1",
+                      "typeString": "int_const 0"
+                    },
+                    "value": "0"
+                  },
+                  "functionReturnParameters": 87,
+                  "id": 89,
+                  "nodeType": "Return",
+                  "src": "1177:8:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 91,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "makeBidPublicBid",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 84,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 83,
+                  "name": "offer",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 91,
+                  "src": "1129:13:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 82,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1129:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1128:15:0"
+            },
+            "returnParameters": {
+              "id": 87,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 86,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 91,
+                  "src": "1159:7:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 85,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1159:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1158:9:0"
+            },
+            "scope": 92,
+            "src": "1103:89:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 83,
-        "src": "171:928:0"
+        "scope": 93,
+        "src": "171:1023:0"
       }
     ],
-    "src": "0:1099:0"
+    "src": "0:1194:0"
   },
   "compiler": {
     "name": "solc",
@@ -1884,7 +2125,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.16",
-  "updatedAt": "2019-11-21T13:46:52.107Z",
+  "updatedAt": "2019-11-21T14:52:02.469Z",
   "devdoc": {
     "methods": {}
   },
