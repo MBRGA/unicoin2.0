@@ -1,0 +1,1894 @@
+{
+  "contractName": "AuctionManager",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_daiContractAddress",
+          "type": "address"
+        },
+        {
+          "name": "_unicoinRegistry",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_auctionType",
+          "type": "uint8"
+        },
+        {
+          "name": "_auctionFloor",
+          "type": "uint256"
+        },
+        {
+          "name": "_auctionStartTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "createAuction",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"_daiContractAddress\",\"type\":\"address\"},{\"name\":\"_unicoinRegistry\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_auctionType\",\"type\":\"uint8\"},{\"name\":\"_auctionFloor\",\"type\":\"uint256\"},{\"name\":\"_auctionStartTime\",\"type\":\"uint256\"}],\"name\":\"createAuction\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":\"AuctionManager\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol\":{\"keccak256\":\"0x469432d1579671d393fd460fe091f1886970a916a392c785f44d43d7bc371bde\",\"urls\":[\"bzzr://fb41cada29f4c7e60fb9fd3f9a8f02b84c6de0a8e7719f773f4af54abdb7ce92\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzzr://5cddbf3b74b775a8670757a6b8e108dac17dac20253f35f4c729e9cb6bea4ed3\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzzr://292843005e754e752644f767477ec5ad7a1ffc91ddb18c38b8079c62f3993cad\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x1eee490bb6b1751e8d39e2670fa0d04dd2e8b7af6da33e1fb4c1593e771b56fb\",\"urls\":[\"bzzr://353641d4df43022f4c0fabe991ff64d95033a850333fa10151a48ec51ea15d0a\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xe5bb0f57cff3e299f360052ba50f1ea0fff046df2be070b6943e0e3c3fdad8a9\",\"urls\":[\"bzzr://cf2d583b8dce38d0617fdcd65f2fd9f126fe17b7f683b5a515ea9d2762d8b062\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0xf79d9851c085aa8412e87d7a26d3485488fe12538ecb4e317ce41fc1f2c3a16a\",\"urls\":[\"bzzr://e45c5a995f57637b2300a376647ee345cc9cb30ee1984735091fcd4b10ff3500\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506102f2806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063485cc9551461003b578063c7b8fdc41461009f575b600080fd5b61009d6004803603604081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100f8565b005b6100e2600480360360608110156100b557600080fd5b81019080803560ff169060200190929190803590602001909291908035906020019092919050505061027b565b6040518082815260200191505060405180910390f35b600060019054906101000a900460ff16806101175750610116610287565b5b8061012e57506000809054906101000a900460ff16155b610183576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e815260200180610299602e913960400191505060405180910390fd5b60008060019054906101000a900460ff1615905080156101d3576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102765760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a72305820552b3542824f2f53bb407df22afc6e1c8a4a4ff56dbbd331771f5dc2e3dda4920029",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063485cc9551461003b578063c7b8fdc41461009f575b600080fd5b61009d6004803603604081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100f8565b005b6100e2600480360360608110156100b557600080fd5b81019080803560ff169060200190929190803590602001909291908035906020019092919050505061027b565b6040518082815260200191505060405180910390f35b600060019054906101000a900460ff16806101175750610116610287565b5b8061012e57506000809054906101000a900460ff16155b610183576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602e815260200180610299602e913960400191505060405180910390fd5b60008060019054906101000a900460ff1615905080156101d3576001600060016101000a81548160ff02191690831515021790555060016000806101000a81548160ff0219169083151502179055505b82603360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081603460006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080156102765760008060016101000a81548160ff0219169083151502179055505b505050565b60008090509392505050565b600080303b9050600081149150509056fe436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a165627a7a72305820552b3542824f2f53bb407df22afc6e1c8a4a4ff56dbbd331771f5dc2e3dda4920029",
+  "sourceMap": "171:928:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:928:0;;;;;;;",
+  "deployedSourceMap": "171:928:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:928:0;;;;;;;;;;;;;;;;;;;;;;;;735:208;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;735:208:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;949:148;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;949:148:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;735:208;1024:12:30;;;;;;;;;;;:31;;;;1040:15;:13;:15::i;:::-;1024:31;:47;;;;1060:11;;;;;;;;;;;1059:12;1024:47;1016:106;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1129:19;1152:12;;;;;;;;;;;1151:13;1129:35;;1174:14;1170:80;;;1213:4;1198:12;;:19;;;;;;;;;;;;;;;;;;1239:4;1225:11;;:18;;;;;;;;;;;;;;;;;;1170:80;879:19:0;859:11;;:40;;;;;;;;;;;;;;;;;;920:16;909:8;;:27;;;;;;;;;;;;;;;;;;1268:14:30;1264:55;;;1307:5;1292:12;;:20;;;;;;;;;;;;;;;;;;1264:55;735:208:0;;;:::o;949:148::-;1064:7;1089:1;1082:8;;949:148;;;;;:::o;1409:467:30:-;1456:4;1797:10;1842:7;1830:20;1824:26;;1870:1;1864:2;:7;1857:14;;;1409:467;:::o",
+  "source": "pragma solidity ^0.5.0;\n\nimport \"@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol\";\n\nimport \"@openzeppelin/upgrades/contracts/Initializable.sol\";\n\ncontract AuctionManager is Initializable {\n\n    ERC20 daiContract;\n\n    enum AuctionType {controlledAuction, privateAuction}\n    \n    enum BidStatus {committed, revealed, winner,pending, accepted, rejected, sale, cancelled}\n\n    enum AuctionStatus {commit, reveal, finalized, open, closed}\n\n    struct Auction {\n        uint256 publication_Id;\n        uint256[] auction_bid_ids;\n        AuctionStatus status;\n    }\n\n    address registry;\n\n    modifier onlyRegistry(){\n        require(msg.sender == registry,\"Can only be called by registry\");\n        _;\n    }\n\n    function initialize(address _daiContractAddress, address _unicoinRegistry)\n        public\n        initializer\n    {\n        daiContract = ERC20(_daiContractAddress);\n        registry = _unicoinRegistry;\n    }\n\n    function createAuction(AuctionType _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){\n        return 0;\n    }\n}",
+  "sourcePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
+  "ast": {
+    "absolutePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
+    "exportedSymbols": {
+      "AuctionManager": [
+        82
+      ]
+    },
+    "id": 83,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:0"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+        "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+        "id": 2,
+        "nodeType": "ImportDirective",
+        "scope": 83,
+        "sourceUnit": 3221,
+        "src": "25:82:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/upgrades/contracts/Initializable.sol",
+        "file": "@openzeppelin/upgrades/contracts/Initializable.sol",
+        "id": 3,
+        "nodeType": "ImportDirective",
+        "scope": 83,
+        "sourceUnit": 4904,
+        "src": "109:60:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 4,
+              "name": "Initializable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 4903,
+              "src": "198:13:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Initializable_$4903",
+                "typeString": "contract Initializable"
+              }
+            },
+            "id": 5,
+            "nodeType": "InheritanceSpecifier",
+            "src": "198:13:0"
+          }
+        ],
+        "contractDependencies": [
+          4903
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 82,
+        "linearizedBaseContracts": [
+          82,
+          4903
+        ],
+        "name": "AuctionManager",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7,
+            "name": "daiContract",
+            "nodeType": "VariableDeclaration",
+            "scope": 82,
+            "src": "219:17:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_ERC20_$3220",
+              "typeString": "contract ERC20"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 6,
+              "name": "ERC20",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 3220,
+              "src": "219:5:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_ERC20_$3220",
+                "typeString": "contract ERC20"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "canonicalName": "AuctionManager.AuctionType",
+            "id": 10,
+            "members": [
+              {
+                "id": 8,
+                "name": "controlledAuction",
+                "nodeType": "EnumValue",
+                "src": "261:17:0"
+              },
+              {
+                "id": 9,
+                "name": "privateAuction",
+                "nodeType": "EnumValue",
+                "src": "280:14:0"
+              }
+            ],
+            "name": "AuctionType",
+            "nodeType": "EnumDefinition",
+            "src": "243:52:0"
+          },
+          {
+            "canonicalName": "AuctionManager.BidStatus",
+            "id": 19,
+            "members": [
+              {
+                "id": 11,
+                "name": "committed",
+                "nodeType": "EnumValue",
+                "src": "321:9:0"
+              },
+              {
+                "id": 12,
+                "name": "revealed",
+                "nodeType": "EnumValue",
+                "src": "332:8:0"
+              },
+              {
+                "id": 13,
+                "name": "winner",
+                "nodeType": "EnumValue",
+                "src": "342:6:0"
+              },
+              {
+                "id": 14,
+                "name": "pending",
+                "nodeType": "EnumValue",
+                "src": "349:7:0"
+              },
+              {
+                "id": 15,
+                "name": "accepted",
+                "nodeType": "EnumValue",
+                "src": "358:8:0"
+              },
+              {
+                "id": 16,
+                "name": "rejected",
+                "nodeType": "EnumValue",
+                "src": "368:8:0"
+              },
+              {
+                "id": 17,
+                "name": "sale",
+                "nodeType": "EnumValue",
+                "src": "378:4:0"
+              },
+              {
+                "id": 18,
+                "name": "cancelled",
+                "nodeType": "EnumValue",
+                "src": "384:9:0"
+              }
+            ],
+            "name": "BidStatus",
+            "nodeType": "EnumDefinition",
+            "src": "305:89:0"
+          },
+          {
+            "canonicalName": "AuctionManager.AuctionStatus",
+            "id": 25,
+            "members": [
+              {
+                "id": 20,
+                "name": "commit",
+                "nodeType": "EnumValue",
+                "src": "420:6:0"
+              },
+              {
+                "id": 21,
+                "name": "reveal",
+                "nodeType": "EnumValue",
+                "src": "428:6:0"
+              },
+              {
+                "id": 22,
+                "name": "finalized",
+                "nodeType": "EnumValue",
+                "src": "436:9:0"
+              },
+              {
+                "id": 23,
+                "name": "open",
+                "nodeType": "EnumValue",
+                "src": "447:4:0"
+              },
+              {
+                "id": 24,
+                "name": "closed",
+                "nodeType": "EnumValue",
+                "src": "453:6:0"
+              }
+            ],
+            "name": "AuctionStatus",
+            "nodeType": "EnumDefinition",
+            "src": "400:60:0"
+          },
+          {
+            "canonicalName": "AuctionManager.Auction",
+            "id": 33,
+            "members": [
+              {
+                "constant": false,
+                "id": 27,
+                "name": "publication_Id",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "491:22:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "491:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 30,
+                "name": "auction_bid_ids",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "523:25:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                  "typeString": "uint256[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 28,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "523:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 29,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "523:9:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                    "typeString": "uint256[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 32,
+                "name": "status",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "558:20:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AuctionStatus_$25",
+                  "typeString": "enum AuctionManager.AuctionStatus"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 31,
+                  "name": "AuctionStatus",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 25,
+                  "src": "558:13:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AuctionStatus_$25",
+                    "typeString": "enum AuctionManager.AuctionStatus"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "Auction",
+            "nodeType": "StructDefinition",
+            "scope": 82,
+            "src": "466:119:0",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 35,
+            "name": "registry",
+            "nodeType": "VariableDeclaration",
+            "scope": 82,
+            "src": "591:16:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 34,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "591:7:0",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 46,
+              "nodeType": "Block",
+              "src": "637:92:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "id": 41,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "expression": {
+                            "argumentTypes": null,
+                            "id": 38,
+                            "name": "msg",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4918,
+                            "src": "655:3:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_magic_message",
+                              "typeString": "msg"
+                            }
+                          },
+                          "id": 39,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "sender",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": null,
+                          "src": "655:10:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address_payable",
+                            "typeString": "address payable"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "id": 40,
+                          "name": "registry",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 35,
+                          "src": "669:8:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "src": "655:22:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "43616e206f6e6c792062652063616c6c6564206279207265676973747279",
+                        "id": 42,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "678:32:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_f815976a9e063805a95bda15df7bcca1cf59592fa4720d7a8a2e651827dfdb73",
+                          "typeString": "literal_string \"Can only be called by registry\""
+                        },
+                        "value": "Can only be called by registry"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_f815976a9e063805a95bda15df7bcca1cf59592fa4720d7a8a2e651827dfdb73",
+                          "typeString": "literal_string \"Can only be called by registry\""
+                        }
+                      ],
+                      "id": 37,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        4921,
+                        4922
+                      ],
+                      "referencedDeclaration": 4922,
+                      "src": "647:7:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 43,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "647:64:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 44,
+                  "nodeType": "ExpressionStatement",
+                  "src": "647:64:0"
+                },
+                {
+                  "id": 45,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "721:1:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 47,
+            "name": "onlyRegistry",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 36,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "635:2:0"
+            },
+            "src": "614:115:0",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 66,
+              "nodeType": "Block",
+              "src": "849:94:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 60,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 56,
+                      "name": "daiContract",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7,
+                      "src": "859:11:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeString": "contract ERC20"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 58,
+                          "name": "_daiContractAddress",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 49,
+                          "src": "879:19:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 57,
+                        "name": "ERC20",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3220,
+                        "src": "873:5:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3220_$",
+                          "typeString": "type(contract ERC20)"
+                        }
+                      },
+                      "id": 59,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "873:26:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeString": "contract ERC20"
+                      }
+                    },
+                    "src": "859:40:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20_$3220",
+                      "typeString": "contract ERC20"
+                    }
+                  },
+                  "id": 61,
+                  "nodeType": "ExpressionStatement",
+                  "src": "859:40:0"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 64,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 62,
+                      "name": "registry",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 35,
+                      "src": "909:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 63,
+                      "name": "_unicoinRegistry",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 51,
+                      "src": "920:16:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "909:27:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 65,
+                  "nodeType": "ExpressionStatement",
+                  "src": "909:27:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 67,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 54,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 53,
+                  "name": "initializer",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 4884,
+                  "src": "833:11:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "833:11:0"
+              }
+            ],
+            "name": "initialize",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 52,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49,
+                  "name": "_daiContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "755:27:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 48,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "755:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 51,
+                  "name": "_unicoinRegistry",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "784:24:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 50,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "784:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "754:55:0"
+            },
+            "returnParameters": {
+              "id": 55,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "849:0:0"
+            },
+            "scope": 82,
+            "src": "735:208:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 80,
+              "nodeType": "Block",
+              "src": "1072:25:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "30",
+                    "id": 78,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1089:1:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_0_by_1",
+                      "typeString": "int_const 0"
+                    },
+                    "value": "0"
+                  },
+                  "functionReturnParameters": 77,
+                  "id": 79,
+                  "nodeType": "Return",
+                  "src": "1082:8:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 81,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "createAuction",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 74,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 69,
+                  "name": "_auctionType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "972:24:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AuctionType_$10",
+                    "typeString": "enum AuctionManager.AuctionType"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 68,
+                    "name": "AuctionType",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 10,
+                    "src": "972:11:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_AuctionType_$10",
+                      "typeString": "enum AuctionManager.AuctionType"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 71,
+                  "name": "_auctionFloor",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "998:21:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 70,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "998:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 73,
+                  "name": "_auctionStartTime",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "1021:25:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 72,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1021:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "971:76:0"
+            },
+            "returnParameters": {
+              "id": 77,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 76,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "1064:7:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 75,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1064:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1063:9:0"
+            },
+            "scope": 82,
+            "src": "949:148:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 83,
+        "src": "171:928:0"
+      }
+    ],
+    "src": "0:1099:0"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/chris/Projects/unicoindapp/contracts/AuctionManager.sol",
+    "exportedSymbols": {
+      "AuctionManager": [
+        82
+      ]
+    },
+    "id": 83,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:0"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+        "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+        "id": 2,
+        "nodeType": "ImportDirective",
+        "scope": 83,
+        "sourceUnit": 3221,
+        "src": "25:82:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/upgrades/contracts/Initializable.sol",
+        "file": "@openzeppelin/upgrades/contracts/Initializable.sol",
+        "id": 3,
+        "nodeType": "ImportDirective",
+        "scope": 83,
+        "sourceUnit": 4904,
+        "src": "109:60:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 4,
+              "name": "Initializable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 4903,
+              "src": "198:13:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Initializable_$4903",
+                "typeString": "contract Initializable"
+              }
+            },
+            "id": 5,
+            "nodeType": "InheritanceSpecifier",
+            "src": "198:13:0"
+          }
+        ],
+        "contractDependencies": [
+          4903
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 82,
+        "linearizedBaseContracts": [
+          82,
+          4903
+        ],
+        "name": "AuctionManager",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7,
+            "name": "daiContract",
+            "nodeType": "VariableDeclaration",
+            "scope": 82,
+            "src": "219:17:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_ERC20_$3220",
+              "typeString": "contract ERC20"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 6,
+              "name": "ERC20",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 3220,
+              "src": "219:5:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_ERC20_$3220",
+                "typeString": "contract ERC20"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "canonicalName": "AuctionManager.AuctionType",
+            "id": 10,
+            "members": [
+              {
+                "id": 8,
+                "name": "controlledAuction",
+                "nodeType": "EnumValue",
+                "src": "261:17:0"
+              },
+              {
+                "id": 9,
+                "name": "privateAuction",
+                "nodeType": "EnumValue",
+                "src": "280:14:0"
+              }
+            ],
+            "name": "AuctionType",
+            "nodeType": "EnumDefinition",
+            "src": "243:52:0"
+          },
+          {
+            "canonicalName": "AuctionManager.BidStatus",
+            "id": 19,
+            "members": [
+              {
+                "id": 11,
+                "name": "committed",
+                "nodeType": "EnumValue",
+                "src": "321:9:0"
+              },
+              {
+                "id": 12,
+                "name": "revealed",
+                "nodeType": "EnumValue",
+                "src": "332:8:0"
+              },
+              {
+                "id": 13,
+                "name": "winner",
+                "nodeType": "EnumValue",
+                "src": "342:6:0"
+              },
+              {
+                "id": 14,
+                "name": "pending",
+                "nodeType": "EnumValue",
+                "src": "349:7:0"
+              },
+              {
+                "id": 15,
+                "name": "accepted",
+                "nodeType": "EnumValue",
+                "src": "358:8:0"
+              },
+              {
+                "id": 16,
+                "name": "rejected",
+                "nodeType": "EnumValue",
+                "src": "368:8:0"
+              },
+              {
+                "id": 17,
+                "name": "sale",
+                "nodeType": "EnumValue",
+                "src": "378:4:0"
+              },
+              {
+                "id": 18,
+                "name": "cancelled",
+                "nodeType": "EnumValue",
+                "src": "384:9:0"
+              }
+            ],
+            "name": "BidStatus",
+            "nodeType": "EnumDefinition",
+            "src": "305:89:0"
+          },
+          {
+            "canonicalName": "AuctionManager.AuctionStatus",
+            "id": 25,
+            "members": [
+              {
+                "id": 20,
+                "name": "commit",
+                "nodeType": "EnumValue",
+                "src": "420:6:0"
+              },
+              {
+                "id": 21,
+                "name": "reveal",
+                "nodeType": "EnumValue",
+                "src": "428:6:0"
+              },
+              {
+                "id": 22,
+                "name": "finalized",
+                "nodeType": "EnumValue",
+                "src": "436:9:0"
+              },
+              {
+                "id": 23,
+                "name": "open",
+                "nodeType": "EnumValue",
+                "src": "447:4:0"
+              },
+              {
+                "id": 24,
+                "name": "closed",
+                "nodeType": "EnumValue",
+                "src": "453:6:0"
+              }
+            ],
+            "name": "AuctionStatus",
+            "nodeType": "EnumDefinition",
+            "src": "400:60:0"
+          },
+          {
+            "canonicalName": "AuctionManager.Auction",
+            "id": 33,
+            "members": [
+              {
+                "constant": false,
+                "id": 27,
+                "name": "publication_Id",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "491:22:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "491:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 30,
+                "name": "auction_bid_ids",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "523:25:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                  "typeString": "uint256[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 28,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "523:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 29,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "523:9:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                    "typeString": "uint256[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 32,
+                "name": "status",
+                "nodeType": "VariableDeclaration",
+                "scope": 33,
+                "src": "558:20:0",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AuctionStatus_$25",
+                  "typeString": "enum AuctionManager.AuctionStatus"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 31,
+                  "name": "AuctionStatus",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 25,
+                  "src": "558:13:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AuctionStatus_$25",
+                    "typeString": "enum AuctionManager.AuctionStatus"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "Auction",
+            "nodeType": "StructDefinition",
+            "scope": 82,
+            "src": "466:119:0",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 35,
+            "name": "registry",
+            "nodeType": "VariableDeclaration",
+            "scope": 82,
+            "src": "591:16:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 34,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "591:7:0",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 46,
+              "nodeType": "Block",
+              "src": "637:92:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "id": 41,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "expression": {
+                            "argumentTypes": null,
+                            "id": 38,
+                            "name": "msg",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4918,
+                            "src": "655:3:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_magic_message",
+                              "typeString": "msg"
+                            }
+                          },
+                          "id": 39,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "sender",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": null,
+                          "src": "655:10:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address_payable",
+                            "typeString": "address payable"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "id": 40,
+                          "name": "registry",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 35,
+                          "src": "669:8:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "src": "655:22:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "43616e206f6e6c792062652063616c6c6564206279207265676973747279",
+                        "id": 42,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "678:32:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_f815976a9e063805a95bda15df7bcca1cf59592fa4720d7a8a2e651827dfdb73",
+                          "typeString": "literal_string \"Can only be called by registry\""
+                        },
+                        "value": "Can only be called by registry"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_f815976a9e063805a95bda15df7bcca1cf59592fa4720d7a8a2e651827dfdb73",
+                          "typeString": "literal_string \"Can only be called by registry\""
+                        }
+                      ],
+                      "id": 37,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        4921,
+                        4922
+                      ],
+                      "referencedDeclaration": 4922,
+                      "src": "647:7:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 43,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "647:64:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 44,
+                  "nodeType": "ExpressionStatement",
+                  "src": "647:64:0"
+                },
+                {
+                  "id": 45,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "721:1:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 47,
+            "name": "onlyRegistry",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 36,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "635:2:0"
+            },
+            "src": "614:115:0",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 66,
+              "nodeType": "Block",
+              "src": "849:94:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 60,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 56,
+                      "name": "daiContract",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7,
+                      "src": "859:11:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeString": "contract ERC20"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 58,
+                          "name": "_daiContractAddress",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 49,
+                          "src": "879:19:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 57,
+                        "name": "ERC20",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3220,
+                        "src": "873:5:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_ERC20_$3220_$",
+                          "typeString": "type(contract ERC20)"
+                        }
+                      },
+                      "id": 59,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "873:26:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ERC20_$3220",
+                        "typeString": "contract ERC20"
+                      }
+                    },
+                    "src": "859:40:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20_$3220",
+                      "typeString": "contract ERC20"
+                    }
+                  },
+                  "id": 61,
+                  "nodeType": "ExpressionStatement",
+                  "src": "859:40:0"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 64,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 62,
+                      "name": "registry",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 35,
+                      "src": "909:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 63,
+                      "name": "_unicoinRegistry",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 51,
+                      "src": "920:16:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "909:27:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 65,
+                  "nodeType": "ExpressionStatement",
+                  "src": "909:27:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 67,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 54,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 53,
+                  "name": "initializer",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 4884,
+                  "src": "833:11:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "833:11:0"
+              }
+            ],
+            "name": "initialize",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 52,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49,
+                  "name": "_daiContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "755:27:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 48,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "755:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 51,
+                  "name": "_unicoinRegistry",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 67,
+                  "src": "784:24:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 50,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "784:7:0",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "754:55:0"
+            },
+            "returnParameters": {
+              "id": 55,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "849:0:0"
+            },
+            "scope": 82,
+            "src": "735:208:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 80,
+              "nodeType": "Block",
+              "src": "1072:25:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "30",
+                    "id": 78,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1089:1:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_0_by_1",
+                      "typeString": "int_const 0"
+                    },
+                    "value": "0"
+                  },
+                  "functionReturnParameters": 77,
+                  "id": 79,
+                  "nodeType": "Return",
+                  "src": "1082:8:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 81,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "createAuction",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 74,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 69,
+                  "name": "_auctionType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "972:24:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AuctionType_$10",
+                    "typeString": "enum AuctionManager.AuctionType"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 68,
+                    "name": "AuctionType",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 10,
+                    "src": "972:11:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_AuctionType_$10",
+                      "typeString": "enum AuctionManager.AuctionType"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 71,
+                  "name": "_auctionFloor",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "998:21:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 70,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "998:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 73,
+                  "name": "_auctionStartTime",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "1021:25:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 72,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1021:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "971:76:0"
+            },
+            "returnParameters": {
+              "id": 77,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 76,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 81,
+                  "src": "1064:7:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 75,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1064:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1063:9:0"
+            },
+            "scope": 82,
+            "src": "949:148:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 83,
+        "src": "171:928:0"
+      }
+    ],
+    "src": "0:1099:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.8+commit.23d335f2.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.0.16",
+  "updatedAt": "2019-11-21T13:46:52.107Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

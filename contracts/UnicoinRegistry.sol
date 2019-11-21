@@ -4,12 +4,26 @@ pragma solidity ^0.5.0;
 /// @author Chris Maree
 
 /// @dev import contracts from openzeppelin related to ownable and ERC20, ERC721 tokens
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "./AuctionManager.sol";
+import "./LicenceManager.sol";
+import "./PublicationManager.sol";
+import "./UserManager.sol";
+
 contract UnicoinRegistry is Initializable, GSNRecipient {
-    /// @notice Creates a struct for users of the plaform, needs their Ethereum address and profile URL
+    
+    address owner;
+    
+    AuctionManager private auctionManager;
+    LicenceManager private licenceManager;
+    PublicationManager private publicationManager;
+    UserManager private userManager;
+
+    
+    /// @notice struct for users of the plaform, needs their Ethereum address and profile URL
     struct User {
         address owned_address;
         string profile_uri;
@@ -127,17 +141,20 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         public
         initializer
     {
-        users.push(User(address(0), ""));
-        licences.push(LicenceDesign(0, 0, 0));
+        // users.push(User(address(0), ""));
+        // licences.push(LicenceDesign(0, 0, 0));    
 
-        daiContract = ERC20(_daiContractAddress);
+        owner = msg.sender;
+    }
 
-        licenceNFT = ERC721Metadata("UniCoin Licence", "UNIC");
+    function setOwner(address _owner) public {
+        require(owner == msg.sender, "Only owner can change the ");
+        owner = _owner;
     }
 
     /// @notice This function registers a user on the platform by taking in their profile URL
     /// @param _profile_uri user profile url
-    /// @dev If the user's address is in position 0 of the userAddresses array, they are unregistered
+    /// @dev If the user's addresowners is in position 0 of the userAddresses array, they are unregistered
     /// @dev Create an instance of the user and add the Id to their address
     function registerUser(string memory _profile_uri) public {
         require(
@@ -272,7 +289,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             );
             licenceOwners[bids[_id].owner_Id].push(_licence_Id);
             publicationLicences[_publication_Id].push(_licence_Id);
-            licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
+            // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
 
             emit NewBid(msg.sender, _publication_Id, _offer);
         }
@@ -304,7 +321,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
         licenceOwners[bids[_id].owner_Id].push(_licence_Id);
         publicationLicences[_publication_Id].push(_licence_Id);
-        licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
+        // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
 
         emit AcceptedBid(msg.sender, _id);
     }

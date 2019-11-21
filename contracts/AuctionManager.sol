@@ -4,11 +4,6 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-import "./ControlledAuction.sol";
-import "./PrivateAuction.sol";
-import "./fixedRateSale.sol";
-
-
 contract AuctionManager is Initializable {
 
     ERC20 daiContract;
@@ -25,11 +20,19 @@ contract AuctionManager is Initializable {
         AuctionStatus status;
     }
 
-    function initialize(address _daiContractAddress)
+    address registry;
+
+    modifier onlyRegistry(){
+        require(msg.sender == registry,"Can only be called by registry");
+        _;
+    }
+
+    function initialize(address _daiContractAddress, address _unicoinRegistry)
         public
         initializer
     {
         daiContract = ERC20(_daiContractAddress);
+        registry = _unicoinRegistry;
     }
 
     function createAuction(AuctionType _auctionType, uint256 _auctionFloor, uint256 _auctionStartTime) public returns (uint256){
