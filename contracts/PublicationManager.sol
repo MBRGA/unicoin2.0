@@ -3,14 +3,15 @@ pragma solidity ^0.5.0;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract PublicationManager is Initializable {
-    enum PricingStratergy {fixedRate, controlledAuction, privateAuction}
+    enum PricingStratergy {controlledAuction, privateAuction, fixedRate}
 
     struct Publication {
-        uint256 author_id; //id of the auther
-        string publication_uri; //IPFS blob address of the publication
-        uint256[] auction_ids; //ids of bids on the publication
         PricingStratergy pricingStratergy;
+        string publication_uri; //IPFS blob address of the publication
+        uint256 author_id; //id of the auther
         uint256 sell_price;
+        uint256 maxNumberOfLicences;
+        uint256[] auction_ids; //ids of bids on the publication
         uint256[] contributors;
         uint256[] contributors_weightings;
     }
@@ -38,27 +39,38 @@ contract PublicationManager is Initializable {
     }
 
     function _createPublication(
+        uint8 _pricing_stratergy,
         string memory _publication_uri,
         uint256 _author_id,
-        uint8 _pricing_stratergy,
+        uint256 fixed_sell_price,
+        uint256 _maxNumberOfLicences,
         uint256[] memory _contributors,
-        uint256[] memory _contributors_weightings
+        uint256[] memory _contributors_weightings,
     ) public onlyRegistry returns (uint256) {
         require(
             bytes(_publication_uri).length > 0,
             "Publication URI should not be empty."
         );
 
+        if(PricingStratergy(_pricing_stratergy) == PricingStratergy.fixedRate){
+            require(fixed_sell_price >= 0, "Fixed sell price cant be zero");
+        }
+        else {
+            require(fixed_sell_price == 0, "Fixed sell price must be zero for auction");
+        }
+        
         uint256[] memory auction_ids;
-        Publication memory _publication = Publication(
-            _author_id,
-            _publication_uri,
-            auction_ids,
+        Publication memory publication = Publication(
             PricingStratergy(_pricing_stratergy),
+            _publication_uri,
+            _author_id,
+            _fixed_sell_price,
+            _maxNumberOfLicences
+            auction_ids,
             _contributors,
-            _contributors_weightings
+            _contributors_weightings,
         );
-        uint256 publicationId = publications.push(_publication) - 1;
+        uint256 publicationId = publications.push(publication) - 1;
         publicationOwners[_author_id].push(publicationId);
 
         emit NewPublication(

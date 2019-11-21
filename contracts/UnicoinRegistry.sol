@@ -21,7 +21,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     PublicationManager private publicationManager;
     UserManager private userManager;
 
-    enum PricingStratergy {fixedRate, controlledAuction, privateAuction}
+    enum PricingStratergy {controlledAuction, privateAuction, fixedRate}
 
     enum AuctionType {controlledAuction, privateAuction}
 
@@ -176,19 +176,21 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
         uint256 author_id = getCallerId();
         uint256 publicationId = publicationManager._createPublication(
+            _pricing_stratergy,
             _publication_uri,
             author_id,
-            _pricing_stratergy,
+            fixed_sell_price,
+            maxNumberOfLicences,
             _contributors,
             _contributors_weightings
         );
 
         if (
-            PricingStratergy(_pricing_stratergy) ==
-            PricingStratergy.privateAuction
+            PricingStratergy(_pricing_stratergy) != PricingStratergy.fixedRate
         ) {
             uint256 auctionId = auctionManager._createAuction(
-                AuctionType.privateAuction,
+                publicationId,
+                _pricing_stratergy,
                 _auctionFloor,
                 _auctionStartTime,
                 _auctionDuration
