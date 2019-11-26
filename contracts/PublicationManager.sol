@@ -13,7 +13,7 @@ contract PublicationManager is Initializable {
         uint256 maxNumberOfLicences;
         uint256[] auction_ids; //ids of bids on the publication
         uint256[] contributors;
-        uint256[] contributors_weightings;
+        uint256[] contributors_weightings; //scaled by 1e2 to repres entat
     }
     /// @notice Creates an array of publications for every published document
     Publication[] public publications;
@@ -86,7 +86,11 @@ contract PublicationManager is Initializable {
         publications[_publicationId].auction_ids.push(_auctionId);
     }
 
-    function _getPublicationAuthorId(uint256 _publication_Id) public view returns (uint256) {
+    function _getAuthorId(uint256 _publication_Id) public view returns (uint256) {
         return publications[_publication_Id].author_id;
+    }
+
+    function _getContributers(uint256 _publication_Id) public view returns (uint256[] memory, uint256[] memory) {
+        return (publications[_publication_Id].contributors, publications[_publication_Id].contributors_weightings);
     }
 }
