@@ -169,7 +169,7 @@ contract AuctionManager is Initializable {
         }
 
         if(leadingBid > 0) {
-            auction[_auction_Id].status = AuctionStatus.Finalized;
+            auctions[_auction_Id].status = AuctionStatus.Finalized;
             auctions[_auction_Id].winning_bid_Id = leadingBid;
         }
 
