@@ -142,7 +142,7 @@ contract AuctionManager is Initializable {
     function finalizeAuction(uint256 _auction_Id)
         public
         onlyRegistry
-        returns (uint256, uint256)
+        returns (uint256, uint256, uint256)
     {
         require(
             getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
@@ -173,7 +173,7 @@ contract AuctionManager is Initializable {
             auctions[_auction_Id].winning_bid_Id = leadingBid;
         }
 
-        return (leadingBidAmount, bids[leadingBid].bidder_Id);
+        return (leadingBidAmount, bids[leadingBid].bidder_Id, auction.publication_Id);
     }
 
     function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
