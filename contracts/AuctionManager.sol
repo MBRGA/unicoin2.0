@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 
@@ -54,7 +54,7 @@ contract AuctionManager is Initializable {
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration
-    ) public returns (uint256) {
+    ) public onlyRegistry returns (uint256) {
         require(
             _auctionStartTime >= now,
             "AuctionManager::Invalid auction start time"
@@ -82,7 +82,7 @@ contract AuctionManager is Initializable {
         bytes32 _bidHash,
         uint256 _auction_Id,
         uint256 _bidder_Id
-    ) public returns (uint256) {
+    ) public onlyRegistry returns (uint256) {
         Auction memory auction = auctions[_auction_Id];
         require(
             auction.status == AuctionStatus.Commit,
@@ -99,12 +99,40 @@ contract AuctionManager is Initializable {
         );
         uint256 bidId = bids.push(bid) - 1;
         auctions[_auction_Id].auction_bid_ids.push(bidId);
+        // TODO: check that the toke aproval is sufficient for the bid
     }
 
-    function revealSealedBid(uint256 _bidHash, uint256 _auction_Id)
-        public
-        returns (uint256)
-    {
-        return 0;
+    function revealSealedBid(
+        uint256 _bid,
+        uint256 _salt,
+        uint256 _auction_Id,
+        uint256 _bid_Id,
+        uint256 _bidder_Id
+    ) public onlyRegistry returns (uint256) {
+        Auction memory auction = auctions[_auction_Id];
+        Bid memory bid = bids[_bid_Id];
+        require(
+            auction.status == AuctionStatus.Reveal,
+            "Can only commit during the commit phase"
+        );
+        require(
+            bid.bidder_Id == _bidder_Id,
+            "Only the bidder can reveal their bid"
+        );
+        require(
+            bid.status == BidStatus.Committed,
+            "Can only reveal a committed bid"
+        );
+
+        bytes32 revealedBidHash = keccak256(abi.encode(_bid, _salt));
+
+        require(
+            bid.commitBid == revealedBidHash,
+            "Committed bid does not match the revealed bid"
+        );
+
+        bids[_bid_Id].revealedBid = _bid;
+        bids[_bid_Id].revealedSalt = _salt;
+        bids[_bid_Id].status = BidStatus.Revealed;
     }
 }
