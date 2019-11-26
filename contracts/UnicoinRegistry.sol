@@ -51,9 +51,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     /// @notice Creates an array of bids that have been placed
     Bid[] public bids;
 
-    /// @notice The mapping below maps all bidders' IDs to their userID
-    mapping(uint256 => uint256[]) public bidOwners;
-
     struct Publication {
         uint256 author_Id;
         string publication_uri;
@@ -207,18 +204,21 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         }
     }
 
-    function commitSealedBid(uint256 _bidHash, uint256 _publication_Id)
+    function commitSealedBid(bytes32 _bidHash, uint256 _publication_Id)
         public
-        returns (uint256)
     {
-        return 0;
+        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
+        uint256 bidder_Id = getCallerId();
+        auctionManager.commitSealedBid(_bidHash, auction_Id, bidder_Id);
     }
 
-    function revealSealedBid(uint256 _bidHash, uint256 _publication_Id)
+    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publication_Id, uint256 _bid_Id)
         public
         returns (uint256)
     {
-        return 0;
+        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
+        uint256 bidder_Id = getCallerId();
+        auctionManager.revealSealedBid(_bid,_salt, auction_Id, _bid_Id, bidder_Id);
     }
 
     function finalizeAuction(uint256 _auction_Id) public returns (uint256) {
@@ -525,7 +525,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     }
 
     function getCallerId() public view returns (uint256) {
-        return userManager._getUserId(msg.sender);
+        uint256 callerId = userManager._getUserId(msg.sender);
+        require(callerId != 0, "Caller is not registred!");
     }
 
     function getUserAddress(uint256 _user_Id) public view returns (address) {
@@ -539,5 +540,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     {
         address userAddress = getUserAddress(_user_Id);
         return vault.canBidderPay(userAddress, _amount);
+    }
+
+    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
+        return auctionManager.getBidderBids;
     }
 }
