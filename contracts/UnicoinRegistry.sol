@@ -44,7 +44,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         uint256 offer;
         bidStatus status;
         uint256 publication_Id;
-        uint256 owner_Id; /// @dev owner of the bid
+        uint256 owner_Id; // owner of the bid
     }
     /// @notice Creates an array of bids that have been placed
     Bid[] public bids;
@@ -202,6 +202,20 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                 auctionId
             );
         }
+    }
+
+    function commitSealedBid(uint256 _bidHash, uint256 _publication_Id)
+        public
+        returns (uint256)
+    {
+        return 0;
+    }
+
+    function revealSealedBid(uint256 _bidHash, uint256 _publication_Id)
+        public
+        returns (uint256)
+    {
+        return 0;
     }
 
     function makeBid(uint256 _offer, uint256 _publication_Id) public {

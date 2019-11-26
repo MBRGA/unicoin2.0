@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract PublicationManager is Initializable {
-    enum PricingStratergy {controlledAuction, privateAuction, fixedRate}
+    enum PricingStratergy {PrivateAuction, FixedRate}
 
     struct Publication {
         PricingStratergy pricingStratergy;
@@ -52,7 +52,7 @@ contract PublicationManager is Initializable {
             "Publication URI should not be empty."
         );
 
-        if(PricingStratergy(_pricing_stratergy) == PricingStratergy.fixedRate){
+        if(PricingStratergy(_pricing_stratergy) == PricingStratergy.FixedRate){
             require(_fixed_sell_price >= 0, "Fixed sell price cant be zero");
         }
         else {
