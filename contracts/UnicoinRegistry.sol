@@ -196,7 +196,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         ) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
-                _pricing_stratergy,
                 _auctionFloor,
                 _auctionStartTime,
                 _auctionDuration
@@ -223,14 +222,41 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     }
 
     function finalizeAuction(uint256 _auction_Id) public returns (uint256) {
-        (uint256 winningBidAmount, uint256 winningBidId, uint256 publicationId) = auctionManager.finalizeAuction(_auction_Id);
-        
-        uint256 publicationAuthorId = publicationManager._getPublicationAuthorId(publicationId);
-        address publicationAutherAddress = userManager._getUserAddress(publicationAuthorId);
+        (uint256 winningBidAmount, uint256 winningBidId, uint256 publicationId) = auctionManager
+            .finalizeAuction(_auction_Id);
+
+        require(winningBidAmount > 0, "Invalid winning bid amount");
+        require(winningBidId > 0, "Invalid winning bid Id");
+        require(publicationId > 0, "Invalid publication Id");
+
+        uint256 authorId = publicationManager._getAuthorId(publicationId);
+        address authorAddress = userManager._getUserAddress(authorId);
         address winningBidAddress = userManager._getUserAddress(winningBidId);
 
-        vault.settlePayment(winningBidAddress, publicationAutherAddress, winningBidAmount);
-        return 0;
+        (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
+            ._getContributers(publicationId);
+
+        address[] memory contributorAddresses = userManager.getAddressArray(
+            contributorIds
+        );
+
+        uint256 totalPaidToContributors = 0;
+        for (uint256 i = 0; i < contributorAddresses.length; i++) {
+            uint256 amountToPay = (winningBidAmount *
+                contributorWeightings[i]) /
+                1e2;
+            totalPaidToContributors += contributorWeightings[i];
+            vault.settlePayment(
+                winningBidAddress,
+                contributorAddresses[i],
+                amountToPay
+            );
+        }
+
+        uint256 authorAmount = ((1e2 - totalPaidToContributors) *
+            winningBidAmount) /
+            1e2;
+        vault.settlePayment(winningBidAddress, authorAddress, authorAmount);
     }
 
     /// @notice This function allows the auctioneer to accept the bids
@@ -506,7 +532,11 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return userManager._getUserAddress(_user_Id);
     }
 
-    function canBidderPay(uint256 _user_Id,uint256 _amount) public view returns (bool) {
+    function canBidderPay(uint256 _user_Id, uint256 _amount)
+        public
+        view
+        returns (bool)
+    {
         address userAddress = getUserAddress(_user_Id);
         return vault.canBidderPay(userAddress, _amount);
     }
