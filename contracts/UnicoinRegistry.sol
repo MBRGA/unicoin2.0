@@ -12,6 +12,7 @@ import "./AuctionManager.sol";
 import "./LicenceManager.sol";
 import "./PublicationManager.sol";
 import "./UserManager.sol";
+import "./Vault.sol";
 
 contract UnicoinRegistry is Initializable, GSNRecipient {
     address owner;
@@ -129,7 +130,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         address _auctionManager,
         address _licenceManager,
         address _publicationManager,
-        address _userManager
+        address _userManager,
+        address _vault
     ) public initializer {
         // users.push(User(address(0), ""));
         // licences.push(LicenceDesign(0, 0, 0));
@@ -140,6 +142,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         licenceManager = LicenceManager(_licenceManager);
         publicationManager = PublicationManager(_publicationManager);
         userManager = UserManager(_userManager);
+        vault = Vault(_vault);
 
     }
 
@@ -218,69 +221,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return 0;
     }
 
-    function makeBid(uint256 _offer, uint256 _publication_Id) public {
-        // auctionManager.makeBid
-        // require(
-        //     publications[_publication_Id].author_Id != 0,
-        //     "Publication not enlisted."
-        // );
-        // require(
-        //     userAddresses[msg.sender] != 0,
-        //     "Bidder address is not registered."
-        // );
-        // if (publications[_publication_Id].isAuction) {
-        //     require(
-        //         publications[_publication_Id].isRunning,
-        //         "Auction is not running."
-        //     );
-        //     uint256 _id = bids.push(
-        //         Bid(
-        //             _offer,
-        //             bidStatus.Pending,
-        //             _publication_Id,
-        //             userAddresses[msg.sender]
-        //         )
-        //     );
-        //     publications[_publication_Id].publication_bids.push(_id - 1);
-        //     bidOwners[userAddresses[msg.sender]].push(_id - 1);
-        //     emit NewBid(msg.sender, _publication_Id, _offer);
-        // }
-        // if (!publications[_publication_Id].isAuction) {
-        //     require(
-        //         _offer == publications[_publication_Id].sell_price,
-        //         "Incorrect funds sent."
-        //     );
-        //     uint256 _id = bids.push(
-        //         Bid(
-        //             _offer,
-        //             bidStatus.Sale,
-        //             _publication_Id,
-        //             userAddresses[msg.sender]
-        //         )
-        //     ) -
-        //         1;
-        //     publications[_publication_Id].publication_bids.push(_id);
-        //     bidOwners[userAddresses[msg.sender]].push(_id);
-        //     require(
-        //         daiContract.allowance(msg.sender, address(this)) >= _offer,
-        //         "Insufficient fund allowance"
-        //     );
-        //     address publisherAddress = users[publications[_publication_Id]
-        //         .author_Id]
-        //         .owned_address;
-        //     require(
-        //         daiContract.transferFrom(msg.sender, publisherAddress, _offer),
-        //         "dai Transfer failed"
-        //     );
-        //     uint256 _licence_Id = licences.push(
-        //         LicenceDesign(bids[_id].owner_Id, _publication_Id, _id)
-        //     );
-        //     licenceOwners[bids[_id].owner_Id].push(_licence_Id);
-        //     publicationLicences[_publication_Id].push(_licence_Id);
-        //     // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
-        //     emit NewBid(msg.sender, _publication_Id, _offer);
-        // }
-    }
+
 
     /// @notice This function allows the auctioneer to accept the bids
     /// @dev parameters of licence design: buyer_id, publication id, bid_id
@@ -549,5 +490,14 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     function getCallerId() public view returns (uint256) {
         return userManager._getUserId(msg.sender);
+    }
+
+    function getUserAddress(uint256 _user_Id) public view returns (address) {
+        return userManager._getUserAddress(_user_Id);
+    }
+
+    function canBidderPay(uint256 _user_Id,uint256 _amount) public view returns (bool) {
+        address userAddress = getUserAddress(_user_Id);
+        return vault.canBidderPay(userAddress, _amount);
     }
 }
