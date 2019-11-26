@@ -32,8 +32,8 @@ contract AuctionManager is Initializable {
         uint256 auction_Id;
         uint256 bidder_Id; // owner of the bid
     }
-    /// @notice Creates an array of bids that have been placed
-    Bid[] public bids;
+    // Maps all bidders' IDs to their userID
+    mapping(uint256 => uint256[]) public bidOwners;
 
     address registry;
 
@@ -103,7 +103,9 @@ contract AuctionManager is Initializable {
         );
         uint256 bidId = bids.push(bid) - 1;
         auctions[_auction_Id].auction_bid_ids.push(bidId);
-        // TODO: check that the toke aproval is sufficient for the bid
+        bidOwners[_bidder_Id].push(_bidder_Id);
+
+        return bidId;
     }
 
     function revealSealedBid(
@@ -192,5 +194,9 @@ contract AuctionManager is Initializable {
             auctions[_auction_Id].status = AuctionStatus.Reveal;
             return AuctionStatus.Reveal;
         }
+    }
+
+    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
+        return bidOwners[_bidder_Id];
     }
 }
