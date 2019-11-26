@@ -23,4 +23,10 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
 
         registry = _unicoinRegistry;
     }
+
+    function registerNewLicence(address _ownerAddress, uint256 _licence_Id) public onlyRegistry returns (uint256) {
+        return 0;
+        // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
+    }
+
 }
