@@ -459,27 +459,17 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         public
         view
         returns (
-            uint256,
+            uint8,
             string memory,
-            uint256[] memory,
-            bool,
-            bool,
             uint256,
+            uint256,
+            uint256,
+            uint256[] memory,
             uint256[] memory,
             uint256[] memory
         )
     {
-        Publication memory _publication = publications[_publication_Id];
-        return (
-            _publication.author_Id,
-            _publication.publication_uri,
-            _publication.publication_bids,
-            _publication.isAuction,
-            _publication.isRunning,
-            _publication.sell_price,
-            _publication.contributors,
-            _publication.contributors_weightings
-        );
+        return (publicationManager.getPublication(_publication_Id));
     }
 
     /// @return get the licences per owner

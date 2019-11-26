@@ -97,4 +97,41 @@ contract PublicationManager is Initializable {
     function getLatestAuctionId(uint256 _publication_Id) public view returns (uint256) {
         return publications[_publication_Id].auction_ids[publications[_publication_Id].auction_ids.length - 1];
     }
+
+
+        // PricingStratergy pricingStratergy;
+        // string publication_uri; //IPFS blob address of the publication
+        // uint256 author_id; //id of the auther
+        // uint256 sell_price;
+        // uint256 maxNumberOfLicences;
+        // uint256[] auction_ids; //ids of bids on the publication
+        // uint256[] contributors;
+        // uint256[] contributors_weightings; //scaled by 1e2 to repres entat
+
+    function getPublication(uint256 _publication_Id)
+        public
+        view
+        returns (
+            uint8,
+            string memory,
+            uint256,
+            uint256,
+            uint256,
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory
+        )
+    {
+        Publication memory _publication = publications[_publication_Id];
+        return (
+            uint8(_publication.pricingStratergy),
+            _publication.publication_uri,
+            _publication.author_id,
+            _publication.sell_price,
+            _publication.maxNumberOfLicences,
+            _publication.auction_ids,
+            _publication.contributors,
+            _publication.contributors_weightings
+        );
+    }
 }
