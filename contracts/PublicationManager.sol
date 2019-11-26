@@ -93,4 +93,8 @@ contract PublicationManager is Initializable {
     function _getContributers(uint256 _publication_Id) public view returns (uint256[] memory, uint256[] memory) {
         return (publications[_publication_Id].contributors, publications[_publication_Id].contributors_weightings);
     }
+
+    function getLatestAuctionId(uint256 _publication_Id) public view returns (uint256) {
+        return publications[_publication_Id].auction_ids[publications[_publication_Id].auction_ids.length - 1];
+    }
 }
