@@ -21,6 +21,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     LicenceManager private licenceManager;
     PublicationManager private publicationManager;
     UserManager private userManager;
+    Vault private vault;
 
     enum PricingStratergy {controlledAuction, privateAuction, fixedRate}
 
@@ -221,7 +222,16 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return 0;
     }
 
+    function finalizeAuction(uint256 _auction_Id) public returns (uint256) {
+        (uint256 winningBidAmount, uint256 winningBidId, uint256 publicationId) = auctionManager.finalizeAuction(_auction_Id);
+        
+        uint256 publicationAuthorId = publicationManager._getPublicationAuthorId(publicationId);
+        address publicationAutherAddress = userManager._getUserAddress(publicationAuthorId);
+        address winningBidAddress = userManager._getUserAddress(winningBidId);
 
+        vault.settlePayment(winningBidAddress, publicationAutherAddress, winningBidAmount);
+        return 0;
+    }
 
     /// @notice This function allows the auctioneer to accept the bids
     /// @dev parameters of licence design: buyer_id, publication id, bid_id

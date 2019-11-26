@@ -29,7 +29,7 @@ contract PublicationManager is Initializable {
     }
 
     event NewPublication(
-        uint256 indexed _author_id,
+        uint256 indexed _author_Id,
         string _publication_uri,
         PricingStratergy _pricingStratergy
     );
@@ -41,7 +41,7 @@ contract PublicationManager is Initializable {
     function _createPublication(
         uint8 _pricing_stratergy,
         string memory _publication_uri,
-        uint256 _author_id,
+        uint256 _author_Id,
         uint256 _fixed_sell_price,
         uint256 _maxNumberOfLicences,
         uint256[] memory _contributors,
@@ -63,7 +63,7 @@ contract PublicationManager is Initializable {
         Publication memory publication = Publication(
             PricingStratergy(_pricing_stratergy),
             _publication_uri,
-            _author_id,
+            _author_Id,
             _fixed_sell_price,
             _maxNumberOfLicences,
             auction_ids,
@@ -71,10 +71,10 @@ contract PublicationManager is Initializable {
             _contributors_weightings
         );
         uint256 publicationId = publications.push(publication) - 1;
-        publicationOwners[_author_id].push(publicationId);
+        publicationOwners[_author_Id].push(publicationId);
 
         emit NewPublication(
-            _author_id,
+            _author_Id,
             _publication_uri,
             PricingStratergy(_pricing_stratergy)
         );
@@ -84,5 +84,9 @@ contract PublicationManager is Initializable {
 
     function _addAuctionToPublication(uint256 _publicationId, uint256 _auctionId) public onlyRegistry{
         publications[_publicationId].auction_ids.push(_auctionId);
+    }
+
+    function _getPublicationAuthorId(uint256 _publication_Id) public view returns (uint256) {
+        return publications[_publication_Id].author_id;
     }
 }
