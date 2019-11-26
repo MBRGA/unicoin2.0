@@ -51,4 +51,12 @@ contract UserManager is Initializable {
     function _getUserAddress(uint256 _user_Id) public view returns (address) {
         return users[_user_Id].owned_address;
     }
+
+    function getAddressArray(uint256[] memory _user_Ids) public view returns (address[] memory) {
+        address[] memory returnedAddresses;
+        for(uint256 i = 0; i < _user_Ids.length; i++) {
+            returnedAddresses[i] = (_getUserAddress(_user_Ids[i]));
+        }
+        return returnedAddresses;
+    }
 }
