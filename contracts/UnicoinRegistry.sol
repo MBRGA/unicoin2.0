@@ -258,160 +258,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             1e2;
         vault.settlePayment(winningBidAddress, authorAddress, authorAmount);
     }
-
-    /// @notice This function allows the auctioneer to accept the bids
-    /// @dev parameters of licence design: buyer_id, publication id, bid_id
-    /// @notice This function allows the auctioneer to reject the bids
-    /// @param _id is the bid Id
-    function acceptBid(uint256 _id) public {
-        uint256 _publication_Id = bids[_id].publication_Id;
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        require(
-            publications[_publication_Id].isAuction,
-            "Publication not an auction."
-        );
-        require(
-            publications[_publication_Id].isRunning,
-            "Auction is not running."
-        );
-        bids[_id].status = bidStatus.Accepted;
-
-        uint256 _licence_Id = licences.push(
-            LicenceDesign(bids[_id].owner_Id, _publication_Id, _id)
-        );
-        licenceOwners[bids[_id].owner_Id].push(_licence_Id);
-        publicationLicences[_publication_Id].push(_licence_Id);
-        // licenceNFT._mint(users[bids[_id].owner_Id].owned_address, _licence_Id);
-
-        emit AcceptedBid(msg.sender, _id);
-    }
-
-    /// @notice This function allows the auctioneer to reject the bids
-    /// @param _id is the bid Id
-    function rejectBid(uint256 _id) public {
-        uint256 _publication_Id = bids[_id].publication_Id;
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        require(
-            publications[_publication_Id].isAuction,
-            "Publication not an auction."
-        );
-        require(
-            publications[_publication_Id].isRunning,
-            "Auction not running."
-        );
-        bids[_id].status = bidStatus.Rejected;
-
-        emit RejectedBid(msg.sender, _id);
-    }
-
-    /// @notice This function allows the auctioneer to cancel the bids
-    /// @param _id is the bid Id
-    function cancelBid(uint256 _id) public {
-        uint256 _publication_Id = bids[_id].publication_Id;
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id ||
-                userAddresses[msg.sender] == bids[_id].owner_Id,
-            "User not the author of this publication"
-        );
-        require(
-            publications[_publication_Id].isAuction,
-            "Publication not an auction."
-        );
-        require(
-            publications[_publication_Id].isRunning,
-            "Auction not running."
-        );
-        bids[_id].status = bidStatus.Cancelled;
-
-        emit CancelledBid(msg.sender, _id);
-    }
-
-    /// @notice This function allows the auctioneer to change from an auction to a sale
-    /// @param _publication_Id publication id number
-    /// @param _sell_price for the research
-    function changeToSale(uint256 _publication_Id, uint256 _sell_price) public {
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        require(
-            publications[_publication_Id].isAuction,
-            "Publication is not an auction"
-        );
-        publications[_publication_Id].sell_price = _sell_price;
-        publications[_publication_Id].isAuction = false;
-
-        emit ChangeToSale(msg.sender, _publication_Id, _sell_price);
-    }
-
-    /// @notice This function allows the auctioneer to change from a sale to an auction
-    /// @param _publication_Id publication id number
-    function changeToAuction(uint256 _publication_Id) public {
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        require(
-            !publications[_publication_Id].isAuction,
-            "Publication is already on auction"
-        );
-        publications[_publication_Id].sell_price = 0;
-        publications[_publication_Id].isAuction = true;
-
-        emit ChangeToAuction(msg.sender, _publication_Id);
-    }
-
-    /// @notice This function allows the auctioneer to change the sell price
-    /// @param _publication_Id publication id number
-    /// @param _sell_price for the research
-    function changeSellPrice(uint256 _publication_Id, uint256 _sell_price)
-        public
-    {
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        require(
-            !publications[_publication_Id].isAuction,
-            "Publication is on auction."
-        );
-        publications[_publication_Id].sell_price = _sell_price;
-
-        emit ChangeSellPrice(msg.sender, _publication_Id, _sell_price);
-
-    }
-
-    /// @notice This function allows the auctioneer to change the running status
-    /// @param _publication_Id publication id number
-    function changeRunningStatus(uint256 _publication_Id) public {
-        require(
-            userAddresses[msg.sender] ==
-                publications[_publication_Id].author_Id,
-            "User not the author of this publication"
-        );
-        publications[_publication_Id].isRunning = !publications[_publication_Id]
-            .isRunning;
-
-        emit ChangeRunningStatus(
-            msg.sender,
-            _publication_Id,
-            publications[_publication_Id].isRunning
-        );
-
-    }
-
     /// @return This function allows anyone to get the list of publications based on the address of the publisher
     /// @param _address eth address for the user
     function getPublications(address _address)
@@ -425,36 +271,22 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     /// @return This function allows anyone to get the list of bids based on address of the user
     function getBids(address _address) public view returns (uint256[] memory) {
-        uint256 _userAddress = userAddresses[_address];
-        return bidOwners[_userAddress];
+        uint256 userAddress = userManager._getUserId(_address);
+        return auctionManager.getBidderBids(userAddress);
     }
 
-    // From the user ID, get a list of all publications owned by the user ()
-    // function getPublications(uint256 _user_Id) public view returns(uint256[] memory) {
-    //     return publicationOwners[_user_Id];
-    // }
-
-    // function getBids(uint256 _user_Id) public view returns(uint256[] memory) {
-    //     return bidOwners[_user_Id];
-    // }
-
-    /// @return This function allows anyone to get list of bids per publication
-    /// @param _publication_Id publication id number
-    function getPublicationBids(uint256 _publication_Id)
+    function getPublicationAuctions(uint256 _publication_Id)
         public
         view
         returns (uint256[] memory)
     {
-        return publications[_publication_Id].publication_bids;
+        return publicationManager.getPublicationAuctions();
     }
 
-    /// @return This function allows the return of the total number of publications
-    function getPublicationLength() public view returns (uint256 count) {
-        return publications.length;
+    function getPublicationLength() public view returns (uint256) {
+        return publicationManager.getPublicationLength();
     }
 
-    /// @return Returns information about a spesific publication ID
-    /// @param _publication_Id publication id number
     function getPublication(uint256 _publication_Id)
         public
         view
