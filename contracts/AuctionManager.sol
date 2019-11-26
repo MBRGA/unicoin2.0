@@ -4,9 +4,9 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract AuctionManager is Initializable {
-    ERC20 daiContract;
+import "./UnicoinRegistry.sol";
 
+contract AuctionManager is Initializable {
     enum BidStatus {Committed, Revealed, Winner}
 
     enum AuctionStatus {Pending, Commit, Reveal, Finalized}
@@ -17,6 +17,7 @@ contract AuctionManager is Initializable {
         uint256 starting_time;
         uint256 duration;
         uint256[] auction_bid_ids;
+        uint256 winning_bid_Id;
         AuctionStatus status;
     }
 
@@ -36,17 +37,19 @@ contract AuctionManager is Initializable {
 
     address registry;
 
+    UnicoinRegistry unicoinRegistry;
+
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _daiContractAddress, address _unicoinRegistry)
+    function initialize(address _unicoinRegistry)
         public
         initializer
     {
-        daiContract = ERC20(_daiContractAddress);
         registry = _unicoinRegistry;
+        unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
     }
 
     function _createAuction(
@@ -71,6 +74,7 @@ contract AuctionManager is Initializable {
             _auctionStartTime,
             _auctionDuration,
             auction_bid_ids,
+            0, //No winning bid in the begining
             AuctionStatus.Pending
         );
 
@@ -108,11 +112,10 @@ contract AuctionManager is Initializable {
         uint256 _auction_Id,
         uint256 _bid_Id,
         uint256 _bidder_Id
-    ) public onlyRegistry returns (uint256) {
-        Auction memory auction = auctions[_auction_Id];
+    ) public onlyRegistry {
         Bid memory bid = bids[_bid_Id];
         require(
-            auction.status == AuctionStatus.Reveal,
+            getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
             "Can only commit during the commit phase"
         );
         require(
@@ -134,5 +137,60 @@ contract AuctionManager is Initializable {
         bids[_bid_Id].revealedBid = _bid;
         bids[_bid_Id].revealedSalt = _salt;
         bids[_bid_Id].status = BidStatus.Revealed;
+    }
+
+    function finalizeAuction(uint256 _auction_Id)
+        public
+        onlyRegistry
+        returns (uint256, uint256)
+    {
+        require(
+            getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
+            "Can only finalize an auction in the reveal stage"
+        );
+        
+        Auction memory auction = auctions[_auction_Id];
+        
+        uint256 numOfBids = auction.auction_bid_ids.length;
+
+        uint256 leadingBid = 0;
+        uint256 leadingBidAmount = 0;
+        
+        for(uint256 i = 0; i < numOfBids; i ++) {
+            uint256 bidAmount = bids[auction.auction_bid_ids[i]].revealedBid;
+            if(bidAmount > leadingBidAmount){
+                //need to check that the bidder has enough balance and enough allowance to be able to
+                // win the auction. Ask the vault via the registrey for this information.
+                if(unicoinRegistry.canBidderPay(bids[auction.auction_bid_ids[i]].bidder_Id, bidAmount)) {
+                    leadingBid = auction.auction_bid_ids[i];
+                    leadingBidAmount = bidAmount;
+                }
+            }
+        }
+
+        if(leadingBid > 0) {
+            auction[_auction_Id].status = AuctionStatus.Finalized;
+            auctions[_auction_Id].winning_bid_Id = leadingBid;
+        }
+
+        return (leadingBidAmount, bids[leadingBid].bidder_Id);
+    }
+
+    function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
+        Auction memory auction = auctions[_auction_Id];
+        if (now < auction.starting_time) {
+            auctions[_auction_Id].status = AuctionStatus.Pending;
+            return AuctionStatus.Pending;
+        }
+
+        if (now > auction.starting_time && now < (auction.starting_time + auction.duration)) {
+            auctions[_auction_Id].status = AuctionStatus.Commit;
+            return AuctionStatus.Commit;
+        }
+
+        if (now > (auction.starting_time + auction.duration)) {
+            auctions[_auction_Id].status = AuctionStatus.Reveal;
+            return AuctionStatus.Reveal;
+        }
     }
 }
