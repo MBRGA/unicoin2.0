@@ -5,14 +5,14 @@ let mnemonic = require('./mnemonic');
 module.exports = {
   networks: {
     development: {
-      host: "127.0.0.1", // Localhost (default: none)
-      port: 8545, // Standard Ethereum port (default: none)
+      host: "localhost",
+      port: 8545,
       network_id: "*", // Any network (default: none)
     },
     coverage: {
-      host: "127.0.0.1", // Localhost (default: none)
-      port: 8545, // Standard Ethereum port (default: none)
-      network_id: "*", // Any network (default: none)
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*",
     },
     ropsten: {
       provider: function () {

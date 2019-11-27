@@ -22,7 +22,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     Vault private vault;
 
     enum PricingStrategy {PrivateAuction, FixedRate}
-    
+
     function initialize(
         address _auctionManager,
         address _licenceManager,
@@ -32,12 +32,42 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     ) public initializer {
         owner = msg.sender;
 
+        GSNRecipient.initialize();
+
         auctionManager = AuctionManager(_auctionManager);
         licenceManager = LicenceManager(_licenceManager);
         publicationManager = PublicationManager(_publicationManager);
         userManager = UserManager(_userManager);
         vault = Vault(_vault);
 
+    }
+
+    // accept all requests
+    function acceptRelayedCall(
+        address,
+        address,
+        bytes calldata,
+        uint256,
+        uint256,
+        uint256,
+        uint256,
+        bytes calldata,
+        uint256
+    ) external view returns (uint256, bytes memory) {
+        return _approveRelayedCall();
+    }
+
+    function _preRelayedCall(bytes memory context) internal returns (bytes32) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function _postRelayedCall(
+        bytes memory context,
+        bool,
+        uint256 actualCharge,
+        bytes32
+    ) internal {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     function setOwner(address _owner) public {

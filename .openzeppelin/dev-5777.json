@@ -1,0 +1,1237 @@
+{
+  "contracts": {
+    "UnicoinRegistry": {
+      "address": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+      "constructorCode": "6080604052614bc1806100136000396000f3fe",
+      "bodyBytecodeHash": "ac250ebdabe05cd8c7a0f5c148e89e9e6aae6837d9ed34053452c860438ae9b2",
+      "localBytecodeHash": "1d1fe9e4875efcd3ef26d00bc39f5229357f2eba87d9882d6501dc47703dc868",
+      "deployedBytecodeHash": "1d1fe9e4875efcd3ef26d00bc39f5229357f2eba87d9882d6501dc47703dc868",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "GSNRecipient",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol",
+          "label": "_relayHub",
+          "astId": 2485,
+          "type": "t_address",
+          "src": "1133:25:10"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "owner",
+          "astId": 1207,
+          "type": "t_address",
+          "src": "439:13:4"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "auctionManager",
+          "astId": 1209,
+          "type": "t_address",
+          "src": "459:37:4"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "licenceManager",
+          "astId": 1211,
+          "type": "t_address",
+          "src": "502:37:4"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "publicationManager",
+          "astId": 1213,
+          "type": "t_address",
+          "src": "545:45:4"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "userManager",
+          "astId": 1215,
+          "type": "t_address",
+          "src": "596:31:4"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "vault",
+          "astId": 1217,
+          "type": "t_address",
+          "src": "633:19:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "AuctionManager": {
+      "address": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+      "constructorCode": "608060405234801561001057600080fd5b50611900806100206000396000f3fe",
+      "bodyBytecodeHash": "74d3e85a05f099bd61fe5d75e0624e98845e3b206f72e8ee960dbd5b7a5c314b",
+      "localBytecodeHash": "e11efab84f8cdbc586ff3a932a2479feb4f905c515626e51cb8aaf2ef485eb9c",
+      "deployedBytecodeHash": "e11efab84f8cdbc586ff3a932a2479feb4f905c515626e51cb8aaf2ef485eb9c",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AuctionManager.Auction>": {
+          "id": "t_struct<AuctionManager.Auction>",
+          "kind": "struct",
+          "label": "AuctionManager.Auction",
+          "members": [
+            {
+              "label": "publication_Id",
+              "astId": 17,
+              "type": "t_uint256",
+              "src": "388:22:0"
+            },
+            {
+              "label": "auctionFloor",
+              "astId": 19,
+              "type": "t_uint256",
+              "src": "420:20:0"
+            },
+            {
+              "label": "starting_time",
+              "astId": 21,
+              "type": "t_uint256",
+              "src": "450:21:0"
+            },
+            {
+              "label": "duration",
+              "astId": 23,
+              "type": "t_uint256",
+              "src": "481:16:0"
+            },
+            {
+              "label": "auction_bid_ids",
+              "astId": 26,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "507:25:0"
+            },
+            {
+              "label": "winning_bid_Id",
+              "astId": 28,
+              "type": "t_uint256",
+              "src": "542:22:0"
+            },
+            {
+              "label": "status",
+              "astId": 30,
+              "type": "t_enum<AuctionManager.AuctionStatus>",
+              "src": "574:20:0"
+            }
+          ]
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_enum<AuctionManager.AuctionStatus>": {
+          "id": "t_enum<AuctionManager.AuctionStatus>",
+          "kind": "enum",
+          "label": "AuctionManager.AuctionStatus",
+          "members": [
+            "Pending",
+            "Commit",
+            "Reveal",
+            "Finalized"
+          ]
+        },
+        "t_array:dyn<t_struct<AuctionManager.Auction>>": {
+          "id": "t_array:dyn<t_struct<AuctionManager.Auction>>",
+          "valueType": "t_struct<AuctionManager.Auction>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "AuctionManager.Auction[]"
+        },
+        "t_struct<AuctionManager.Bid>": {
+          "id": "t_struct<AuctionManager.Bid>",
+          "kind": "struct",
+          "label": "AuctionManager.Bid",
+          "members": [
+            {
+              "label": "commitBid",
+              "astId": 36,
+              "type": "t_bytes32",
+              "src": "660:17:0"
+            },
+            {
+              "label": "revealedBid",
+              "astId": 38,
+              "type": "t_uint256",
+              "src": "687:19:0"
+            },
+            {
+              "label": "revealedSalt",
+              "astId": 40,
+              "type": "t_uint256",
+              "src": "716:20:0"
+            },
+            {
+              "label": "status",
+              "astId": 42,
+              "type": "t_enum<AuctionManager.BidStatus>",
+              "src": "746:16:0"
+            },
+            {
+              "label": "publication_Id",
+              "astId": 44,
+              "type": "t_uint256",
+              "src": "772:22:0"
+            },
+            {
+              "label": "auction_Id",
+              "astId": 46,
+              "type": "t_uint256",
+              "src": "804:18:0"
+            },
+            {
+              "label": "bidder_Id",
+              "astId": 48,
+              "type": "t_uint256",
+              "src": "832:17:0"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_enum<AuctionManager.BidStatus>": {
+          "id": "t_enum<AuctionManager.BidStatus>",
+          "kind": "enum",
+          "label": "AuctionManager.BidStatus",
+          "members": [
+            "Committed",
+            "Revealed",
+            "Winner"
+          ]
+        },
+        "t_array:dyn<t_struct<AuctionManager.Bid>>": {
+          "id": "t_array:dyn<t_struct<AuctionManager.Bid>>",
+          "valueType": "t_struct<AuctionManager.Bid>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "AuctionManager.Bid[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "auctions",
+          "astId": 34,
+          "type": "t_array:dyn<t_struct<AuctionManager.Auction>>",
+          "src": "607:25:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "bids",
+          "astId": 52,
+          "type": "t_array:dyn<t_struct<AuctionManager.Bid>>",
+          "src": "882:10:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "bidOwners",
+          "astId": 57,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "944:46:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "registry",
+          "astId": 59,
+          "type": "t_address",
+          "src": "997:16:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "unicoinRegistry",
+          "astId": 61,
+          "type": "t_address",
+          "src": "1020:31:0"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "PublicationManager": {
+      "address": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+      "constructorCode": "608060405234801561001057600080fd5b50611ba0806100206000396000f3fe",
+      "bodyBytecodeHash": "f884d5d123fedf6eab3740db02296bfd4fe7754cd5d6a0c0c63439adacbf78be",
+      "localBytecodeHash": "2ac83eebec561a061fe10b3da5e72a946e1896683ac76a6f678997d5355b4d2c",
+      "deployedBytecodeHash": "2ac83eebec561a061fe10b3da5e72a946e1896683ac76a6f678997d5355b4d2c",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<PublicationManager.Publication>": {
+          "id": "t_struct<PublicationManager.Publication>",
+          "kind": "struct",
+          "label": "PublicationManager.Publication",
+          "members": [
+            {
+              "label": "pricingStrategy",
+              "astId": 794,
+              "type": "t_enum<PublicationManager.PricingStrategy>",
+              "src": "222:31:3"
+            },
+            {
+              "label": "publication_uri",
+              "astId": 796,
+              "type": "t_string",
+              "src": "263:22:3"
+            },
+            {
+              "label": "author_id",
+              "astId": 798,
+              "type": "t_uint256",
+              "src": "334:17:3"
+            },
+            {
+              "label": "sell_price",
+              "astId": 800,
+              "type": "t_uint256",
+              "src": "380:18:3"
+            },
+            {
+              "label": "maxNumberOfLicences",
+              "astId": 802,
+              "type": "t_uint256",
+              "src": "408:27:3"
+            },
+            {
+              "label": "licencesIssued",
+              "astId": 804,
+              "type": "t_uint256",
+              "src": "445:22:3"
+            },
+            {
+              "label": "auction_ids",
+              "astId": 807,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "477:21:3"
+            },
+            {
+              "label": "contributors",
+              "astId": 810,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "541:22:3"
+            },
+            {
+              "label": "contributors_weightings",
+              "astId": 813,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "573:33:3"
+            },
+            {
+              "label": "donations",
+              "astId": 816,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "648:19:3"
+            }
+          ]
+        },
+        "t_enum<PublicationManager.PricingStrategy>": {
+          "id": "t_enum<PublicationManager.PricingStrategy>",
+          "kind": "enum",
+          "label": "PublicationManager.PricingStrategy",
+          "members": [
+            "PrivateAuction",
+            "FixedRate"
+          ]
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_array:dyn<t_struct<PublicationManager.Publication>>": {
+          "id": "t_array:dyn<t_struct<PublicationManager.Publication>>",
+          "valueType": "t_struct<PublicationManager.Publication>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "PublicationManager.Publication[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "publications",
+          "astId": 820,
+          "type": "t_array:dyn<t_struct<PublicationManager.Publication>>",
+          "src": "680:33:3"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "publicationOwners",
+          "astId": 825,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "720:54:3"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "registry",
+          "astId": 827,
+          "type": "t_address",
+          "src": "781:16:3"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "UserManager": {
+      "address": "0x013227e8c189f24F8A46Af45D8Cc286Cb82365f0",
+      "constructorCode": "608060405234801561001057600080fd5b50610d7b806100206000396000f3fe",
+      "bodyBytecodeHash": "13a93ad4ccff477b96fc935fd9ae2190a28d9c6db815b293121979ae0c6d89ce",
+      "localBytecodeHash": "a585973db8532ecaa768e42e855365218b15f8f40ba746bfabc50e678d36f8c2",
+      "deployedBytecodeHash": "a585973db8532ecaa768e42e855365218b15f8f40ba746bfabc50e678d36f8c2",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<UserManager.User>": {
+          "id": "t_struct<UserManager.User>",
+          "kind": "struct",
+          "label": "UserManager.User",
+          "members": [
+            {
+              "label": "owned_address",
+              "astId": 1931,
+              "type": "t_address",
+              "src": "154:21:5"
+            },
+            {
+              "label": "profile_uri",
+              "astId": 1933,
+              "type": "t_string",
+              "src": "185:18:5"
+            }
+          ]
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_array:dyn<t_struct<UserManager.User>>": {
+          "id": "t_array:dyn<t_struct<UserManager.User>>",
+          "valueType": "t_struct<UserManager.User>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "UserManager.User[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "users",
+          "astId": 1937,
+          "type": "t_array:dyn<t_struct<UserManager.User>>",
+          "src": "249:19:5"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "userAddresses",
+          "astId": 1941,
+          "type": "t_mapping<t_uint256>",
+          "src": "318:48:5"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "registry",
+          "astId": 1943,
+          "type": "t_address",
+          "src": "373:16:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "Vault": {
+      "address": "0xEA8Af988E87FD7B0e8870342750E5aCFA2308060",
+      "constructorCode": "608060405234801561001057600080fd5b50610bfb806100206000396000f3fe",
+      "bodyBytecodeHash": "d23eaa5c4b6a08d60edfe3ac3e96c7e573b7fa7b4f6548fb8be7a4972bc01da3",
+      "localBytecodeHash": "5557e9b706dad78d6bcac334bfe612453ee51a8445ff943ab436f470ce4b207d",
+      "deployedBytecodeHash": "5557e9b706dad78d6bcac334bfe612453ee51a8445ff943ab436f470ce4b207d",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "Vault",
+          "path": "contracts/Vault.sol",
+          "label": "token",
+          "astId": 2115,
+          "type": "t_address",
+          "src": "210:11:6"
+        },
+        {
+          "contract": "Vault",
+          "path": "contracts/Vault.sol",
+          "label": "registry",
+          "astId": 2117,
+          "type": "t_address",
+          "src": "228:16:6"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "LicenceManager": {
+      "address": "0xE792b7e84F34f690c39D05A5648EcAAE2D8C6103",
+      "constructorCode": "60806040526141fa806100136000396000f3fe",
+      "bodyBytecodeHash": "d9af330b8e338439e3a21289add5d5c39cdf21dee2dbeca9a9c47cc32fe11b15",
+      "localBytecodeHash": "c917f9574e43ce89a2e3fb7947118d1fc0c6b2618699dbb052002abdc0eed15c",
+      "deployedBytecodeHash": "c917f9574e43ce89a2e3fb7947118d1fc0c6b2618699dbb052002abdc0eed15c",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_struct<Counters.Counter>": {
+          "id": "t_struct<Counters.Counter>",
+          "kind": "struct",
+          "label": "Counters.Counter",
+          "members": [
+            {
+              "label": "_value",
+              "astId": 3321,
+              "type": "t_uint256",
+              "src": "1024:14:15"
+            }
+          ]
+        },
+        "t_mapping<t_struct<Counters.Counter>>": {
+          "id": "t_mapping<t_struct<Counters.Counter>>",
+          "valueType": "t_struct<Counters.Counter>",
+          "label": "mapping(key => Counters.Counter)",
+          "kind": "mapping"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_string>": {
+          "id": "t_mapping<t_string>",
+          "valueType": "t_string",
+          "label": "mapping(key => string)",
+          "kind": "mapping"
+        },
+        "t_struct<Roles.Role>": {
+          "id": "t_struct<Roles.Role>",
+          "kind": "struct",
+          "label": "Roles.Role",
+          "members": [
+            {
+              "label": "bearer",
+              "astId": 3115,
+              "type": "t_mapping<t_bool>",
+              "src": "150:32:13"
+            }
+          ]
+        },
+        "t_struct<LicenceManager.Licence>": {
+          "id": "t_struct<LicenceManager.Licence>",
+          "kind": "struct",
+          "label": "LicenceManager.Licence",
+          "members": [
+            {
+              "label": "buyer_Id",
+              "astId": 538,
+              "type": "t_uint256",
+              "src": "457:16:1"
+            },
+            {
+              "label": "publication_Id",
+              "astId": 540,
+              "type": "t_uint256",
+              "src": "483:22:1"
+            },
+            {
+              "label": "publicationLicenceNo",
+              "astId": 542,
+              "type": "t_uint256",
+              "src": "515:28:1"
+            }
+          ]
+        },
+        "t_array:dyn<t_struct<LicenceManager.Licence>>": {
+          "id": "t_array:dyn<t_struct<LicenceManager.Licence>>",
+          "valueType": "t_struct<LicenceManager.Licence>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "LicenceManager.Licence[]"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 5656,
+          "type": "t_bool",
+          "src": "757:24:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 5658,
+          "type": "t_bool",
+          "src": "876:25:31"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 5714,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:31"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "_supportedInterfaces",
+          "astId": 3377,
+          "type": "t_mapping<t_bool>",
+          "src": "565:52:16"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "______gap",
+          "astId": 3422,
+          "type": "t_array:50<t_uint256>",
+          "src": "1729:29:16"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenOwner",
+          "astId": 4135,
+          "type": "t_mapping<t_address>",
+          "src": "886:48:21"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenApprovals",
+          "astId": 4139,
+          "type": "t_mapping<t_address>",
+          "src": "990:52:21"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_ownedTokensCount",
+          "astId": 4143,
+          "type": "t_mapping<t_struct<Counters.Counter>>",
+          "src": "1100:63:21"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_operatorApprovals",
+          "astId": 4149,
+          "type": "t_mapping<t_bool>",
+          "src": "1218:73:21"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "______gap",
+          "astId": 4761,
+          "type": "t_array:50<t_uint256>",
+          "src": "15262:29:21"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokens",
+          "astId": 4784,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "502:50:22"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokensIndex",
+          "astId": 4788,
+          "type": "t_mapping<t_uint256>",
+          "src": "622:53:22"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokens",
+          "astId": 4791,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "736:28:22"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokensIndex",
+          "astId": 4795,
+          "type": "t_mapping<t_uint256>",
+          "src": "835:51:22"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "______gap",
+          "astId": 5126,
+          "type": "t_array:50<t_uint256>",
+          "src": "9053:29:22"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_name",
+          "astId": 5165,
+          "type": "t_string",
+          "src": "323:20:24"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_symbol",
+          "astId": 5167,
+          "type": "t_string",
+          "src": "370:22:24"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_tokenURIs",
+          "astId": 5171,
+          "type": "t_mapping<t_string>",
+          "src": "438:45:24"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "______gap",
+          "astId": 5302,
+          "type": "t_array:50<t_uint256>",
+          "src": "3086:29:24"
+        },
+        {
+          "contract": "ERC721Full",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Full.sol",
+          "label": "______gap",
+          "astId": 5145,
+          "type": "t_array:50<t_uint256>",
+          "src": "532:29:23"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "_minters",
+          "astId": 3212,
+          "type": "t_struct<Roles.Role>",
+          "src": "327:27:14"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "______gap",
+          "astId": 3312,
+          "type": "t_array:50<t_uint256>",
+          "src": "1193:29:14"
+        },
+        {
+          "contract": "ERC721Mintable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol",
+          "label": "______gap",
+          "astId": 5398,
+          "type": "t_array:50<t_uint256>",
+          "src": "1687:29:25"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "licences",
+          "astId": 546,
+          "type": "t_array:dyn<t_struct<LicenceManager.Licence>>",
+          "src": "556:25:1"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "licenceOwners",
+          "astId": 551,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "629:50:1"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "publicationLicences",
+          "astId": 556,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "729:56:1"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "registry",
+          "astId": 570,
+          "type": "t_address",
+          "src": "915:16:1"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "UniCoin/UnicoinRegistry": [
+      {
+        "address": "0x013227e8c189f24F8A46Af45D8Cc286Cb82365f0",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xb1C3652066CfB9B8A6318243A628d1DE6FfF6439",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xE792b7e84F34f690c39D05A5648EcAAE2D8C6103",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xE792b7e84F34f690c39D05A5648EcAAE2D8C6103",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xbE2060C110FDff80958f1Cd91EAE84D2BD4Ed551",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xFc7B4AdF06811CB9C9D235898272923Ba081950f",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/AuctionManager": [
+      {
+        "address": "0x0511076bf63C93a7575499508243D2B652996a05",
+        "version": "0.1.0",
+        "implementation": "0x1Ea62B553896A8dC753a5602579A501e63bBa529",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/PublicationManager": [
+      {
+        "address": "0xfF0787F922EAD80Cf9E37F09CA8103B2B9BFBa25",
+        "version": "0.1.0",
+        "implementation": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/UserManager": [
+      {
+        "address": "0x5311348A9A920BBfF2D467e5Fe5018884e4cf83B",
+        "version": "0.1.0",
+        "implementation": "0x013227e8c189f24F8A46Af45D8Cc286Cb82365f0",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/Vault": [
+      {
+        "address": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+        "version": "0.1.0",
+        "implementation": "0xEA8Af988E87FD7B0e8870342750E5aCFA2308060",
+        "admin": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0xD148584309501c4081fFa0FB364F4E3bfBBFe14D"
+  }
+}

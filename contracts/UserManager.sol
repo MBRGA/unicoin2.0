@@ -9,7 +9,7 @@ contract UserManager is Initializable {
     }
     //Array of regististred users
     User[] public users;
-    
+
     //all users' addresses to their userID
     mapping(address => uint256) public userAddresses;
 
