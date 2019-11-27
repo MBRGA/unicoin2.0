@@ -23,66 +23,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     UserManager private userManager;
     Vault private vault;
 
-    enum PricingStratergy {controlledAuction, privateAuction, fixedRate}
-
-    enum AuctionType {controlledAuction, privateAuction}
-
-    /// @notice struct for users of the plaform, needs their Ethereum address and profile URL
-    struct User {
-        address owned_address;
-        string profile_uri;
-    }
-    /// @notice Creates an array of users that a registered
-    User[] public users;
-
-    /// @notice The mapping below maps all users' addresses to their userID
-    mapping(address => uint256) public userAddresses;
-
-    /// @notice Creates user defined type
-    enum bidStatus {Pending, Accepted, Rejected, Sale, Cancelled}
-
-    /// @notice Creates a struct for all bids, takes in the offer (amount of the bid), one of the enum parameters, publication Id and owner Id
-    struct Bid {
-        uint256 offer;
-        bidStatus status;
-        uint256 publication_Id;
-        uint256 owner_Id; // owner of the bid
-    }
-    /// @notice Creates an array of bids that have been placed
-    Bid[] public bids;
-
-    struct Publication {
-        uint256 author_Id;
-        string publication_uri;
-        uint256[] publication_bids;
-        bool isAuction;
-        bool isRunning;
-        uint256 sell_price;
-        uint256[] contributors;
-        uint256[] contributors_weightings;
-    }
-    /// @notice Creates an array of publications for every published document
-    Publication[] public publications;
-
-    /// @notice The mapping below will map the addresses of all the successful bidders' addresses to the ID of their owned publications
-    mapping(uint256 => uint256[]) public publicationOwners;
-
-    /// @notice Creates a struct for licencing
-    /// @param buyer_Id of each publication's buyer
-    /// @param publication_Id of the publication being bought
-    /// @param bid_Id The bid's Id for the publication
-    struct LicenceDesign {
-        uint256 buyer_Id;
-        uint256 publication_Id;
-        uint256 bid_Id;
-    }
-    /// @notice Creates an array of purchased licences
-    LicenceDesign[] public licences;
-    /// @notice Mapping of licence Id to get the licence owners
-    mapping(uint256 => uint256[]) public licenceOwners;
-    /// @notice Mapping of licence Id to get the publication Id
-    mapping(uint256 => uint256[]) public publicationLicences;
-
     event NewPublication(
         address indexed _from,
         string _publication_uri,
@@ -131,9 +71,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         address _userManager,
         address _vault
     ) public initializer {
-        // users.push(User(address(0), ""));
-        // licences.push(LicenceDesign(0, 0, 0));
-
         owner = msg.sender;
 
         auctionManager = AuctionManager(_auctionManager);
@@ -204,34 +141,44 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         }
     }
 
-    function commitSealedBid(bytes32 _bidHash, uint256 _publication_Id)
-        public
-    {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
+    function commitSealedBid(bytes32 _bidHash, uint256 _publication_Id) public {
+        uint256 auction_Id = publicationManager.getLatestAuctionId(
+            _publication_Id
+        );
         uint256 bidder_Id = getCallerId();
         auctionManager.commitSealedBid(_bidHash, auction_Id, bidder_Id);
     }
 
-    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publication_Id, uint256 _bid_Id)
-        public
-        returns (uint256)
-    {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
+    function revealSealedBid(
+        uint256 _bid,
+        uint256 _salt,
+        uint256 _publication_Id,
+        uint256 _bid_Id
+    ) public returns (uint256) {
+        uint256 auction_Id = publicationManager.getLatestAuctionId(
+            _publication_Id
+        );
         uint256 bidder_Id = getCallerId();
-        auctionManager.revealSealedBid(_bid,_salt, auction_Id, _bid_Id, bidder_Id);
+        auctionManager.revealSealedBid(
+            _bid,
+            _salt,
+            auction_Id,
+            _bid_Id,
+            bidder_Id
+        );
     }
 
     function finalizeAuction(uint256 _auction_Id) public returns (uint256) {
-        (uint256 winningBidAmount, uint256 winningBidId, uint256 publicationId) = auctionManager
+        (uint256 winningBidAmount, uint256 winningBiderId, uint256 publicationId) = auctionManager
             .finalizeAuction(_auction_Id);
 
         require(winningBidAmount > 0, "Invalid winning bid amount");
-        require(winningBidId > 0, "Invalid winning bid Id");
+        require(winningBiderId > 0, "Invalid winning bid Id");
         require(publicationId > 0, "Invalid publication Id");
 
         uint256 authorId = publicationManager._getAuthorId(publicationId);
         address authorAddress = userManager._getUserAddress(authorId);
-        address winningBidAddress = userManager._getUserAddress(winningBidId);
+        address winningBidAddress = userManager._getUserAddress(winningBiderId);
 
         (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
             ._getContributers(publicationId);
@@ -257,6 +204,16 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             winningBidAmount) /
             1e2;
         vault.settlePayment(winningBidAddress, authorAddress, authorAmount);
+
+        uint256 publicationLicenceNo = publicationManager
+            .addNewLicenceToPublication(publicationId);
+
+        licenceManager.registerNewLicence(
+            winningBidAddress,
+            winningBiderId,
+            publicationId,
+            publicationLicenceNo
+        );
     }
     /// @return This function allows anyone to get the list of publications based on the address of the publisher
     /// @param _address eth address for the user
@@ -293,6 +250,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         returns (
             uint8,
             string memory,
+            uint256,
             uint256,
             uint256,
             uint256,
@@ -364,7 +322,11 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return vault.canBidderPay(userAddress, _amount);
     }
 
-    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
+    function getBidderBids(uint256 _bidder_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return auctionManager.getBidderBids;
     }
 }
