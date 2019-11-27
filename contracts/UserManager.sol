@@ -3,7 +3,6 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract UserManager is Initializable {
-
     /// @notice struct for users of the plaform, needs their Ethereum address and profile URL
     struct User {
         address owned_address;
@@ -12,18 +11,17 @@ contract UserManager is Initializable {
     /// @notice Array of regististred users
     User[] public users;
 
-
     /// @notice maps all users' addresses to their userID
     mapping(address => uint256) public userAddresses;
 
     address registry;
 
-    modifier onlyRegistry(){
-        require(msg.sender == registry,"Can only be called by registry");
+    modifier onlyRegistry() {
+        require(msg.sender == registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _unicoinRegistry)  public initializer {
+    function initialize(address _unicoinRegistry) public initializer {
         //set the zeroth user to null.
         users.push(User(address(0), ""));
 
@@ -40,22 +38,30 @@ contract UserManager is Initializable {
         userAddresses[msg.sender] = id - 1;
     }
 
-    function _isAddressRegistered(address _userAddress) public view returns (bool){
+    function isAddressRegistered(address _userAddress)
+        public
+        view
+        returns (bool)
+    {
         return userAddresses[_userAddress] != 0;
     }
 
-    function _getUserId(address _userAddress) public view returns (uint256) {
+    function getUserId(address _userAddress) public view returns (uint256) {
         return userAddresses[_userAddress];
     }
 
-    function _getUserAddress(uint256 _user_Id) public view returns (address) {
+    function getUserAddress(uint256 _user_Id) public view returns (address) {
         return users[_user_Id].owned_address;
     }
 
-    function getAddressArray(uint256[] memory _user_Ids) public view returns (address[] memory) {
+    function getAddressArray(uint256[] memory _user_Ids)
+        public
+        view
+        returns (address[] memory)
+    {
         address[] memory returnedAddresses;
-        for(uint256 i = 0; i < _user_Ids.length; i++) {
-            returnedAddresses[i] = (_getUserAddress(_user_Ids[i]));
+        for (uint256 i = 0; i < _user_Ids.length; i++) {
+            returnedAddresses[i] = (getUserAddress(_user_Ids[i]));
         }
         return returnedAddresses;
     }

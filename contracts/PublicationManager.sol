@@ -3,10 +3,10 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract PublicationManager is Initializable {
-    enum PricingStratergy {PrivateAuction, FixedRate}
+    enum PricingStrategy {PrivateAuction, FixedRate}
 
     struct Publication {
-        PricingStratergy pricingStratergy;
+        PricingStrategy pricingStrategy;
         string publication_uri; //IPFS blob address of the publication
         uint256 author_id; //id of the auther
         uint256 sell_price;
@@ -15,11 +15,11 @@ contract PublicationManager is Initializable {
         uint256[] auction_ids; //ids of bids on the publication
         uint256[] contributors;
         uint256[] contributors_weightings; //scaled by 1e2 to repres entat
+        uint256[] donations;
     }
-    /// @notice Creates an array of publications for every published document
+
     Publication[] public publications;
 
-    /// @notice The mapping below will map the addresses of all the successful bidders' addresses to the ID of their owned publications
     mapping(uint256 => uint256[]) public publicationOwners;
 
     address registry;
@@ -32,7 +32,7 @@ contract PublicationManager is Initializable {
     event NewPublication(
         uint256 indexed _author_Id,
         string _publication_uri,
-        PricingStratergy _pricingStratergy
+        PricingStrategy _pricingStrategy
     );
 
     function initialize(address _unicoinRegistry) public initializer {
@@ -53,9 +53,7 @@ contract PublicationManager is Initializable {
             "Publication URI should not be empty."
         );
 
-        if (
-            PricingStratergy(_pricing_stratergy) == PricingStratergy.FixedRate
-        ) {
+        if (PricingStrategy(_pricing_stratergy) == PricingStrategy.FixedRate) {
             require(_fixed_sell_price >= 0, "Fixed sell price cant be zero");
         } else {
             require(
@@ -66,7 +64,7 @@ contract PublicationManager is Initializable {
 
         uint256[] memory auction_ids;
         Publication memory publication = Publication(
-            PricingStratergy(_pricing_stratergy),
+            PricingStrategy(_pricing_stratergy),
             _publication_uri,
             _author_Id,
             _fixed_sell_price,
@@ -82,7 +80,7 @@ contract PublicationManager is Initializable {
         emit NewPublication(
             _author_Id,
             _publication_uri,
-            PricingStratergy(_pricing_stratergy)
+            PricingStrategy(_pricing_stratergy)
         );
 
         return (publicationId);
@@ -109,7 +107,7 @@ contract PublicationManager is Initializable {
         return licenceNo;
     }
 
-    function _getAuthorId(uint256 _publication_Id)
+    function getAuthorId(uint256 _publication_Id)
         public
         view
         returns (uint256)
@@ -156,7 +154,7 @@ contract PublicationManager is Initializable {
     {
         Publication memory _publication = publications[_publication_Id];
         return (
-            uint8(_publication.pricingStratergy),
+            uint8(_publication.pricingStrategy),
             _publication.publication_uri,
             _publication.author_id,
             _publication.sell_price,
@@ -178,5 +176,20 @@ contract PublicationManager is Initializable {
         returns (uint256[] memory)
     {
         return publications[_publication_Id].auction_ids;
+    }
+
+    function getAuthorPublications(uint256 _author_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return publicationOwners[_author_Id];
+    }
+
+    function recordDonation(uint256 _publication_Id, uint256 _donationAmount)
+        public
+        onlyRegistry
+    {
+        publications[_publication_Id].donations.push(_donationAmount);
     }
 }

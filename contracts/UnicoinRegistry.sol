@@ -26,7 +26,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     event NewPublication(
         address indexed _from,
         string _publication_uri,
-        bool _pricing_stratergy,
+        bool _pricing_Strategy,
         uint256 _sell_price
     );
 
@@ -101,7 +101,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     function createPublication(
         string memory _publication_uri,
-        uint8 _pricing_stratergy,
+        uint8 _pricing_Strategy,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
@@ -116,7 +116,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
         uint256 author_id = getCallerId();
         uint256 publicationId = publicationManager._createPublication(
-            _pricing_stratergy,
+            _pricing_Strategy,
             _publication_uri,
             author_id,
             _fixed_sell_price,
@@ -125,9 +125,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             _contributors_weightings
         );
 
-        if (
-            PricingStratergy(_pricing_stratergy) != PricingStratergy.fixedRate
-        ) {
+        if (PricingStrategy(_pricing_Strategy) != PricingStrategy.fixedRate) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
                 _auctionFloor,
@@ -178,7 +176,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
         uint256 authorId = publicationManager._getAuthorId(publicationId);
         address authorAddress = userManager._getUserAddress(authorId);
-        address winningBidAddress = userManager._getUserAddress(winningBiderId);
+        address winningBidderAddress = userManager._getUserAddress(
+            winningBiderId
+        );
 
         (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
             ._getContributers(publicationId);
@@ -187,46 +187,37 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             contributorIds
         );
 
-        uint256 totalPaidToContributors = 0;
-        for (uint256 i = 0; i < contributorAddresses.length; i++) {
-            uint256 amountToPay = (winningBidAmount *
-                contributorWeightings[i]) /
-                1e2;
-            totalPaidToContributors += contributorWeightings[i];
-            vault.settlePayment(
-                winningBidAddress,
-                contributorAddresses[i],
-                amountToPay
-            );
-        }
-
-        uint256 authorAmount = ((1e2 - totalPaidToContributors) *
-            winningBidAmount) /
-            1e2;
-        vault.settlePayment(winningBidAddress, authorAddress, authorAmount);
+        require(
+            vault.settleBulkPayment(
+                winningBidderAddress,
+                authorAddress,
+                contributorAddresses,
+                contributorWeightings,
+                winningBidAmount
+            ),
+            "Bulk auction settlement failed"
+        );
 
         uint256 publicationLicenceNo = publicationManager
             .addNewLicenceToPublication(publicationId);
 
         licenceManager.registerNewLicence(
-            winningBidAddress,
+            winningBidderAddress,
             winningBiderId,
             publicationId,
             publicationLicenceNo
         );
     }
-    /// @return This function allows anyone to get the list of publications based on the address of the publisher
-    /// @param _address eth address for the user
+
     function getPublications(address _address)
         public
         view
         returns (uint256[] memory)
     {
-        uint256 _author_Id = userAddresses[_address];
-        return publicationOwners[_author_Id];
+        uint256 author_Id = userManager._getUserId(_address);
+        return publicationManager.getAuthorPublications(author_Id);
     }
 
-    /// @return This function allows anyone to get the list of bids based on address of the user
     function getBids(address _address) public view returns (uint256[] memory) {
         uint256 userAddress = userManager._getUserId(_address);
         return auctionManager.getBidderBids(userAddress);
@@ -237,7 +228,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         view
         returns (uint256[] memory)
     {
-        return publicationManager.getPublicationAuctions();
+        return publicationManager.getPublicationAuctions(_publication_Id);
     }
 
     function getPublicationLength() public view returns (uint256) {
@@ -269,8 +260,16 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         view
         returns (uint256[] memory)
     {
-        uint256 _userNumber = userAddresses[_address];
-        return licenceOwners[_userNumber];
+        uint256 user_Id = userManager.getUserId(_address);
+        return getLicenceForUserId(user_Id);
+    }
+
+    function getLicenceForUserId(uint256 _user_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return licenceManager.getLicenceForUser(_user_Id);
     }
 
     function getLicence(uint256 _licenceId)
@@ -278,26 +277,32 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         view
         returns (uint256, uint256, uint256)
     {
-        LicenceDesign memory _licence = licences[_licenceId];
-        return (_licence.buyer_Id, _licence.publication_Id, _licence.bid_Id);
+        return (licenceManager.getLicence);
     }
 
-    /// @notice Donates funds to a research
-    /// @param _publication_Id The id of the publication
-    /// @param _value the amount that is being donated
     function donate(uint256 _publication_Id, uint256 _value) public {
-        // require(
-        //     userAddresses[msg.sender] != 0,
-        //     "User address is not registered."
-        // );
-        // require(
-        //     daiContract.allowance(msg.sender, address(this)) >= _value,
-        //     "Insufficient fund allowance"
-        // );
-        // address publisherAddress = users[publications[_publication_Id]
-        //     .author_Id]
-        //     .owned_address;
-        // daiContract.transferFrom(msg.sender, publisherAddress, _value);
+
+        uint256 authorId = publicationManager.getAuthorId(_publication_Id);
+        address authorAddress = userManager.getUserAddress(authorId);
+
+
+        (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
+            ._getContributers(_publication_Id);
+
+        address[] memory contributorAddresses = userManager.getAddressArray(
+            contributorIds
+        );
+
+        require(
+            vault.settleBulkPayment(
+                msg.sender,
+                authorAddress,
+                contributorAddresses,
+                contributorWeightings,
+                _value
+            ),
+            "Bulk auction settlement failed"
+        );
     }
 
     function isCallerRegistered() public view returns (bool) {
@@ -306,7 +311,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     function getCallerId() public view returns (uint256) {
         uint256 callerId = userManager._getUserId(msg.sender);
-        require(callerId != 0, "Caller is not registred!");
+        require(callerId != 0, "Caller is not registered!");
     }
 
     function getUserAddress(uint256 _user_Id) public view returns (address) {
