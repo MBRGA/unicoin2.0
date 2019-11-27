@@ -63,6 +63,7 @@ contract PublicationManager is Initializable {
         }
 
         uint256[] memory auction_ids;
+        uint256[] memory donations;
         Publication memory publication = Publication(
             PricingStrategy(_pricing_stratergy),
             _publication_uri,
@@ -72,7 +73,8 @@ contract PublicationManager is Initializable {
             0, //start with no licences issued
             auction_ids,
             _contributors,
-            _contributors_weightings
+            _contributors_weightings,
+            donations
         );
         uint256 publicationId = publications.push(publication) - 1;
         publicationOwners[_author_Id].push(publicationId);

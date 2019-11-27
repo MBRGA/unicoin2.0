@@ -23,6 +23,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     UserManager private userManager;
     Vault private vault;
 
+    enum PricingStrategy {PrivateAuction, FixedRate}
+
     event NewPublication(
         address indexed _from,
         string _publication_uri,
@@ -209,13 +211,25 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
     }
 
-    function getPublications(address _address)
+    function buyLicenceFixedRate() public {
+
+    }
+
+    function getPublicationsAuthorAddress(address _address)
         public
         view
         returns (uint256[] memory)
     {
         uint256 author_Id = userManager._getUserId(_address);
         return publicationManager.getAuthorPublications(author_Id);
+    }
+
+    function getPublicationsAuthorId(uint256 _author_Id) public view returns(uint256[] memory) {
+        return publicationManager.getAuthorPublications(_author_Id);
+    }
+
+    function getPublicationLicences(uint256 _publication_Id) public view returns (uint256[] memory) {
+        return licenceManager.getPublicationLicences(_publication_Id);
     }
 
     function getBids(address _address) public view returns (uint256[] memory) {
