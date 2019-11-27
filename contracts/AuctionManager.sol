@@ -89,7 +89,7 @@ contract AuctionManager is Initializable {
     ) public onlyRegistry returns (uint256) {
         Auction memory auction = auctions[_auction_Id];
         require(
-            auction.status == AuctionStatus.Commit,
+            getAuctionStatus(_auction_Id) == AuctionStatus.Commit,
             "Can only commit during the commit phase"
         );
         Bid memory bid = Bid(

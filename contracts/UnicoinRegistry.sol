@@ -79,8 +79,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         userManager._registerUser(_profile_uri, msg.sender);
     }
     function createPublication(
-        string memory _publication_uri,
         uint8 _pricing_Strategy,
+        string memory _publication_uri,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
