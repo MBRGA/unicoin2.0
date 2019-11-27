@@ -11,6 +11,7 @@ contract PublicationManager is Initializable {
         uint256 author_id; //id of the auther
         uint256 sell_price;
         uint256 maxNumberOfLicences;
+        uint256 licencesIssued;
         uint256[] auction_ids; //ids of bids on the publication
         uint256[] contributors;
         uint256[] contributors_weightings; //scaled by 1e2 to repres entat
@@ -52,13 +53,17 @@ contract PublicationManager is Initializable {
             "Publication URI should not be empty."
         );
 
-        if(PricingStratergy(_pricing_stratergy) == PricingStratergy.FixedRate){
+        if (
+            PricingStratergy(_pricing_stratergy) == PricingStratergy.FixedRate
+        ) {
             require(_fixed_sell_price >= 0, "Fixed sell price cant be zero");
+        } else {
+            require(
+                _fixed_sell_price == 0,
+                "Fixed sell price must be zero for auction"
+            );
         }
-        else {
-            require(_fixed_sell_price == 0, "Fixed sell price must be zero for auction");
-        }
-        
+
         uint256[] memory auction_ids;
         Publication memory publication = Publication(
             PricingStratergy(_pricing_stratergy),
@@ -66,6 +71,7 @@ contract PublicationManager is Initializable {
             _author_Id,
             _fixed_sell_price,
             _maxNumberOfLicences,
+            0, //start with no licences issued
             auction_ids,
             _contributors,
             _contributors_weightings
@@ -82,20 +88,55 @@ contract PublicationManager is Initializable {
         return (publicationId);
     }
 
-    function _addAuctionToPublication(uint256 _publicationId, uint256 _auctionId) public onlyRegistry{
+    function _addAuctionToPublication(
+        uint256 _publicationId,
+        uint256 _auctionId
+    ) public onlyRegistry {
         publications[_publicationId].auction_ids.push(_auctionId);
     }
 
-    function _getAuthorId(uint256 _publication_Id) public view returns (uint256) {
+    function addNewLicenceToPublication(uint256 _publication_Id)
+        public
+        onlyRegistry
+        returns (uint256)
+    {
+        uint256 licenceNo = publications[_publication_Id].licencesIssued + 1;
+        require(
+            licenceNo <= publications[_publication_Id].maxNumberOfLicences,
+            "Max number of licences have been issued."
+        );
+        publications[_publication_Id].licencesIssued = licenceNo;
+        return licenceNo;
+    }
+
+    function _getAuthorId(uint256 _publication_Id)
+        public
+        view
+        returns (uint256)
+    {
         return publications[_publication_Id].author_id;
     }
 
-    function _getContributers(uint256 _publication_Id) public view returns (uint256[] memory, uint256[] memory) {
-        return (publications[_publication_Id].contributors, publications[_publication_Id].contributors_weightings);
+    function _getContributers(uint256 _publication_Id)
+        public
+        view
+        returns (uint256[] memory, uint256[] memory)
+    {
+        return (
+            publications[_publication_Id].contributors,
+            publications[_publication_Id].contributors_weightings
+        );
     }
 
-    function getLatestAuctionId(uint256 _publication_Id) public view returns (uint256) {
-        return publications[_publication_Id].auction_ids[publications[_publication_Id].auction_ids.length - 1];
+    function getLatestAuctionId(uint256 _publication_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return
+            publications[_publication_Id]
+                .auction_ids[publications[_publication_Id].auction_ids.length -
+                1];
     }
 
     function getPublication(uint256 _publication_Id)
@@ -104,6 +145,7 @@ contract PublicationManager is Initializable {
         returns (
             uint8,
             string memory,
+            uint256,
             uint256,
             uint256,
             uint256,
@@ -119,6 +161,7 @@ contract PublicationManager is Initializable {
             _publication.author_id,
             _publication.sell_price,
             _publication.maxNumberOfLicences,
+            _publication.licencesIssued,
             _publication.auction_ids,
             _publication.contributors,
             _publication.contributors_weightings
@@ -129,7 +172,11 @@ contract PublicationManager is Initializable {
         return publications.length;
     }
 
-    function getPublicationAuctions(uint256 _publication_Id) public view returns (uint256[] memory) {
+    function getPublicationAuctions(uint256 _publication_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return publications[_publication_Id].auction_ids;
     }
 }
