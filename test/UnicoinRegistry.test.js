@@ -127,11 +127,15 @@ contract("Unicoin Registry", (accounts) => {
             }))
         });
         it("Can retrieve user profile information", async () => {
-            let isAddressRegistered = await unicoinRegistry.isCallerRegistered(publisher)
-            assert.equal(isAddressRegistered === true, "User should be registered")
+            let isAddressRegistered = await unicoinRegistry.isCallerRegistered.call({
+                from: publisher
+            })
+            assert.equal(isAddressRegistered, true, "User should be registered")
 
-            isAddressRegistered = await unicoinRegistry.isCallerRegistered(random)
-            assert.equal(isAddressRegistered === false, "User should not be registered")
+            isAddressRegistered = await unicoinRegistry.isCallerRegistered.call({
+                from: randomAddress
+            })
+            assert.equal(isAddressRegistered, false, "User should not be registered")
         })
     })
 
