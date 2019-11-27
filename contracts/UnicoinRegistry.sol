@@ -3,8 +3,6 @@ pragma solidity ^0.5.12;
 /// @title UniCoin smart contract
 /// @author Chris Maree
 
-/// @dev import contracts from openzeppelin related to ownable and ERC20, ERC721 tokens
-
 import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
@@ -24,48 +22,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     Vault private vault;
 
     enum PricingStrategy {PrivateAuction, FixedRate}
-
-    event NewPublication(
-        address indexed _from,
-        string _publication_uri,
-        bool _pricing_Strategy,
-        uint256 _sell_price
-    );
-
-    event NewBid(
-        address indexed _from,
-        uint256 indexed _publication_Id,
-        uint256 _offer
-    );
-
-    event AcceptedBid(address indexed _from, uint256 _id);
-
-    event RejectedBid(address indexed _from, uint256 _id);
-
-    event CancelledBid(address indexed _from, uint256 _id);
-
-    event ChangeToSale(
-        address indexed _from,
-        uint256 indexed _publication_Id,
-        uint256 _sell_price
-    );
-
-    event ChangeToAuction(
-        address indexed _from,
-        uint256 indexed _publication_Id
-    );
-
-    event ChangeSellPrice(
-        address indexed _from,
-        uint256 indexed _publication_Id,
-        uint256 _sell_price
-    );
-
-    event ChangeRunningStatus(
-        address indexed _from,
-        uint256 indexed _publication_Id,
-        bool _isRunning
-    );
+    
     function initialize(
         address _auctionManager,
         address _licenceManager,
@@ -88,19 +45,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         owner = _owner;
     }
 
-    /// @notice This function registers a user on the platform by taking in their profile URL
-    /// @param _profile_uri user profile url
-    /// @dev If the user's addresowners is in position 0 of the userAddresses array, they are unregistered
-    /// @dev Create an instance of the user and add the Id to their address
     function registerUser(string memory _profile_uri) public {
         userManager._registerUser(_profile_uri);
     }
-
-    /// @notice This function creates a publication on the system, with blank arrays for publication bids and owners,
-    /// @notice since no one has bidded for or bought a licence yet
-    /// @dev The researcher only specifies the flat rate if they have chosen not to auction the work
-    /// @dev Add instance to the respective arrays
-
     function createPublication(
         string memory _publication_uri,
         uint8 _pricing_Strategy,
@@ -273,8 +220,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return (publicationManager.getPublication(_publication_Id));
     }
 
-    /// @return get the licences per owner
-    /// @param _address of the account holder
     function getLicenceForAddress(address _address)
         public
         view

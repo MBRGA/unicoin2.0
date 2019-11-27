@@ -3,15 +3,14 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract UserManager is Initializable {
-    /// @notice struct for users of the plaform, needs their Ethereum address and profile URL
     struct User {
         address owned_address;
         string profile_uri;
     }
-    /// @notice Array of regististred users
+    //Array of regististred users
     User[] public users;
-
-    /// @notice maps all users' addresses to their userID
+    
+    //all users' addresses to their userID
     mapping(address => uint256) public userAddresses;
 
     address registry;
