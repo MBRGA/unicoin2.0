@@ -32,6 +32,9 @@ contract AuctionManager is Initializable {
         uint256 auction_Id;
         uint256 bidder_Id; // owner of the bid
     }
+
+    Bid[] bids;
+
     // Maps all bidders' IDs to their userID
     mapping(uint256 => uint256[]) public bidOwners;
 

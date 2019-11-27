@@ -127,7 +127,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             _contributors_weightings
         );
 
-        if (PricingStrategy(_pricing_Strategy) != PricingStrategy.fixedRate) {
+        if (PricingStrategy(_pricing_Strategy) != PricingStrategy.FixedRate) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
                 _auctionFloor,
@@ -176,9 +176,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         require(winningBiderId > 0, "Invalid winning bid Id");
         require(publicationId > 0, "Invalid publication Id");
 
-        uint256 authorId = publicationManager._getAuthorId(publicationId);
-        address authorAddress = userManager._getUserAddress(authorId);
-        address winningBidderAddress = userManager._getUserAddress(
+        uint256 authorId = publicationManager.getAuthorId(publicationId);
+        address authorAddress = userManager.getUserAddress(authorId);
+        address winningBidderAddress = userManager.getUserAddress(
             winningBiderId
         );
 
@@ -211,29 +211,35 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
     }
 
-    function buyLicenceFixedRate() public {
-
-    }
+    function buyLicenceFixedRate() public {}
 
     function getPublicationsAuthorAddress(address _address)
         public
         view
         returns (uint256[] memory)
     {
-        uint256 author_Id = userManager._getUserId(_address);
+        uint256 author_Id = userManager.getUserId(_address);
         return publicationManager.getAuthorPublications(author_Id);
     }
 
-    function getPublicationsAuthorId(uint256 _author_Id) public view returns(uint256[] memory) {
+    function getPublicationsAuthorId(uint256 _author_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return publicationManager.getAuthorPublications(_author_Id);
     }
 
-    function getPublicationLicences(uint256 _publication_Id) public view returns (uint256[] memory) {
+    function getPublicationLicences(uint256 _publication_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return licenceManager.getPublicationLicences(_publication_Id);
     }
 
     function getBids(address _address) public view returns (uint256[] memory) {
-        uint256 userAddress = userManager._getUserId(_address);
+        uint256 userAddress = userManager.getUserId(_address);
         return auctionManager.getBidderBids(userAddress);
     }
 
@@ -286,19 +292,17 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return licenceManager.getLicenceForUser(_user_Id);
     }
 
-    function getLicence(uint256 _licenceId)
+    function getLicence(uint256 _licence_Id)
         public
         view
         returns (uint256, uint256, uint256)
     {
-        return (licenceManager.getLicence);
+        return (licenceManager.getLicence(_licence_Id));
     }
 
     function donate(uint256 _publication_Id, uint256 _value) public {
-
         uint256 authorId = publicationManager.getAuthorId(_publication_Id);
         address authorAddress = userManager.getUserAddress(authorId);
-
 
         (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
             ._getContributers(_publication_Id);
@@ -320,16 +324,16 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     }
 
     function isCallerRegistered() public view returns (bool) {
-        return userManager._isAddressRegistered(msg.sender);
+        return userManager.isAddressRegistered(msg.sender);
     }
 
     function getCallerId() public view returns (uint256) {
-        uint256 callerId = userManager._getUserId(msg.sender);
+        uint256 callerId = userManager.getUserId(msg.sender);
         require(callerId != 0, "Caller is not registered!");
     }
 
     function getUserAddress(uint256 _user_Id) public view returns (address) {
-        return userManager._getUserAddress(_user_Id);
+        return userManager.getUserAddress(_user_Id);
     }
 
     function canBidderPay(uint256 _user_Id, uint256 _amount)
@@ -346,6 +350,6 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         view
         returns (uint256[] memory)
     {
-        return auctionManager.getBidderBids;
+        return auctionManager.getBidderBids(_bidder_Id);
     }
 }

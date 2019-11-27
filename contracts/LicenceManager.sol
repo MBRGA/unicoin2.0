@@ -84,7 +84,11 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         );
     }
 
-    function getPublicationLicences(uint256 _publication_Id) public view returns (uint256[] memory){
+    function getPublicationLicences(uint256 _publication_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return publicationLicences[_publication_Id];
     }
 
