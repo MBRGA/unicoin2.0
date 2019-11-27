@@ -44,10 +44,7 @@ contract AuctionManager is Initializable {
         _;
     }
 
-    function initialize(address _unicoinRegistry)
-        public
-        initializer
-    {
+    function initialize(address _unicoinRegistry) public initializer {
         registry = _unicoinRegistry;
         unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
     }
@@ -150,42 +147,57 @@ contract AuctionManager is Initializable {
             getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
             "Can only finalize an auction in the reveal stage"
         );
-        
+
         Auction memory auction = auctions[_auction_Id];
-        
+
         uint256 numOfBids = auction.auction_bid_ids.length;
 
         uint256 leadingBid = 0;
         uint256 leadingBidAmount = 0;
-        
-        for(uint256 i = 0; i < numOfBids; i ++) {
+
+        for (uint256 i = 0; i < numOfBids; i++) {
             uint256 bidAmount = bids[auction.auction_bid_ids[i]].revealedBid;
-            if(bidAmount > leadingBidAmount){
+            if (bidAmount > leadingBidAmount) {
                 //need to check that the bidder has enough balance and enough allowance to be able to
                 // win the auction. Ask the vault via the registrey for this information.
-                if(unicoinRegistry.canBidderPay(bids[auction.auction_bid_ids[i]].bidder_Id, bidAmount)) {
+                if (
+                    unicoinRegistry.canBidderPay(
+                        bids[auction.auction_bid_ids[i]].bidder_Id,
+                        bidAmount
+                    )
+                ) {
                     leadingBid = auction.auction_bid_ids[i];
                     leadingBidAmount = bidAmount;
                 }
             }
         }
 
-        if(leadingBid > 0) {
+        if (leadingBid > 0) {
             auctions[_auction_Id].status = AuctionStatus.Finalized;
             auctions[_auction_Id].winning_bid_Id = leadingBid;
         }
 
-        return (leadingBidAmount, bids[leadingBid].bidder_Id, auction.publication_Id);
+        return (
+            leadingBidAmount,
+            bids[leadingBid].bidder_Id,
+            auction.publication_Id
+        );
     }
 
-    function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
+    function getAuctionStatus(uint256 _auction_Id)
+        public
+        returns (AuctionStatus)
+    {
         Auction memory auction = auctions[_auction_Id];
         if (now < auction.starting_time) {
             auctions[_auction_Id].status = AuctionStatus.Pending;
             return AuctionStatus.Pending;
         }
 
-        if (now > auction.starting_time && now < (auction.starting_time + auction.duration)) {
+        if (
+            now > auction.starting_time &&
+            now < (auction.starting_time + auction.duration)
+        ) {
             auctions[_auction_Id].status = AuctionStatus.Commit;
             return AuctionStatus.Commit;
         }
@@ -196,7 +208,11 @@ contract AuctionManager is Initializable {
         }
     }
 
-    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
+    function getBidderBids(uint256 _bidder_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return bidOwners[_bidder_Id];
     }
 }
