@@ -89,23 +89,50 @@ contract("Unicoin Registry", (accounts) => {
             unicoinRegistry.address, {
                 from: registryOwner
             })
-
-
-
-
+        await unicoinRegistry.initialize(auctionManager.address,
+            licenceManager.address,
+            publicationManager.address,
+            userManager.address,
+            vault.address, {
+                from: registryOwner
+            })
     });
 
     beforeEach(async function () {
 
     })
     // Tests correct registration of users
-    context("Contract setup", function () {
-        it("Can register a new user", async () => {
+    context("User Management 💁‍♂️", function () {
+        it("Reverts if invalid user input", async () => {
+            await await expectRevert.unspecified(unicoinRegistry.registerUser("", {
+                from: publisher
+            }))
 
         });
-        it("Reverts if invalid user added", async () => {
+        it("Can add new user", async () => {
+            await unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: publisher
+            })
+            await unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: bidder1
+            })
+            await unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: bidder2
+            })
 
         });
+        it("Revert if user already added", async () => {
+            await expectRevert.unspecified(unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: publisher
+            }))
+        });
+        it("Can retrieve user profile information", async () => {
+            let isAddressRegistered = await unicoinRegistry.isCallerRegistered(publisher)
+            assert.equal(isAddressRegistered === true, "User should be registered")
+
+            isAddressRegistered = await unicoinRegistry.isCallerRegistered(random)
+            assert.equal(isAddressRegistered === false, "User should not be registered")
+        })
     })
 
 })

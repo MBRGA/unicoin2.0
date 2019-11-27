@@ -27,14 +27,17 @@ contract UserManager is Initializable {
         registry = _unicoinRegistry;
     }
 
-    function _registerUser(string memory _profile_uri) public onlyRegistry {
+    function _registerUser(string memory _profile_uri, address _userAddress)
+        public
+        onlyRegistry
+    {
         require(
             bytes(_profile_uri).length > 0,
             "Profile URI should not be empty."
         );
-        require(userAddresses[msg.sender] == 0, "User already registered.");
-        uint256 id = users.push(User(msg.sender, _profile_uri));
-        userAddresses[msg.sender] = id - 1;
+        require(userAddresses[_userAddress] == 0, "User already registered.");
+        uint256 id = users.push(User(_userAddress, _profile_uri));
+        userAddresses[_userAddress] = id - 1;
     }
 
     function isAddressRegistered(address _userAddress)
