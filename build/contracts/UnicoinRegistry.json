@@ -19746,9 +19746,30 @@
   "networks": {
     "5777": {
       "links": {},
-      "events": {},
-      "address": "0xFc7B4AdF06811CB9C9D235898272923Ba081950f",
-      "updated_at": 1574861504613
+      "events": {
+        "0xb9f84b8e65164b14439ae3620df0a4d8786d896996c0282b683f9d8c08f046e8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldRelayHub",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newRelayHub",
+              "type": "address"
+            }
+          ],
+          "name": "RelayHubChanged",
+          "type": "event",
+          "signature": "0xb9f84b8e65164b14439ae3620df0a4d8786d896996c0282b683f9d8c08f046e8"
+        }
+      },
+      "address": "0x9f78Fe4B241d3A51DF545f49fb51c5bBD45b69A1",
+      "updated_at": 1574861965795
     },
     "1574847133484": {
       "links": {},
@@ -19806,7 +19827,7 @@
     }
   },
   "schemaVersion": "3.0.16",
-  "updatedAt": "2019-11-27T13:25:12.905Z",
+  "updatedAt": "2019-11-27T13:40:16.253Z",
   "devdoc": {
     "methods": {
       "getHubAddr()": {

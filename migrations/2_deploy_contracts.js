@@ -9,9 +9,11 @@ const {
 const {
     add,
     push,
-    create
+    create,
+    call
 } = scripts;
 
+var UnicoinRegistry = artifacts.require("UnicoinRegistry")
 var daiContractMock = artifacts.require("ERC20Mock")
 
 async function deploy(options, daiContractAddress) {
@@ -89,16 +91,12 @@ async function deploy(options, daiContractAddress) {
     }, options));
 
     console.log("Initing UnicoinRegistry")
-    let unicoinRegistryInit = await call(Object.assign({
-        contractAlias: 'UnicoinRegistry',
-        methodName: 'initialize',
-        methodArgs: [auctionManager.address,
-            licenceManager.address,
-            publicationManager.address,
-            userManager.address,
-            vault.address
-        ]
-    }, options));
+    const unicoinRegistryInstance = await UnicoinRegistry.deployed()
+    await unicoinRegistryInstance.initialize(auctionManager.address,
+        licenceManager.address,
+        publicationManager.address,
+        userManager.address,
+        vault.address)
 }
 
 module.exports = function (deployer, networkName, accounts) {
