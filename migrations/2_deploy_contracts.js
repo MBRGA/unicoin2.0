@@ -101,15 +101,12 @@ async function deploy(options, daiContractAddress) {
 
 module.exports = function (deployer, networkName, accounts) {
     deployer.then(async () => {
-        let account = accounts[0];
-        const {
-            network,
-            txParams
-        } = await ConfigManager.initNetworkConfiguration({
-            network: networkName,
-            from: account
-        })
 
+        if (networkName === 'test') { //we dont want to run migrations when running unit tests
+            return
+        }
+
+        let account = accounts[0];
         let daiContractAddress
         if (networkName === 'kovan' || networkName === 'kovan-fork') {
             daiContractAddress = '0xc4375b7de8af5a38a93548eb8453a498222c4ff2'
@@ -131,6 +128,15 @@ module.exports = function (deployer, networkName, accounts) {
         if (networkName != 'kovan' && networkName != 'live' && networkName != 'development') {
             console.log("Invalid network selected")
         }
+
+        const {
+            network,
+            txParams
+        } = await ConfigManager.initNetworkConfiguration({
+            network: networkName,
+            from: account
+        })
+
         await deploy({
             network,
             txParams

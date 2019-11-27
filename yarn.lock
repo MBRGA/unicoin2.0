@@ -1307,7 +1307,16 @@
     web3-eth-contract "1.2.2"
     web3-utils "1.2.2"
 
-"@openzeppelin/contracts-ethereum-package@^2.3.0":
+"@openzeppelin/contract-loader@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contract-loader/-/contract-loader-0.4.0.tgz#c28c05d09df94c634d968ed175b5777dfc675872"
+  integrity sha512-K+Pl4tn0FbxMSP0H9sgi61ayCbecpqhQmuBshelC7A3q2MlpcqWRJan0xijpwdtv6TORNd5oZNe/+f3l+GD6tw==
+  dependencies:
+    find-up "^4.1.0"
+    fs-extra "^8.1.0"
+    try-require "^1.2.1"
+
+"@openzeppelin/contracts-ethereum-package@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-ethereum-package/-/contracts-ethereum-package-2.4.0.tgz#cd98612022cadb8710c26901bc564240a19a9b40"
   integrity sha512-GC1aOgTnuNnlhdYOCKFizLCQRgYlbImWi+aJ9Lw4Yw4BSLHzfPg+XV0tgn9l+KnFAzgoUEg2aD2wmaHZBjEnSw==
@@ -1364,6 +1373,22 @@
     hosted-git-info "^2.6.0"
     path-browserify "^1.0.0"
     url "^0.11.0"
+
+"@openzeppelin/test-helpers@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/test-helpers/-/test-helpers-0.5.4.tgz#2366703c37849dc1b3768bff41ab9213aee28c5a"
+  integrity sha512-sSjft0CcmC6Pwsd/j1uakk2MLamEH4mmphVlF5hzUUVyoxL0KGCbxQgBoLoEpUbw2M9HtFAEMJJPGccEcb9Cog==
+  dependencies:
+    "@openzeppelin/contract-loader" "^0.4.0"
+    "@truffle/contract" "^4.0.35"
+    ansi-colors "^3.2.3"
+    chai "^4.2.0"
+    chai-bn "^0.2.0"
+    ethjs-abi "^0.2.1"
+    lodash.flatten "^4.4.0"
+    semver "^5.6.0"
+    web3 "^1.2.1"
+    web3-utils "^1.2.1"
 
 "@openzeppelin/upgrades@^2.5.3", "@openzeppelin/upgrades@^2.6.0":
   version "2.6.0"
@@ -5399,6 +5424,11 @@ decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.2.0:
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
   integrity sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=
 
+decimal.js@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.2.0.tgz#39466113a9e036111d02f82489b5fd6b0b5ed231"
+  integrity sha512-vDPw+rDgn3bZe1+F/pyEwb1oMG2XTlRVgAa6B4KccTEpYgF8w6eQllVbQcfIJnZyvzFtFpxnpGtx8dd7DJp/Rw==
+
 decode-uri-component@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
@@ -7085,7 +7115,7 @@ find-cache-dir@^2.0.0:
     make-dir "^2.0.0"
     pkg-dir "^3.0.0"
 
-find-up@4.1.0:
+find-up@4.1.0, find-up@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/find-up/-/find-up-4.1.0.tgz#97afe7d6cdc0bc5928584b7c8d7b16e8a9aa5d19"
   integrity sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==
@@ -13444,20 +13474,6 @@ opener@^1.5.1:
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.1.tgz#6d2f0e77f1a0af0032aca716c2c1fbb8e7e8abed"
   integrity sha512-goYSy5c2UXE4Ra1xixabeVh1guIX/ZV/YokJksb6q2lubWu6UbvPQ20p542/sFIll1nl8JnCyK9oBaOcCWXwvA==
 
-openzeppelin-test-helpers@^0.5.3:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/openzeppelin-test-helpers/-/openzeppelin-test-helpers-0.5.1.tgz#48667b7cbbce147d90cb25f86e8695eab3e60ca7"
-  integrity sha512-xIMusuVCKXfR+qwbyiXpV7UaqaW3H/Q3axQ2nSce8o3R9TQoxrZdbKvMZdJdg6Ro4cpRDQ3yZtniz4vSIbSZHg==
-  dependencies:
-    "@truffle/contract" "^4.0.35"
-    ansi-colors "^3.2.3"
-    chai-bn "^0.2.0"
-    ethjs-abi "^0.2.1"
-    lodash.flatten "^4.4.0"
-    semver "^5.6.0"
-    web3 "^1.2.1"
-    web3-utils "^1.2.1"
-
 opn@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/opn/-/opn-5.5.0.tgz#fc7164fab56d235904c51c3b27da6758ca3b9bfc"
@@ -18220,10 +18236,10 @@ truffle-provider@^0.1.12:
     truffle-interface-adapter "^0.2.5"
     web3 "1.2.1"
 
-truffle@^5.0.27:
-  version "5.0.27"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.27.tgz#2842539f69d55a7cf82d21c4ffab0605953e1942"
-  integrity sha512-MN02w3TNOwVaEvvCD535pov7D/59p92yzQ/Os4hR2kiSGy1s+9V6RYtmOPucY8G/1wx8RnvOAgcIzcqHrO6tvQ==
+truffle@^5.0.37:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.1.tgz#0430fb85f3704d629e83c201bf5b75603bd65afc"
+  integrity sha512-Mg5+A/qPGFVqQ7QNQjESaUoG4i3L58FmvllhhhMsxveXgSa2wbSucmC8zYayQ7j7XTUZw6oDwYyH4iExyLeiTQ==
   dependencies:
     app-module-path "^2.2.0"
     mocha "5.2.0"
@@ -18235,6 +18251,11 @@ truncate-utf8-bytes@^1.0.0:
   integrity sha1-QFkjkJWS1W94pYGENLC3hInKXys=
   dependencies:
     utf8-byte-length "^1.0.1"
+
+try-require@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/try-require/-/try-require-1.2.1.tgz#34489a2cac0c09c1cc10ed91ba011594d4333be2"
+  integrity sha1-NEiaLKwMCcHMEO2RugEVlNQzO+I=
 
 tryer@^1.0.0:
   version "1.0.1"

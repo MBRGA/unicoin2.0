@@ -9,6 +9,11 @@ module.exports = {
       port: 8545,
       network_id: "*", // Any network (default: none)
     },
+    test: {
+      host: "localhost",
+      port: 8545,
+      network_id: "*", // Any network (default: none)
+    },
     coverage: {
       host: "127.0.0.1",
       port: 8545,
