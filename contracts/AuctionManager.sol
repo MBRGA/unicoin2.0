@@ -82,7 +82,7 @@ contract AuctionManager is Initializable {
         return auctionId;
     }
 
-    function commitSealedBid(
+    function _commitSealedBid(
         bytes32 _bidHash,
         uint256 _auction_Id,
         uint256 _bidder_Id

@@ -1,4 +1,6 @@
 // Import all required modules from openzeppelin-test-helpers
+
+
 const {
     BN,
     constants,
@@ -49,12 +51,18 @@ contract("Unicoin Registry", (accounts) => {
         _publication_uri: examplePublicationURI,
         _pricing_Strategy: 1,
         _auctionFloor: 100,
-        _auctionStartTime: +new Date(),
+        _auctionStartTime: +new Date() + 300,
         _auctionDuration: 100,
         _fixed_sell_price: 0,
         _maxNumberOfLicences: 1,
         _contributors: [contributor1, contributor2],
         _contributors_weightings: ["5", "10"],
+    }
+
+    const sealedBid = {
+        bidAmount: 1000,
+        salt: 12345,
+        bidHash: web3.utils.keccak256("1000" + "12345")
     }
 
     before(async function () {
@@ -124,7 +132,6 @@ contract("Unicoin Registry", (accounts) => {
             await expectRevert.unspecified(unicoinRegistry.registerUser("", {
                 from: publisher
             }))
-
         });
         it("Can add new user", async () => {
             await unicoinRegistry.registerUser(exampleUserProfileURI, {
@@ -136,7 +143,6 @@ contract("Unicoin Registry", (accounts) => {
             await unicoinRegistry.registerUser(exampleUserProfileURI, {
                 from: bidder2
             })
-
         });
         it("Revert if user already added", async () => {
             await expectRevert.unspecified(unicoinRegistry.registerUser(exampleUserProfileURI, {
@@ -179,7 +185,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             );
         })
-        it("Reverts if invalid Publication input: non-registered user", async () => {
+        it("Reverts if invalid Publication: input non-registered user", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication._publication_uri,
                 samplePublication._pricing_Strategy,
@@ -240,7 +246,7 @@ contract("Unicoin Registry", (accounts) => {
             ))
         })
         it("Reverts if invalid Publication: invalid start time", async () => {
-            await time.increase(100)
+            await time.increase(200)
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication._publication_uri,
                 samplePublication._pricing_Strategy,
@@ -254,9 +260,10 @@ contract("Unicoin Registry", (accounts) => {
                     from: randomAddress
                 }
             ))
+            //advance time to catch up with the starting increase
+            samplePublication._auctionStartTime += 200
         })
         it("Reverts if invalid Publication: invalid duration time", async () => {
-            await time.increase(100)
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication._publication_uri,
                 samplePublication._pricing_Strategy,
@@ -270,6 +277,21 @@ contract("Unicoin Registry", (accounts) => {
                     from: randomAddress
                 }
             ))
+        })
+    })
+    context("Auction Bidding 🧾", function () {
+        it("Reverts if invalid bid time", async () => {
+            //this is before the auction has started. current time is now() +200
+            //and auction starts at now +300
+            await expectRevert.unspecified(unicoinRegistry.commitSealedBid(sealedBid.bidHash, 0, {
+                from: publisher
+            }))
+        })
+
+        it("Place bid in auction", async () => {
+            unicoinRegistry.commitSealedBid(sealedBid.bidHash, 0, {
+                from: publisher
+            })
         })
     })
 })

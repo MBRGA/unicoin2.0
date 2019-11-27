@@ -123,7 +123,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             _publication_Id
         );
         uint256 bidder_Id = getCallerId();
-        auctionManager.commitSealedBid(_bidHash, auction_Id, bidder_Id);
+        auctionManager._commitSealedBid(_bidHash, auction_Id, bidder_Id);
     }
 
     function revealSealedBid(
