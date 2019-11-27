@@ -4,7 +4,8 @@ const {
     constants,
     expectEvent,
     expectRevert,
-    ether
+    ether,
+    time
 } = require("@openzeppelin/test-helpers");
 const {
     expect
@@ -30,15 +31,31 @@ const Vault = artifacts.require("./Vault.sol")
 const Erc20Mock = artifacts.require("./Mocks/ERC20Mock.sol");
 
 contract("Unicoin Registry", (accounts) => {
+    //test accounts
     const registryOwner = accounts[0]
     const tokenOwner = accounts[1]
     const publisher = accounts[2]
     const bidder1 = accounts[3]
     const bidder2 = accounts[4]
-    const randomAddress = accounts[5]
+    const contributor1 = accounts[5]
+    const contributor2 = accounts[6]
+    const randomAddress = accounts[7]
 
+    //constants
     const exampleUserProfileURI = "QmeWUs9YdymQVpsme3MLQdWFW5GjdM4XDFYMi3YJvUFiaq"
     const examplePublicationURI = "QmPF7eAtGoaEgSAt9XCP2DuWfc8sbtQfraffDsx3svu4Ph"
+
+    const samplePublication = {
+        _publication_uri: examplePublicationURI,
+        _pricing_Strategy: 1,
+        _auctionFloor: 100,
+        _auctionStartTime: +new Date(),
+        _auctionDuration: 100,
+        _fixed_sell_price: 0,
+        _maxNumberOfLicences: 1,
+        _contributors: [contributor1, contributor2],
+        _contributors_weightings: ["5", "10"],
+    }
 
     before(async function () {
         daiContract = await Erc20Mock.new({
@@ -104,7 +121,7 @@ contract("Unicoin Registry", (accounts) => {
     // Tests correct registration of users
     context("User Management 💁‍♂️", function () {
         it("Reverts if invalid user input", async () => {
-            await await expectRevert.unspecified(unicoinRegistry.registerUser("", {
+            await expectRevert.unspecified(unicoinRegistry.registerUser("", {
                 from: publisher
             }))
 
@@ -136,7 +153,123 @@ contract("Unicoin Registry", (accounts) => {
                 from: randomAddress
             })
             assert.equal(isAddressRegistered, false, "User should not be registered")
+
+            let publisherCallerId = await unicoinRegistry.getCallerId({
+                from: bidder1
+            })
+            assert.equal(publisherCallerId.toNumber(), 2, "Publisher Id not set correctly")
+
+            let returnedPublisherAddress = await unicoinRegistry.getUserAddress(2)
+            assert.equal(returnedPublisherAddress, bidder1, "Publisher address increctly returned")
         })
     })
-
+    context("Publication Management ‍📚", function () {
+        it("Can create a valid publication", async () => {
+            await unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                samplePublication._pricing_Strategy,
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                samplePublication._auctionDuration,
+                samplePublication._fixed_sell_price,
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: publisher
+                }
+            );
+        })
+        it("Reverts if invalid Publication input: non-registered user", async () => {
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                samplePublication._pricing_Strategy,
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                samplePublication._auctionDuration,
+                samplePublication._fixed_sell_price,
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+        it("Reverts if invalid Publication: input URI too short", async () => {
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                "",
+                samplePublication._pricing_Strategy,
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                samplePublication._auctionDuration,
+                samplePublication._fixed_sell_price,
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+        it("Reverts if invalid Publication: invalid Fixed price call", async () => {
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                1, //price stratergy 1 = fixed price
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                samplePublication._auctionDuration,
+                0, //fixed price should not be zero in this case
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+        it("Reverts if invalid Publication: invalid auction call (auction should not have fixed price)", async () => {
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                0, //auction stratergy 1 = fixed price
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                samplePublication._auctionDuration,
+                10, //auction should have a fixed price of zero
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+        it("Reverts if invalid Publication: invalid start time", async () => {
+            await time.increase(100)
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                samplePublication._pricing_Strategy,
+                samplePublication._auctionFloor,
+                20, //start time less than the spesified auction time
+                samplePublication._fixed_sell_price,
+                samplePublication._auctionDuration,
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+        it("Reverts if invalid Publication: invalid duration time", async () => {
+            await time.increase(100)
+            await expectRevert.unspecified(unicoinRegistry.createPublication(
+                samplePublication._publication_uri,
+                samplePublication._pricing_Strategy,
+                samplePublication._auctionFloor,
+                samplePublication._auctionStartTime,
+                0, //auction duration cant be zero
+                samplePublication._fixed_sell_price,
+                samplePublication._maxNumberOfLicences,
+                samplePublication._contributors,
+                samplePublication._contributors_weightings, {
+                    from: randomAddress
+                }
+            ))
+        })
+    })
 })

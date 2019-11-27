@@ -305,6 +305,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     function getCallerId() public view returns (uint256) {
         uint256 callerId = userManager.getUserId(msg.sender);
         require(callerId != 0, "Caller is not registered!");
+        return callerId;
     }
 
     function getUserAddress(uint256 _user_Id) public view returns (address) {
