@@ -91,7 +91,7 @@ async function deploy(options, daiContractAddress) {
     }, options));
 
     console.log("Initing UnicoinRegistry")
-    const unicoinRegistryInstance = await UnicoinRegistry.deployed()
+    const unicoinRegistryInstance = await UnicoinRegistry.at(unicoinRegistry.address)
     await unicoinRegistryInstance.initialize(auctionManager.address,
         licenceManager.address,
         publicationManager.address,

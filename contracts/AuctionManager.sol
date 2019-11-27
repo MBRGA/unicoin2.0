@@ -4,7 +4,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-import "./UnicoinRegistry.sol";
+// import "./UnicoinRegistry.sol";
 
 contract AuctionManager is Initializable {
     enum BidStatus {Committed, Revealed, Winner}
@@ -40,7 +40,7 @@ contract AuctionManager is Initializable {
 
     address registry;
 
-    UnicoinRegistry unicoinRegistry;
+    // UnicoinRegistry unicoinRegistry;
 
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
@@ -49,7 +49,7 @@ contract AuctionManager is Initializable {
 
     function initialize(address _unicoinRegistry) public initializer {
         registry = _unicoinRegistry;
-        unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
+        // unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
     }
 
     function _createAuction(
@@ -163,15 +163,15 @@ contract AuctionManager is Initializable {
             if (bidAmount > leadingBidAmount) {
                 //need to check that the bidder has enough balance and enough allowance to be able to
                 // win the auction. Ask the vault via the registrey for this information.
-                if (
-                    unicoinRegistry.canBidderPay(
-                        bids[auction.auction_bid_ids[i]].bidder_Id,
-                        bidAmount
-                    )
-                ) {
-                    leadingBid = auction.auction_bid_ids[i];
-                    leadingBidAmount = bidAmount;
-                }
+                // if (
+                //     // unicoinRegistry.canBidderPay(
+                //         bids[auction.auction_bid_ids[i]].bidder_Id,
+                //         bidAmount
+                //     )
+                // ) {
+                leadingBid = auction.auction_bid_ids[i];
+                leadingBidAmount = bidAmount;
+                // }
             }
         }
 
