@@ -422,7 +422,6 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
     })
     context("Auction Bidding: retrieve bid information 🔎", function () {
-
         it("Can retrieve bids for publication", async () => {
             let publicationBidInformation = await unicoinRegistry.getPublicationBids(1)
             let counter = 0
@@ -547,6 +546,27 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             await expectRevert.unspecified(unicoinRegistry.revealSealedBid(sealedBid1.bidAmount, sealedBid1.salt, 1, 0, {
                 from: bidder1
             }))
+        })
+    })
+    context("Auction Bidding: finalize auction 🏁", function () {
+        it("Reverts if invalid reveal time: before auction", async () => {
+            //this is before the auction has started. auction stats at now() + 100
+            // and current time is now()
+            await expectRevert.unspecified(
+                unicoinRegistry.finalizeAuction(0, {
+                    from: randomAddress
+                })
+            )
+        })
+        it("Reverts if invalid reveal time: during auction", async () => {
+            //this is before the auction has started. auction stats at now() + 100
+            // and current time is now()
+            time.increase(150) //after the end of the auction
+            await expectRevert.unspecified(
+                unicoinRegistry.finalizeAuction(0, {
+                    from: randomAddress
+                })
+            )
         })
     })
 })
