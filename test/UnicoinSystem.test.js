@@ -1,6 +1,5 @@
 // Import all required modules from openzeppelin-test-helpers
 
-
 const {
     BN,
     constants,
@@ -394,6 +393,7 @@ contract("Unicoin Registry", (accounts) => {
 
             assert.equal(fetchedAuctionStatus.toNumber(), 1, "Auction status not correctly set")
 
+            //set the time to after the auction. should be 2 for reveal
             await time.increase(100)
             fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
 
@@ -403,21 +403,21 @@ contract("Unicoin Registry", (accounts) => {
 
         it("Place bid in auction", async () => {
             //Create 3 bids: 2 from bidder1 and 1 from bidder2
-            await time.increase(150)
-            unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 1, {
+            await time.increase(150) //set the time to an appropriate bidding window
+            await unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 1, {
                 from: bidder1
             })
 
-            unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 1, {
+            await unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 1, {
                 from: bidder2
             })
 
-            unicoinRegistry.commitSealedBid(sealedBid3.bidHash, 1, {
+            await unicoinRegistry.commitSealedBid(sealedBid3.bidHash, 1, {
                 from: bidder1
             })
         })
 
-        it("Can retreive bids for publication", async () => {
+        it("Can retrieve bids for publication", async () => {
             let publicationBidInformation = await unicoinRegistry.getPublicationBids(1)
             let counter = 0
             publicationBidInformation.map(function (bid) {
@@ -426,7 +426,7 @@ contract("Unicoin Registry", (accounts) => {
             })
         })
 
-        it("Can retreive bid information", async () => {
+        it("Can retrieve bid Id information", async () => {
             let bidder1Id = await unicoinRegistry.getCallerId({
                 from: bidder1
             })
@@ -434,11 +434,36 @@ contract("Unicoin Registry", (accounts) => {
                 from: bidder2
             })
             let bidder1Bids = await unicoinRegistry.getBidderBids.call(bidder1Id)
+
             assert.equal(bidder1Bids[0].toNumber(), 0, "Bidder1's 1st bids not correctly set")
             assert.equal(bidder1Bids[1].toNumber(), 2, "Bidder1's 2nd bids not correctly set")
 
             let bidder2Bids = await unicoinRegistry.getBidderBids.call(bidder2Id)
             assert.equal(bidder2Bids[0].toNumber(), 1, "Bidder2's 1st bids not correctly set")
+        })
+        it("Can retrieve bider information", async () => {
+            let bidder1Bids = await unicoinRegistry.getBids(bidder1)
+            assert.equal(bidder1Bids[0].toNumber(), 0, "Bidder1's 1st bids not correctly set")
+            assert.equal(bidder1Bids[1].toNumber(), 2, "Bidder1's 2nd bids not correctly set")
+        })
+        it("Can retrieve the number of publication auction bids", async () => {
+            let numberOfBidsInAuction = await unicoinRegistry.getPublicationAuctionBidLength.call(1)
+            assert.equal(numberOfBidsInAuction.toNumber(), 3, "Number of bids not correctly set")
+        })
+
+        it("Can retrieve bid information", async () => {
+            let bidder1Id = await unicoinRegistry.getCallerId({
+                from: bidder1
+            })
+
+            let bidder1Bid1 = await unicoinRegistry.getBid(0)
+            assert.equal(bidder1Bid1[0], sealedBid1.bidHash, "Bid hash does not match")
+            assert.equal(bidder1Bid1[1].toNumber(), 0, "revealed bid not correctly set")
+            assert.equal(bidder1Bid1[2].toNumber(), 0, "salt not correctly set")
+            assert.equal(bidder1Bid1[3].toNumber(), 0, "status not correctly set")
+            assert.equal(bidder1Bid1[4].toNumber(), 1, "publication Id not correctly set")
+            assert.equal(bidder1Bid1[5].toNumber(), 0, "auction Id Id not correctly set")
+            assert.equal(bidder1Bid1[6].toNumber(), bidder1Id, "auction Id Id not correctly set")
         })
     })
 })

@@ -154,17 +154,17 @@ contract PublicationManager is Initializable {
             uint256[] memory
         )
     {
-        Publication memory _publication = publications[_publication_Id];
+        Publication memory publication = publications[_publication_Id];
         return (
-            uint8(_publication.pricingStrategy),
-            _publication.publication_uri,
-            _publication.author_id,
-            _publication.sell_price,
-            _publication.maxNumberOfLicences,
-            _publication.licencesIssued,
-            _publication.auction_ids,
-            _publication.contributors,
-            _publication.contributors_weightings
+            uint8(publication.pricingStrategy),
+            publication.publication_uri,
+            publication.author_id,
+            publication.sell_price,
+            publication.maxNumberOfLicences,
+            publication.licencesIssued,
+            publication.auction_ids,
+            publication.contributors,
+            publication.contributors_weightings
         );
     }
 

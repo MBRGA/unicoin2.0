@@ -233,4 +233,25 @@ contract AuctionManager is Initializable {
     {
         return auctions[_auction_Id].auction_bid_ids;
     }
+
+    function getBid(uint256 _bid_Id)
+        public
+        view
+        returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256)
+    {
+        Bid memory bid = bids[_bid_Id];
+        return (
+            bid.commitBid,
+            bid.revealedBid,
+            bid.revealedSalt,
+            uint8(bid.status),
+            bid.publication_Id,
+            bid.auction_Id,
+            bid.bidder_Id
+        );
+    }
+
+    function getNumberOfBidsInAuction(uint256 _auction_Id) public view returns (uint256) {
+        return auctions[_auction_Id].auction_bid_ids.length;
+    }
 }
