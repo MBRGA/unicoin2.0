@@ -351,4 +351,15 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
         auctionManager.updateAuctionStartTime(auction_Id, _newStartTime);
     }
+
+    function getPublicationBids(uint256 _publication_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        uint256 auction_Id = publicationManager.getLatestAuctionId(
+            _publication_Id
+        );
+        return (auctionManager.getAuctionBids(auction_Id));
+    }
 }

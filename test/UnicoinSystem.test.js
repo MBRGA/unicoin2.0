@@ -83,6 +83,12 @@ contract("Unicoin Registry", (accounts) => {
         bidHash: web3.utils.keccak256("1200" + "67890")
     }
 
+    const sealedBid3 = {
+        bidAmount: 1250,
+        salt: 13579,
+        bidHash: web3.utils.keccak256("1250" + "13579")
+    }
+
     before(async function () {
         daiContract = await Erc20Mock.new({
             from: tokenOwner
@@ -376,26 +382,47 @@ contract("Unicoin Registry", (accounts) => {
                 })
             )
         })
+        it("Auction Status set correctly", async () => {
+            //current time is before the start of the auction
+            let fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
 
-        it("Place bid in auction", async () => {
+            assert.equal(fetchedAuctionStatus.toNumber(), 0, "Auction status not correctly set")
+
             //current time is now ahead of the start time
             await time.increase(150)
-
-            let currentBlockTime = await unicoinRegistry.getBlockTime()
-            console.log("current block time", currentBlockTime.toNumber())
-            console.log("auction start time", samplePublication_PrivateAuction._auctionStartTime)
-            console.log(currentBlockTime.toNumber() > samplePublication_PrivateAuction._auctionStartTime)
-
-            let fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
+            fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
 
             assert.equal(fetchedAuctionStatus.toNumber(), 1, "Auction status not correctly set")
 
+            await time.increase(100)
+            fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
+
+            assert.equal(fetchedAuctionStatus.toNumber(), 2, "Auction status not correctly set")
+
+        })
+
+        it("Place bid in auction", async () => {
+            //Create 3 bids: 2 from bidder1 and 1 from bidder2
+            await time.increase(150)
             unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 1, {
                 from: bidder1
             })
 
             unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 1, {
                 from: bidder2
+            })
+
+            unicoinRegistry.commitSealedBid(sealedBid3.bidHash, 1, {
+                from: bidder1
+            })
+        })
+
+        it("Can retreive bids for publication", async () => {
+            let publicationBidInformation = await unicoinRegistry.getPublicationBids(1)
+            let counter = 0
+            publicationBidInformation.map(function (bid) {
+                assert.equal(bid.toNumber(), counter, "publication bids not correctly set")
+                counter++
             })
         })
 
@@ -407,8 +434,11 @@ contract("Unicoin Registry", (accounts) => {
                 from: bidder2
             })
             let bidder1Bids = await unicoinRegistry.getBidderBids.call(bidder1Id)
-            console.log(bidder1Bids[0].toNumber())
+            assert.equal(bidder1Bids[0].toNumber(), 0, "Bidder1's 1st bids not correctly set")
+            assert.equal(bidder1Bids[1].toNumber(), 2, "Bidder1's 2nd bids not correctly set")
 
+            let bidder2Bids = await unicoinRegistry.getBidderBids.call(bidder2Id)
+            assert.equal(bidder2Bids[0].toNumber(), 1, "Bidder2's 1st bids not correctly set")
         })
     })
 })

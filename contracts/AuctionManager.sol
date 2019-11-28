@@ -35,7 +35,7 @@ contract AuctionManager is Initializable {
 
     Bid[] bids;
 
-    // Maps all bidders' IDs to their userID
+    // Maps all bidders' IDs to their bids
     mapping(uint256 => uint256[]) public bidOwners;
 
     address registry;
@@ -103,7 +103,7 @@ contract AuctionManager is Initializable {
         );
         uint256 bidId = bids.push(bid) - 1;
         auctions[_auction_Id].auction_bid_ids.push(bidId);
-        bidOwners[_bidder_Id].push(_bidder_Id);
+        bidOwners[_bidder_Id].push(bidId);
 
         return bidId;
     }
@@ -224,5 +224,13 @@ contract AuctionManager is Initializable {
         onlyRegistry
     {
         auctions[_auction_Id].starting_time = _newStartTime;
+    }
+
+    function getAuctionBids(uint256 _auction_Id)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return auctions[_auction_Id].auction_bid_ids;
     }
 }
