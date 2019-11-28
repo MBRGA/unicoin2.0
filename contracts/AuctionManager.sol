@@ -218,4 +218,11 @@ contract AuctionManager is Initializable {
     {
         return bidOwners[_bidder_Id];
     }
+
+    function updateAuctionStartTime(uint256 _auction_Id, uint256 _newStartTime)
+        public
+        onlyRegistry
+    {
+        auctions[_auction_Id].starting_time = _newStartTime;
+    }
 }

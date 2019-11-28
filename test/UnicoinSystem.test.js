@@ -71,10 +71,16 @@ contract("Unicoin Registry", (accounts) => {
         _contributors: ["6", "7"],
         _contributors_weightings: ["5", "10"],
     }
-    const sealedBid = {
+    const sealedBid1 = {
         bidAmount: 1000,
         salt: 12345,
         bidHash: web3.utils.keccak256("1000" + "12345")
+    }
+
+    const sealedBid2 = {
+        bidAmount: 1200,
+        salt: 67890,
+        bidHash: web3.utils.keccak256("1200" + "67890")
     }
 
     before(async function () {
@@ -139,7 +145,16 @@ contract("Unicoin Registry", (accounts) => {
         //before each test take the current blockchain time and set the auction 
         //to start 100 seconds later. This sets each test up in a consistent way
         let contractTime = await unicoinRegistry.getBlockTime.call()
-        samplePublication_PrivateAuction._auctionStartTime = contractTime + 100
+        samplePublication_PrivateAuction._auctionStartTime = contractTime.toNumber() + 100
+
+        //if sales have been added on chain then we need to increment the auction
+        //start time ti accomidate this
+        let numberOfPublications = await unicoinRegistry.getPublicationLength()
+        if (numberOfPublications.toNumber() >= 2) {
+            await unicoinRegistry.updateAuctionStartTime(1, samplePublication_PrivateAuction._auctionStartTime, {
+                from: publisher
+            })
+        }
     })
     // Tests correct registration of users
     context("User Management 💁‍♂️", function () {
@@ -215,7 +230,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             );
         })
-        it("Reverts if invalid Publication: input non-registered user", async () => {
+        it("Reverts if invalid publication: input non-registered user", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
                 samplePublication_FixedRate._publication_uri,
@@ -230,7 +245,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
-        it("Reverts if invalid Publication: input URI too short", async () => {
+        it("Reverts if invalid publication: input URI too short", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
                 "",
@@ -245,7 +260,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
-        it("Reverts if invalid Publication: invalid Fixed price call", async () => {
+        it("Reverts if invalid publication: invalid Fixed price call", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
                 samplePublication_FixedRate._publication_uri,
@@ -260,7 +275,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
-        it("Reverts if invalid Publication: invalid auction call (auction should not have fixed price)", async () => {
+        it("Reverts if invalid publication: invalid auction call (auction should not have fixed price)", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_PrivateAuction._pricing_Strategy,
                 samplePublication_FixedRate._publication_uri,
@@ -275,7 +290,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
-        it("Reverts if invalid Publication: invalid start time", async () => {
+        it("Reverts if invalid publication: invalid start time", async () => {
             await time.increase(200) //current time is now ahead of the start time
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
@@ -291,7 +306,7 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
-        it("Reverts if invalid Publication: invalid duration time", async () => {
+        it("Reverts if invalid publication: invalid duration time", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
                 samplePublication_FixedRate._publication_uri,
@@ -313,14 +328,14 @@ contract("Unicoin Registry", (accounts) => {
 
         it("Correctly getPublication auctions", async () => {
             let fixedRateAuctions = await unicoinRegistry.getPublicationAuctions.call(0)
-            
+
             //fixed rate should not have an auction so undefined
             assert.equal(fixedRateAuctions[0], undefined, "fixed rate auction not set correcly")
 
             let PrivateAuctionAuctions = await unicoinRegistry.getPublicationAuctions.call(1)
             //private auction should have created an auction 0 for this sale
             assert.equal(PrivateAuctionAuctions[0], 0, "fixed rate auction not set correcly")
-            
+
         })
 
         it("Correctly get publication information", async () => {
@@ -356,7 +371,7 @@ contract("Unicoin Registry", (accounts) => {
             //this is before the auction has started. auction stats at now() + 100
             // and current time is now()
             await expectRevert.unspecified(
-                unicoinRegistry.commitSealedBid(sealedBid.bidHash, 0, {
+                unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 0, {
                     from: bidder1
                 })
             )
@@ -365,9 +380,35 @@ contract("Unicoin Registry", (accounts) => {
         it("Place bid in auction", async () => {
             //current time is now ahead of the start time
             await time.increase(150)
-            unicoinRegistry.commitSealedBid(sealedBid.bidHash, 0, {
+
+            let currentBlockTime = await unicoinRegistry.getBlockTime()
+            console.log("current block time", currentBlockTime.toNumber())
+            console.log("auction start time", samplePublication_PrivateAuction._auctionStartTime)
+            console.log(currentBlockTime.toNumber() > samplePublication_PrivateAuction._auctionStartTime)
+
+            let fetchedAuctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
+
+            assert.equal(fetchedAuctionStatus.toNumber(), 1, "Auction status not correctly set")
+
+            unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 1, {
                 from: bidder1
             })
+
+            unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 1, {
+                from: bidder2
+            })
+        })
+
+        it("Can retreive bid information", async () => {
+            let bidder1Id = await unicoinRegistry.getCallerId({
+                from: bidder1
+            })
+            let bidder2Id = await unicoinRegistry.getCallerId({
+                from: bidder2
+            })
+            let bidder1Bids = await unicoinRegistry.getBidderBids.call(bidder1Id)
+            console.log(bidder1Bids[0].toNumber())
+
         })
     })
 })
