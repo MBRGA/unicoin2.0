@@ -328,4 +328,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     {
         return auctionManager.getBidderBids(_bidder_Id);
     }
+
+    function getBlockTime() public view returns(uint256){
+        return now;
+    }
 }
