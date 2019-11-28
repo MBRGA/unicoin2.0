@@ -73,19 +73,20 @@ contract("Unicoin Registry", (accounts) => {
     const sealedBid1 = {
         bidAmount: 1000,
         salt: 12345,
-        bidHash: web3.utils.keccak256("1000" + "12345")
+        bidHash: web3.utils.soliditySha3(1000, 12345)
     }
 
     const sealedBid2 = {
         bidAmount: 1200,
         salt: 67890,
-        bidHash: web3.utils.keccak256("1200" + "67890")
+        bidHash: web3.utils.soliditySha3(1200, 67890)
     }
+    console.log(sealedBid2)
 
     const sealedBid3 = {
         bidAmount: 1250,
         salt: 13579,
-        bidHash: web3.utils.keccak256("1250" + "13579")
+        bidHash: web3.utils.soliditySha3(1250, 13579)
     }
 
     before(async function () {
@@ -464,6 +465,30 @@ contract("Unicoin Registry", (accounts) => {
             assert.equal(bidder1Bid1[4].toNumber(), 1, "publication Id not correctly set")
             assert.equal(bidder1Bid1[5].toNumber(), 0, "auction Id Id not correctly set")
             assert.equal(bidder1Bid1[6].toNumber(), bidder1Id, "auction Id Id not correctly set")
+        })
+
+        it("Can correctly reveal bid", async () => {
+            time.increase(250) //after the end of the auction
+
+            await unicoinRegistry.revealSealedBid(sealedBid1.bidAmount, sealedBid1.salt, 1, 0, {
+                from: bidder1
+            })
+
+            let bidder1Bid1 = await unicoinRegistry.getBid.call(0)
+
+            let expectedObject = {
+                0: sealedBid1.bidHash,
+                1: sealedBid1.bidAmount,
+                2: sealedBid1.salt,
+                3: 1, //status
+                4: 1, //publication ID
+                5: 0, //auction ID
+                6: 2 //bidder ID
+            }
+
+            Object.keys(bidder1Bid1).forEach(function (key) {
+                assert.equal(bidder1Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
+            });
         })
     })
 })

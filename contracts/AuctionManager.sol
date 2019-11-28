@@ -118,7 +118,7 @@ contract AuctionManager is Initializable {
         Bid memory bid = bids[_bid_Id];
         require(
             getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
-            "Can only commit during the commit phase"
+            "Can only commit during the reveal phase"
         );
         require(
             bid.bidder_Id == _bidder_Id,
