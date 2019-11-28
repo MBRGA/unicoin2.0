@@ -81,7 +81,6 @@ contract("Unicoin Registry", (accounts) => {
         salt: 67890,
         bidHash: web3.utils.soliditySha3(1200, 67890)
     }
-    console.log(sealedBid2)
 
     const sealedBid3 = {
         bidAmount: 1250,
@@ -489,6 +488,16 @@ contract("Unicoin Registry", (accounts) => {
             Object.keys(bidder1Bid1).forEach(function (key) {
                 assert.equal(bidder1Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
             });
+        })
+
+        it("Correctly revert if before reveal stage", async () => {
+            time.increase(175) //after the end of the auction
+
+            let auctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
+            assert.equal(auctionStatus.toNumber(), 1, "Auction should be in the commit phase")
+            await expectRevert.unspecified(unicoinRegistry.revealSealedBid(sealedBid1.bidAmount, sealedBid1.salt, 1, 0, {
+                from: bidder1
+            }))
         })
     })
 })
