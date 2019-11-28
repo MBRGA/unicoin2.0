@@ -490,7 +490,49 @@ contract("Unicoin Registry", (accounts) => {
             });
         })
 
-        it("Correctly revert if before reveal stage", async () => {
+        it("Revert if wrong user tries to reveal bid", async () => {
+            time.increase(250) //after the end of the auction
+
+            await expectRevert.unspecified(unicoinRegistry.revealSealedBid(sealedBid2.bidAmount, sealedBid2.salt, 1, 0, {
+                from: bidder2
+            }))
+        })
+
+        it("Revert if wrong bid committed (both bid and salt)", async () => {
+            time.increase(250) //after the end of the auction
+
+            await expectRevert.unspecified(unicoinRegistry.revealSealedBid
+                //input sealedBid1 bidder2. bidder2's bid is sealedBid2    
+                (sealedBid1.bidAmount, sealedBid1.salt, 1, 0, {
+                    from: bidder2
+                }))
+        })
+
+        it("Can correctly reveal 2nd bid", async () => {
+            time.increase(250) //after the end of the auction
+
+            await unicoinRegistry.revealSealedBid(sealedBid2.bidAmount, sealedBid2.salt, 1, 1, {
+                from: bidder2
+            })
+
+            let bidder1Bid1 = await unicoinRegistry.getBid.call(1)
+
+            let expectedObject = {
+                0: sealedBid2.bidHash,
+                1: sealedBid2.bidAmount,
+                2: sealedBid2.salt,
+                3: 1, //status
+                4: 1, //publication ID
+                5: 0, //auction ID
+                6: 3 //bidder ID
+            }
+
+            Object.keys(bidder1Bid1).forEach(function (key) {
+                assert.equal(bidder1Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
+            });
+        })
+
+        it("Revert if wrong time to reveal bid", async () => {
             time.increase(175) //after the end of the auction
 
             let auctionStatus = await unicoinRegistry.getAuctionStatus.call(0)
