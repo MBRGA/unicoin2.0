@@ -31,7 +31,7 @@ const Vault = artifacts.require("./Vault.sol")
 // Mock Contracts
 const Erc20Mock = artifacts.require("./Mocks/ERC20Mock.sol");
 
-contract("Unicoin Registry", (accounts) => {
+contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
     //test accounts
     const registryOwner = accounts[0]
     const tokenOwner = accounts[1]
@@ -204,7 +204,7 @@ contract("Unicoin Registry", (accounts) => {
             assert.equal(returnedBidder1Address, bidder1, "bidder1 address increctly returned")
         })
     })
-    context("Publication Management ‍📚", function () {
+    context("Publication Management: Creation ‍📚", function () {
         it("Can create a valid publication: FixedRate", async () => {
             await unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
@@ -235,6 +235,8 @@ contract("Unicoin Registry", (accounts) => {
                 }
             );
         })
+    })
+    context("Publication Management: Reject on negative input 🙅‍♂️‍", function () {
         it("Reverts if invalid publication: input non-registered user", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
                 samplePublication_FixedRate._pricing_Strategy,
@@ -326,6 +328,8 @@ contract("Unicoin Registry", (accounts) => {
                 }
             ))
         })
+    })
+    context("Publication Management: retrieve publication information 🔎", function () {
         it("Correctly get publication length", async () => {
             let numberOfPublications = await unicoinRegistry.getPublicationLength()
             assert.equal(numberOfPublications, 2, "Incorrect number of publications")
@@ -371,7 +375,7 @@ contract("Unicoin Registry", (accounts) => {
             assert.equal(auctionPublication[8][1].toNumber(), samplePublication_PrivateAuction._contributors_weightings[1], "Incorrectly set _contributors_weightings for auction")
         })
     })
-    context("Auction Bidding 🧾", function () {
+    context("Auction Bidding: Commit stage 🤝", function () {
         it("Reverts if invalid bid time", async () => {
             //this is before the auction has started. auction stats at now() + 100
             // and current time is now()
@@ -416,6 +420,8 @@ contract("Unicoin Registry", (accounts) => {
                 from: bidder1
             })
         })
+    })
+    context("Auction Bidding: retrieve bid information 🔎", function () {
 
         it("Can retrieve bids for publication", async () => {
             let publicationBidInformation = await unicoinRegistry.getPublicationBids(1)
@@ -465,7 +471,8 @@ contract("Unicoin Registry", (accounts) => {
             assert.equal(bidder1Bid1[5].toNumber(), 0, "auction Id Id not correctly set")
             assert.equal(bidder1Bid1[6].toNumber(), bidder1Id, "auction Id Id not correctly set")
         })
-
+    })
+    context("Auction Bidding: Reveal stage 💵", function () {
         it("Can correctly reveal bid", async () => {
             time.increase(250) //after the end of the auction
 
