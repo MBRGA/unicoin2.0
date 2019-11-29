@@ -5,7 +5,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 contract HarbegerTaxManager is Initializable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
     //percentage increase over previous price that must be paid to buy out the licence
-    uint256 minimumPriceIncreaseToBuyOut = 10;
+    uint256 minimumPriceIncreaseToBuyOut = 5;
     //a buyout has an expiratory of 10 days for the owner to raize the price or loose the licence
     uint256 buyOutExpiration = 60 * 60 * 24 * 10;
 
@@ -15,24 +15,26 @@ contract HarbegerTaxManager is Initializable {
         uint256 licenceId;
         uint256 ratePerBlock;
         uint256 lastPayment;
-        uint256 numberOfLicenceOutBids;
+        uint256 numberOfOutBids;
         uint256 currentAssignedValue;
         uint256[] buyout_Ids;
     }
 
     TaxObject[] taxObjects;
 
-    enum BuyoutStatus {pending, successful, outBid}
+    enum BuyoutStatus {Pending, Successful, OutBid}
 
     struct BuyOut {
         uint256 taxObject_Id;
         uint256 buyoutOwner_Id;
         uint256 buyoutAmount;
-        uint256 buyoutExpiration;
+        uint256 buyOutExpiration;
         BuyoutStatus status;
     }
 
     BuyOut[] buyOuts;
+
+    mapping(uint256 => uint256[]) public buyOutOwners;
 
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
@@ -70,19 +72,19 @@ contract HarbegerTaxManager is Initializable {
         returns (uint256)
     {
         TaxObject memory taxObject = taxObjects[_taxObject_Id];
-        uint256 futureValueOfLicence = futureValue(
+        uint256 futureValue = futureValue(
             taxObject.currentAssignedValue,
             taxObject.ratePerBlock,
             taxObject.lastPayment,
             now
         );
 
-        uint256 interestOutstanding = futureValueOfLicence -
+        uint256 interestOutstanding = futureValue -
             taxObject.currentAssignedValue;
         return interestOutstanding;
     }
 
-    function calculateLicenceBuyOutPrice(uint256 _taxObject_Id)
+    function calculateMinBuyOutPrice(uint256 _taxObject_Id)
         public
         view
         returns (uint256)
@@ -93,7 +95,7 @@ contract HarbegerTaxManager is Initializable {
             100;
     }
 
-    function updateTaxObjectPaymentDate(uint256 _taxObject_Id)
+    function updateTaxObjectLastPayment(uint256 _taxObject_Id)
         public
         onlyRegistry
     {
@@ -107,14 +109,14 @@ contract HarbegerTaxManager is Initializable {
         taxObjects[_taxObject_Id].currentAssignedValue = _assignedValue;
     }
 
-    function submitLicenceBuyOut(
+    function submitBuyOut(
         uint256 _taxObject,
         uint256 _offer,
-        uint256 _buyoutOwner_Id
+        uint256 _buyOutOwner_Id
     ) public onlyRegistry returns (uint256) {
         require(
             _offer >=
-                calculateLicenceBuyOutPrice(
+                calculateMinBuyOutPrice(
                     taxObjects[_taxObject].currentAssignedValue
                 ),
             "Value sent is less than the minimum buyout price"
@@ -122,23 +124,50 @@ contract HarbegerTaxManager is Initializable {
 
         BuyOut memory buyOut = BuyOut(
             _taxObject,
-            _buyoutOwner_Id,
+            _buyOutOwner_Id,
             _offer,
             now + buyOutExpiration,
-            BuyoutStatus.pending
+            BuyoutStatus.Pending
         );
 
-        uint256 buyOutId = buyOuts.push(buyOut) - 1;
-        taxObjects[_taxObject].buyout_Ids.push(buyOutId);
+        uint256 buyOut_Id = buyOuts.push(buyOut) - 1;
+        buyOutOwners[_buyOutOwner_Id].push(buyOut_Id);
+        taxObjects[_taxObject].buyout_Ids.push(buyOut_Id);
     }
 
-    function finalizeBuyOutOffer(uint256 _taxObject)
-        public
-        onlyRegistry
-        returns (uint256)
-    {}
+    function finalizeBuyOutOffer(uint256 _buyOut_Id) public onlyRegistry return(bool) {
+        BuyOut memory buyOut = buyOuts[_buyOut_Id];
+        require(
+            buyOut.status == BuyoutStatus.Pending,
+            "Can only finalize buyout if buyout is pending"
+        );
+        require(
+            buyOut.buyOutExpiration < now,
+            "can only finalize buyout if it is past the expiration time"
+        );
+        if (
+            buyOut.buyoutAmount <
+            calculateMinBuyOutPrice(
+                taxObjects[buyOut.taxObject_Id].currentAssignedValue
+            )
+        ) {
+            buyOuts[_buyOut_Id].status = BuyoutStatus.OutBid;
+            return false;
+        }
+        if (
+            buyOut.buyoutAmount >
+            calculateMinBuyOutPrice(
+                taxObjects[buyOut.taxObject_Id].currentAssignedValue
+            )
+        ) {
+            buyOuts[_buyOut_Id].status = BuyoutStatus.Successful;
+            taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut.buyoutAmount;
+            taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
+            return true;
+        }
+    }
 
-    function outBidBuyOutOffer(uint256 _buyOutOffer, uint256 _newOffer)
+    function outBidBuyOutOffer(uint256 _buyOutOffer_Id, uint256 _newOffer)
         public
         onlyRegistry
     {}
