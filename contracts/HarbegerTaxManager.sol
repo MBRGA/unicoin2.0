@@ -135,7 +135,7 @@ contract HarbegerTaxManager is Initializable {
         taxObjects[_taxObject].buyout_Ids.push(buyOut_Id);
     }
 
-    function finalizeBuyOutOffer(uint256 _buyOut_Id) public onlyRegistry return(bool) {
+    function finalizeBuyOutOffer(uint256 _buyOut_Id) public onlyRegistry returns(bool) {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
         require(
             buyOut.status == BuyoutStatus.Pending,

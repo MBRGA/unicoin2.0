@@ -89,10 +89,15 @@ contract PublicationManager is Initializable {
     }
 
     function _addAuctionToPublication(
-        uint256 _publicationId,
-        uint256 _auctionId
+        uint256 _publication_Id,
+        uint256 _auction_Id
     ) public onlyRegistry {
-        publications[_publicationId].auction_ids.push(_auctionId);
+        uint256 licenceNo = publications[_publication_Id].licencesIssued;
+        require(
+            licenceNo < publications[_publication_Id].maxNumberOfLicences,
+            "Max number of licences have been issued. Cant create a new auction"
+        );
+        publications[_publication_Id].auction_ids.push(_auction_Id);
     }
 
     function addNewLicenceToPublication(uint256 _publication_Id)

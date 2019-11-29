@@ -629,57 +629,60 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 })
             )
         })
+    })
+    context("Auction Bidding: retrieve finalized bid information 🔎", function () {
+        it("Can get information about loosing bid", async () => {
+            let expectedObject = {
+                0: sealedBid1.bidHash,
+                1: sealedBid1.bidAmount,
+                2: sealedBid1.salt,
+                3: 1, // reveal bid status (not winner as this bid is second)
+                4: 1, // publicationId
+                5: 0, // auctionId
+                6: 2, // bidder Id for bidder1
+            }
 
-        context("Auction Bidding: retrieve finalized bid information 🔎", function () {
-            it("Can get information about loosing bid", async () => {
-                let expectedObject = {
-                    0: sealedBid1.bidHash,
-                    1: sealedBid1.bidAmount,
-                    2: sealedBid1.salt,
-                    3: 1, // reveal bid status (not winner as this bid is second)
-                    4: 1, // publicationId
-                    5: 0, // auctionId
-                    6: 2, // bidder Id for bidder1
-                }
-
-                let bidder1Bid1 = await unicoinRegistry.getBid.call(0)
-                Object.keys(bidder1Bid1).forEach(function (key) {
-                    assert.equal(bidder1Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
-                });
-            })
-
-            it("Can get information about winning bid", async () => {
-                let expectedObject = {
-                    0: sealedBid2.bidHash,
-                    1: sealedBid2.bidAmount,
-                    2: sealedBid2.salt,
-                    3: 2, // winner bid status
-                    4: 1, // publicationId
-                    5: 0, // auctionId
-                    6: 3, // bidder Id for bidder2
-                }
-
-                let bidder2Bid1 = await unicoinRegistry.getBid.call(1)
-                Object.keys(bidder2Bid1).forEach(function (key) {
-                    assert.equal(bidder2Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
-                });
-            })
+            let bidder1Bid1 = await unicoinRegistry.getBid.call(0)
+            Object.keys(bidder1Bid1).forEach(function (key) {
+                assert.equal(bidder1Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
+            });
         })
-        context("Licence Management: retrieve issued licence information 📝", function () {
-            it("Can get information about issued licence", async () => {
-                let expectedObject = {
-                    0: 3, // buyerId
-                    1: 1, // publicationId
-                    2: 1 // publicationLicenceNo
-                }
-                let licence = await unicoinRegistry.getLicence.call(1)
-                Object.keys(licence).forEach(function (key) {
-                    assert.equal(licence[key].toString(), expectedObject[key], "Key value error on" + key)
-                });
 
-                let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
-                assert(ownerOfLicence, bidder1,"incorrect asigment of licence owner")
-            })
+        it("Can get information about winning bid", async () => {
+            let expectedObject = {
+                0: sealedBid2.bidHash,
+                1: sealedBid2.bidAmount,
+                2: sealedBid2.salt,
+                3: 2, // winner bid status
+                4: 1, // publicationId
+                5: 0, // auctionId
+                6: 3, // bidder Id for bidder2
+            }
+
+            let bidder2Bid1 = await unicoinRegistry.getBid.call(1)
+            Object.keys(bidder2Bid1).forEach(function (key) {
+                assert.equal(bidder2Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
+            });
+        })
+    })
+    context("Licence Management: retrieve issued licence information 📝", function () {
+        it("Can get information about issued licence", async () => {
+            let expectedObject = {
+                0: 3, // buyerId
+                1: 1, // publicationId
+                2: 1 // publicationLicenceNo
+            }
+            let licence = await unicoinRegistry.getLicence.call(1)
+            Object.keys(licence).forEach(function (key) {
+                assert.equal(licence[key].toString(), expectedObject[key], "Key value error on" + key)
+            });
+
+            let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
+            assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
+        })
+        it("Can get licenses associated with a publication", async () => {
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
+            console.log(publicationLicences)
         })
     })
 })
