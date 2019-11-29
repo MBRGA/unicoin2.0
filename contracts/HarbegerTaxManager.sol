@@ -44,12 +44,12 @@ contract HarbegerTaxManager is Initializable {
         return taxObjectId;
     }
 
-    function calculateOutstandingTax(uint256 _taxObjectId)
+    function calculateOutstandingTax(uint256 _taxObject_Id)
         public
         view
         returns (uint256)
     {
-        TaxObject memory taxObject = taxObjects[_taxObjectId];
+        TaxObject memory taxObject = taxObjects[_taxObject_Id];
         uint256 futureValueOfLicence = futureValue(
             taxObject.currentAssignedValue,
             taxObject.ratePerBlock,
@@ -61,6 +61,24 @@ contract HarbegerTaxManager is Initializable {
             taxObject.currentAssignedValue;
         return interestOutstanding;
     }
+
+    function calculateLicenceSeizurePrice(uint256 _taxObject_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return 0;
+    }
+
+    function updateTaxObjectPaymentDate(uint256 _taxObject_Id)
+        public
+        onlyRegistry
+    {}
+
+    function updateTaxObjectPrivateValuation(uint256 _taxObject_id)
+        public
+        onlyRegistry
+    {}
 
     /**
       * @dev computes e ^ (x / FIXED_1) * FIXED_1
