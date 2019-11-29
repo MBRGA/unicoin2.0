@@ -178,6 +178,7 @@ contract AuctionManager is Initializable {
         if (leadingBid > 0) {
             auctions[_auction_Id].status = AuctionStatus.Finalized;
             auctions[_auction_Id].winning_bid_Id = leadingBid;
+            bids[leadingBid].status = BidStatus.Winner;
         }
 
         return (
@@ -251,7 +252,11 @@ contract AuctionManager is Initializable {
         );
     }
 
-    function getNumberOfBidsInAuction(uint256 _auction_Id) public view returns (uint256) {
+    function getNumberOfBidsInAuction(uint256 _auction_Id)
+        public
+        view
+        returns (uint256)
+    {
         return auctions[_auction_Id].auction_bid_ids.length;
     }
 }

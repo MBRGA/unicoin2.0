@@ -381,4 +381,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         );
         return auctionManager.getNumberOfBidsInAuction(auction_Id);
     }
+    function ownerOf(uint256 tokenId) public view returns (address) {
+        return licenceManager.ownerOf(tokenId);
+    }
+
 }

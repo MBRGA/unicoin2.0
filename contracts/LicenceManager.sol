@@ -76,6 +76,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         view
         returns (uint256, uint256, uint256)
     {
+        require(_licence_Id > 0, "Zeroth licence is not valid");
         Licence memory _licence = licences[_licence_Id];
         return (
             _licence.buyer_Id,
@@ -91,5 +92,4 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     {
         return publicationLicences[_publication_Id];
     }
-
 }
