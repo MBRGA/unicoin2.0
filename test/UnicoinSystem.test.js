@@ -582,6 +582,9 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let bidder2BalanceBefore = await daiContract.balanceOf(bidder2)
             assert.equal(bidder2BalanceBefore.toNumber(), 100000, "bidder2 should start with 100000 tokens")
 
+            let bidder2LicenceBalanceBefore = await licenceManager.balanceOf(bidder2)
+            assert.equal(bidder2LicenceBalanceBefore.toNumber(), 0, "Bidder2 should not start with a licence")
+
             time.increase(250) //after the end of the auction
             await unicoinRegistry.finalizeAuction(0, {
                 from: randomAddress
@@ -607,6 +610,9 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let bidder2BalanceAfter = await daiContract.balanceOf(bidder2)
             let expectedBidder2BalanceAfter = bidder2BalanceBefore - (expectedPublisherBalanceAfter + expectedContributor1BalanceAfter + expectedContributor2BalanceAfter)
             assert.equal(bidder2BalanceAfter.toNumber(), expectedBidder2BalanceAfter, "Bidder2 balance after not set correctly")
+            let bidder2LicenceBalanceAfter = await licenceManager.balanceOf(bidder2)
+            assert.equal(bidder2LicenceBalanceAfter.toNumber(), 1, "Bidder2 should end with a licence")
+
         })
         it("Reverts if invalid reveal time: before auction", async () => {
             await expectRevert.unspecified(

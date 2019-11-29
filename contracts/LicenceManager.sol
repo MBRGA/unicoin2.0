@@ -34,7 +34,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         ERC721.initialize();
         ERC721Enumerable.initialize();
         ERC721Metadata.initialize(_name, _symbol);
-        ERC721Mintable.initialize(msg.sender);
+        ERC721Mintable.initialize(_unicoinRegistry);
 
         registry = _unicoinRegistry;
 
