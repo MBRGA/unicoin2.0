@@ -7,7 +7,7 @@ contract UserManager is Initializable {
         address owned_address;
         string profile_uri;
     }
-    //Array of regististred users
+    //Array of registered users
     User[] public users;
 
     //all users' addresses to their userID
