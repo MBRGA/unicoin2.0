@@ -312,13 +312,13 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return userManager.getUserAddress(_user_Id);
     }
 
-    function canBidderPay(uint256 _user_Id, uint256 _amount)
+    function canAddressPay(uint256 _user_Id, uint256 _amount)
         public
         view
         returns (bool)
     {
         address userAddress = getUserAddress(_user_Id);
-        return vault.canBidderPay(userAddress, _amount);
+        return vault.canAddressPay(userAddress, _amount);
     }
 
     function getBidderBids(uint256 _bidder_Id)

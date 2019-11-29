@@ -22,7 +22,7 @@ contract Vault is Initializable {
         registry = _unicoinRegistry;
     }
 
-    function canBidderPay(address _address, uint256 _amount)
+    function canAddressPay(address _address, uint256 _amount)
         public
         view
         returns (bool)

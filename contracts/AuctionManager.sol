@@ -164,7 +164,7 @@ contract AuctionManager is Initializable {
                 //need to check that the bidder has enough balance and enough allowance to be able to
                 // win the auction. Ask the vault via the registrey for this information.
                 // if (
-                //     // unicoinRegistry.canBidderPay(
+                //     // unicoinRegistry.canAddressPay(
                 //         bids[auction.auction_bid_ids[i]].bidder_Id,
                 //         bidAmount
                 //     )
