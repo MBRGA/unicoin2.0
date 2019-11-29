@@ -4,6 +4,8 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract HarbegerTaxManager is Initializable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
+    //percentage increase over previous price that must be paid to buy out the licence
+    uint256 minimumPriceIncreaseToBuyOut = 10;
 
     address registry;
 
@@ -67,18 +69,25 @@ contract HarbegerTaxManager is Initializable {
         view
         returns (uint256)
     {
-        return 0;
+        return
+            (taxObjects[_taxObject_Id].currentAssignedValue *
+                (100 + minimumPriceIncreaseToBuyOut)) /
+            100;
     }
 
     function updateTaxObjectPaymentDate(uint256 _taxObject_Id)
         public
         onlyRegistry
-    {}
+    {
+        taxObjects[_taxObject_Id].lastPayment = now;
+    }
 
-    function updateTaxObjectPrivateValuation(uint256 _taxObject_id)
-        public
-        onlyRegistry
-    {}
+    function updateTaxObjectPrivateValuation(
+        uint256 _taxObject_Id,
+        uint256 _assignedValue
+    ) public onlyRegistry {
+        taxObjects[_taxObject_Id].currentAssignedValue = _assignedValue;
+    }
 
     /**
       * @dev computes e ^ (x / FIXED_1) * FIXED_1
