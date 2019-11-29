@@ -32,16 +32,18 @@ const Vault = artifacts.require("./Vault.sol")
 const Erc20Mock = artifacts.require("./Mocks/ERC20Mock.sol");
 
 contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
-    //test accounts
+    //test accounts. The account number for publisher through contributor
+    //will corespond to their account number in the UniCoin system when
+    //they are registered. For example publisher will be account 1
+    //and contributor1 will be account 4
     const registryOwner = accounts[0]
-    const tokenOwner = accounts[1]
-    const publisher = accounts[2]
-    const bidder1 = accounts[3]
-    const bidder2 = accounts[4]
-    const contributor1 = accounts[5]
-    const contributor2 = accounts[6]
-    const randomAddress = accounts[7]
-
+    const publisher = accounts[1]
+    const bidder1 = accounts[2]
+    const bidder2 = accounts[3]
+    const contributor1 = accounts[4]
+    const contributor2 = accounts[5]
+    const randomAddress = accounts[6]
+    const tokenOwner = accounts[8]
     //constants
     const exampleUserProfileURI = "QmeWUs9YdymQVpsme3MLQdWFW5GjdM4XDFYMi3YJvUFiaq"
     const examplePublicationURI1 = "QmPF7eAtGoaEgSAt9XCP2DuWfc8sbtQfraffDsx3svu4Ph"
@@ -55,8 +57,8 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         _auctionDuration: 0,
         _fixed_sell_price: 200,
         _maxNumberOfLicences: 5,
-        _contributors: ["6", "7"], //contributors are the contributor user_Id.
-        _contributors_weightings: ["5", "10"],
+        _contributors: ["4", "5"], //contributors are the contributor user_Id.
+        _contributors_weightings: [5, 10],
     }
 
     const samplePublication_PrivateAuction = {
@@ -67,8 +69,8 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         _auctionDuration: 100,
         _fixed_sell_price: 0,
         _maxNumberOfLicences: 1,
-        _contributors: ["6", "7"],
-        _contributors_weightings: ["5", "10"],
+        _contributors: ["4", "5"],
+        _contributors_weightings: [5, 10],
     }
     const sealedBid1 = {
         bidAmount: 1000,
@@ -93,13 +95,14 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             from: tokenOwner
         });
 
-        // Mints tokens in a modified ERC20 for the fund
-        await daiContract.mint(tokenOwner, 10000, {
+        // Mints tokens in a modified ERC20 for the two bidders
+        await daiContract.mint(bidder1, 100000, {
             from: tokenOwner
         });
 
-        let balance = await daiContract.balanceOf(tokenOwner);
-        assert.equal(balance.toNumber(), 10000, "Balance not set");
+        await daiContract.mint(bidder2, 100000, {
+            from: tokenOwner
+        });
 
         unicoinRegistry = await UnicoinRegistry.new({
             from: registryOwner
@@ -144,6 +147,14 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             vault.address, {
                 from: registryOwner
             })
+
+        //approve the vault to spend the bidders dai
+        await daiContract.approve(vault.address, 100000, {
+            from: bidder1
+        })
+        await daiContract.approve(vault.address, 100000, {
+            from: bidder2
+        })
     });
 
     beforeEach(async function () {
@@ -177,6 +188,12 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             })
             await unicoinRegistry.registerUser(exampleUserProfileURI, {
                 from: bidder2
+            })
+            await unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: contributor1
+            })
+            await unicoinRegistry.registerUser(exampleUserProfileURI, {
+                from: contributor2
             })
         });
         it("Revert if user already added", async () => {
@@ -549,9 +566,49 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
     })
     context("Auction Bidding: finalize auction 🏁", function () {
-        it("Reverts if invalid reveal time: before auction", async () => {
+        it("Can finalize auction correctly", async () => {
             //this is before the auction has started. auction stats at now() + 100
             // and current time is now()
+
+            let publisherBalanceBefore = await daiContract.balanceOf(publisher)
+            assert.equal(publisherBalanceBefore.toNumber(), 0, "Publisher should start with zero tokens")
+
+            let contributor1BalanceBefore = await daiContract.balanceOf(contributor1)
+            assert.equal(contributor1BalanceBefore.toNumber(), 0, "contributor1 should start with zero tokens")
+
+            let contributor2BalanceBefore = await daiContract.balanceOf(contributor2)
+            assert.equal(contributor2BalanceBefore.toNumber(), 0, "contributor2 should start with zero tokens")
+
+            let bidder2BalanceBefore = await daiContract.balanceOf(bidder2)
+            assert.equal(bidder2BalanceBefore.toNumber(), 100000, "bidder2 should start with 100000 tokens")
+
+            time.increase(250) //after the end of the auction
+            await unicoinRegistry.finalizeAuction(0, {
+                from: randomAddress
+            })
+
+            let publisherBalanceAfter = await daiContract.balanceOf(publisher)
+            //the expected publisher balance is the total amount of the winning bid
+            //(sealedBid2, submitted by bidder 2) minus the total amount 
+            // sent to the contributors. this can be calculated by by 
+            // subtracting the ratio of the amount sent to the contributers from 1
+            // multiplied by the total bid amount
+            let expectedPublisherBalanceAfter = sealedBid2.bidAmount * (1 - (samplePublication_PrivateAuction._contributors_weightings[0] + samplePublication_PrivateAuction._contributors_weightings[1]) / 100)
+            assert.equal(publisherBalanceAfter.toNumber(), expectedPublisherBalanceAfter, "Publisher balance not correctly set")
+
+            let contributor1BalanceAfter = await daiContract.balanceOf(contributor1)
+            let expectedContributor1BalanceAfter = sealedBid2.bidAmount * (samplePublication_PrivateAuction._contributors_weightings[0]) / 100
+            assert.equal(contributor1BalanceAfter.toNumber(), expectedContributor1BalanceAfter, "Contributor1 balance after wrong")
+
+            let contributor2BalanceAfter = await daiContract.balanceOf(contributor2)
+            let expectedContributor2BalanceAfter = sealedBid2.bidAmount * (samplePublication_PrivateAuction._contributors_weightings[1]) / 100
+            assert.equal(contributor2BalanceAfter.toNumber(), expectedContributor2BalanceAfter, "Contributor2 balance after wrong")
+
+            let bidder2BalanceAfter = await daiContract.balanceOf(bidder2)
+            let expectedBidder2BalanceAfter = bidder2BalanceBefore - (expectedPublisherBalanceAfter + expectedContributor1BalanceAfter + expectedContributor2BalanceAfter)
+            assert.equal(bidder2BalanceAfter.toNumber(), expectedBidder2BalanceAfter, "Bidder2 balance after not set correctly")
+        })
+        it("Reverts if invalid reveal time: before auction", async () => {
             await expectRevert.unspecified(
                 unicoinRegistry.finalizeAuction(0, {
                     from: randomAddress
@@ -559,14 +616,22 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             )
         })
         it("Reverts if invalid reveal time: during auction", async () => {
-            //this is before the auction has started. auction stats at now() + 100
-            // and current time is now()
-            time.increase(150) //after the end of the auction
+            time.increase(150)
             await expectRevert.unspecified(
                 unicoinRegistry.finalizeAuction(0, {
                     from: randomAddress
                 })
             )
+        })
+
+        context("Auction Bidding: retrieve finalized bid information 🔎", function () {
+            it("Can get information about winning bid", async () => {
+                let bidder2Bid1 = await unicoinRegistry.getBid.call(1)
+                Object.keys(bidder2Bid1).forEach(function (key) {
+                    console.log(bidder2Bid1[key].toString())
+                    // assert.equal(bidder2Bid1[key].toString(), expectedObject[key], "Key value error on" + key)
+                });
+            })
         })
     })
 })

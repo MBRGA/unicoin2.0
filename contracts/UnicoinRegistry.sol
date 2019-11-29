@@ -177,15 +177,15 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             "Bulk auction settlement failed"
         );
 
-        uint256 publicationLicenceNo = publicationManager
-            .addNewLicenceToPublication(publicationId);
+        // uint256 publicationLicenceNo = publicationManager
+        //     .addNewLicenceToPublication(publicationId);
 
-        licenceManager.registerNewLicence(
-            winningBidderAddress,
-            winningBiderId,
-            publicationId,
-            publicationLicenceNo
-        );
+        // licenceManager.registerNewLicence(
+        //     winningBidderAddress,
+        //     winningBiderId,
+        //     publicationId,
+        //     publicationLicenceNo
+        // );
     }
 
     function buyLicenceFixedRate() public {}
