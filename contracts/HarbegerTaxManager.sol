@@ -6,6 +6,8 @@ contract HarbegerTaxManager is Initializable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
     //percentage increase over previous price that must be paid to buy out the licence
     uint256 minimumPriceIncreaseToBuyOut = 10;
+    //a buyout has an expiratory of 10 days for the owner to raize the price or loose the licence
+    uint256 buyOutExpiration = 60 * 60 * 24 * 10;
 
     address registry;
 
@@ -15,9 +17,22 @@ contract HarbegerTaxManager is Initializable {
         uint256 lastPayment;
         uint256 numberOfLicenceOutBids;
         uint256 currentAssignedValue;
+        uint256[] buyout_Ids;
     }
 
     TaxObject[] taxObjects;
+
+    enum BuyoutStatus {pending, successful, outBid}
+
+    struct BuyOut {
+        uint256 taxObject_Id;
+        uint256 buyoutOwner_Id;
+        uint256 buyoutAmount;
+        uint256 buyoutExpiration;
+        BuyoutStatus status;
+    }
+
+    BuyOut[] buyOuts;
 
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
@@ -26,6 +41,7 @@ contract HarbegerTaxManager is Initializable {
 
     function initialize(address _unicoinRegistry) public initializer {
         registry = _unicoinRegistry;
+
     }
 
     function createTaxObject(
@@ -33,12 +49,14 @@ contract HarbegerTaxManager is Initializable {
         uint256 _ratePerBlock,
         uint256 _currentAssignedValue
     ) public onlyRegistry returns (uint256) {
+        uint256[] memory buyOutIds;
         TaxObject memory taxObject = TaxObject(
             _licenceId,
             _ratePerBlock,
             now,
             0,
-            _currentAssignedValue
+            _currentAssignedValue,
+            buyOutIds
         );
 
         uint256 taxObjectId = taxObjects.push(taxObject) - 1;
@@ -64,7 +82,7 @@ contract HarbegerTaxManager is Initializable {
         return interestOutstanding;
     }
 
-    function calculateLicenceSeizurePrice(uint256 _taxObject_Id)
+    function calculateLicenceBuyOutPrice(uint256 _taxObject_Id)
         public
         view
         returns (uint256)
@@ -88,6 +106,42 @@ contract HarbegerTaxManager is Initializable {
     ) public onlyRegistry {
         taxObjects[_taxObject_Id].currentAssignedValue = _assignedValue;
     }
+
+    function submitLicenceBuyOut(
+        uint256 _taxObject,
+        uint256 _offer,
+        uint256 _buyoutOwner_Id
+    ) public onlyRegistry returns (uint256) {
+        require(
+            _offer >=
+                calculateLicenceBuyOutPrice(
+                    taxObjects[_taxObject].currentAssignedValue
+                ),
+            "Value sent is less than the minimum buyout price"
+        );
+
+        BuyOut memory buyOut = BuyOut(
+            _taxObject,
+            _buyoutOwner_Id,
+            _offer,
+            now + buyOutExpiration,
+            BuyoutStatus.pending
+        );
+
+        uint256 buyOutId = buyOuts.push(buyOut) - 1;
+        taxObjects[_taxObject].buyout_Ids.push(buyOutId);
+    }
+
+    function finalizeBuyOutOffer(uint256 _taxObject)
+        public
+        onlyRegistry
+        returns (uint256)
+    {}
+
+    function outBidBuyOutOffer(uint256 _buyOutOffer, uint256 _newOffer)
+        public
+        onlyRegistry
+    {}
 
     /**
       * @dev computes e ^ (x / FIXED_1) * FIXED_1
