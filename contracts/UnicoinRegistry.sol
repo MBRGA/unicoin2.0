@@ -191,7 +191,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             publicationLicenceNo
         );
         if (
-            uint8(publicationManager.GetPublicationPricingStrategy(publicationId)) ==
+            uint8(
+                publicationManager.GetPublicationPricingStrategy(publicationId)
+            ) ==
             uint8(PricingStrategy.PrivateAuctionHarberger)
         ) {
             harbergerTaxManager.createTaxObject(licence_Id, winningBidAmount);
@@ -236,14 +238,20 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                     contributorWeightings,
                     outstandingTax
                 ),
-                "Bulk harberger getTaxObject(_taxObject_Id); settlement failed"
+                "Bulk harberger settlement failed"
             );
-            return outstandingTax;
+
+            harbergerTaxManager._updateTaxObjectLastPayment(taxObject_Id);
+
+            return outstandingTax; //returns the total tax sent
         }
         //the licence owner cant pay the tax. they loose their licence which is placed for auction again
         if (!licenceOwnerSolvent) {
             licenceManager.revokeLicence(licence_Id);
             publicationManager.revokeLicence(_publication_Id);
+            harbergerTaxManager.revokeTaxObject(taxObject_Id);
+
+            //create a new auction
             uint256 auctionId = auctionManager._createAuction(
                 _publication_Id,
                 0, //auction floor
@@ -254,7 +262,28 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                 _publication_Id,
                 auctionId
             );
+            return 0;
         }
+    }
+
+    function updateLicenceValuation(uint256 _licence_Id, uint256 _newValuation)
+        public
+        returns (uint256)
+    {
+        uint256 licenceOwner_Id = licenceManager.getLicenceOwnerId(_licence_Id);
+        require(
+            licenceOwner_Id == getCallerId(),
+            "Only the current licence owner can update the  valuation"
+        );
+
+        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(
+            _licence_Id
+        );
+
+        harbergerTaxManager._updateTaxObjectValuation(
+            taxObject_Id,
+            _newValuation
+        );
     }
 
     function getPublicationsAuthorAddress(address _address)
