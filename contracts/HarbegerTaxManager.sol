@@ -2,12 +2,14 @@ pragma solidity ^0.5.12;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract HarbegerTaxManager is Initializable {
+contract HarbergerTaxManager is Initializable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
     //percentage increase over previous price that must be paid to buy out the licence
-    uint256 minimumPriceIncreaseToBuyOut = 5;
+    uint256 MIN_BUYOUT_PRICE_INCREASE = 5;
     //a buyout has an expiratory of 10 days for the owner to raize the price or loose the licence
-    uint256 buyOutExpiration = 60 * 60 * 24 * 10;
+    uint256 BUYOUT_TIMEOUT = 60 * 60 * 24 * 10;
+    // 4% compounding per block, scaled 1e18
+    uint256 FIXED_INTEREST_RATE_PER_BLOCK = 19025875190;
 
     address registry;
 
@@ -36,6 +38,8 @@ contract HarbegerTaxManager is Initializable {
 
     mapping(uint256 => uint256[]) public buyOutOwners;
 
+    mapping(uint256 => uint256) public licenceTaxObjects;
+
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
         _;
@@ -48,13 +52,13 @@ contract HarbegerTaxManager is Initializable {
 
     function createTaxObject(
         uint256 _licenceId,
-        uint256 _ratePerBlock,
+        // uint256 _ratePerBlock,
         uint256 _currentAssignedValue
     ) public onlyRegistry returns (uint256) {
         uint256[] memory buyOutIds;
         TaxObject memory taxObject = TaxObject(
             _licenceId,
-            _ratePerBlock,
+            FIXED_INTEREST_RATE_PER_BLOCK,
             now,
             0,
             _currentAssignedValue,
@@ -62,6 +66,8 @@ contract HarbegerTaxManager is Initializable {
         );
 
         uint256 taxObjectId = taxObjects.push(taxObject) - 1;
+
+        licenceTaxObjects[_licenceId] = taxObjectId;
 
         return taxObjectId;
     }
@@ -91,7 +97,7 @@ contract HarbegerTaxManager is Initializable {
     {
         return
             (taxObjects[_taxObject_Id].currentAssignedValue *
-                (100 + minimumPriceIncreaseToBuyOut)) /
+                (100 + MIN_BUYOUT_PRICE_INCREASE)) /
             100;
     }
 
@@ -126,7 +132,7 @@ contract HarbegerTaxManager is Initializable {
             _taxObject,
             _buyOutOwner_Id,
             _offer,
-            now + buyOutExpiration,
+            now + BUYOUT_TIMEOUT,
             BuyoutStatus.Pending
         );
 
@@ -167,6 +173,30 @@ contract HarbegerTaxManager is Initializable {
             taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
             return true;
         }
+    }
+
+    function getLicenceTaxObjectId(uint256 _licence_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return licenceTaxObjects[_licence_Id];
+    }
+
+    function getTaxObject(uint256 _taxObject_Id)
+        public
+        view
+        returns (uint256, uint256, uint256, uint256, uint256, uint256[])
+    {
+        TaxObject memory taxObject = taxObjects[_taxObject_Id];
+        return (
+            taxObject.licenceId,
+            taxObject.ratePerBlock,
+            taxObject.lastPayment,
+            taxObject.numberOfOutBids,
+            taxObject.currentAssignedValue,
+            taxObject.buyout_Ids
+        );
     }
 
     /**
