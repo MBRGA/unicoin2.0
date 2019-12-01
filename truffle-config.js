@@ -13,6 +13,7 @@ module.exports = {
       host: "localhost",
       port: 8545,
       network_id: "*", // Any network (default: none)
+      gas: 7000000000,
     },
     coverage: {
       host: "127.0.0.1",
@@ -43,8 +44,8 @@ module.exports = {
       version: "0.5.12",
       settings: {
         optimizer: {
-          enabled: false,
-          runs: 200
+          enabled: true,
+          runs: 500
         }
       }
     }
