@@ -133,7 +133,6 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     {
         return
             publicationLicences[_publication_Id][publicationLicences[_publication_Id]
-                .length -
-                1];
+            .length - 1];
     }
 }
