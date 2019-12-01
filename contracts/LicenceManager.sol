@@ -8,11 +8,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Fu
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol";
 
-contract LicenceManager is
-    Initializable,
-    ERC721Full,
-    ERC721Mintable
-{
+contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     enum LicenceStatus {Active, Revoked}
 
     struct Licence {
@@ -98,6 +94,14 @@ contract LicenceManager is
             _licence.publicationLicenceNo,
             uint8(_licence.status)
         );
+    }
+
+    function getLicenceOwnerId(uint256 _licence_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return licences[_licence_Id].owner_Id;
     }
 
     function getPublicationLicences(uint256 _publication_Id)
