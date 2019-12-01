@@ -11,6 +11,7 @@ import "./LicenceManager.sol";
 import "./PublicationManager.sol";
 import "./UserManager.sol";
 import "./Vault.sol";
+import "./HarbegerTaxManager";
 
 contract UnicoinRegistry is Initializable, GSNRecipient {
     address owner;
@@ -19,15 +20,17 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     LicenceManager private licenceManager;
     PublicationManager private publicationManager;
     UserManager private userManager;
+    HarbergerTaxManager private harbergerTaxManager;
     Vault private vault;
 
-    enum PricingStrategy {PrivateAuction, FixedRate}
+    enum PricingStrategy {PrivateAuction, FixedRate, PrivateAuctionHarberger}
 
     function initialize(
         address _auctionManager,
         address _licenceManager,
         address _publicationManager,
         address _userManager,
+        address _harbergerTaxManager,
         address _vault
     ) public initializer {
         owner = msg.sender;
@@ -38,8 +41,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         licenceManager = LicenceManager(_licenceManager);
         publicationManager = PublicationManager(_publicationManager);
         userManager = UserManager(_userManager);
+        harbergerTaxManager = HarbergerTaxManager(_harbergerTaxManager);
         vault = Vault(_vault);
-
     }
 
     // accept all requests
@@ -75,7 +78,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         owner = _owner;
     }
 
-    function registerUser(string memory _profile_uri) public returns(uint256) {
+    function registerUser(string memory _profile_uri) public returns (uint256) {
         uint256 user_Id = userManager._registerUser(_profile_uri, msg.sender);
         return user_Id;
     }
@@ -181,15 +184,28 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         uint256 publicationLicenceNo = publicationManager
             .addNewLicenceToPublication(publicationId);
 
-        licenceManager.registerNewLicence(
+        uint256 licence_Id = licenceManager.registerNewLicence(
             winningBidderAddress,
             winningBiderId,
             publicationId,
             publicationLicenceNo
         );
+        if (
+            publicationManager.GetPublicationPricingStrategy(publicationId) ==
+            PricingStrategy.PrivateAuctionHarberger
+        ) {
+            harbergerTaxManager.createTaxObject(licence_Id, winningBidAmount);
+        }
     }
 
     function buyLicenceFixedRate() public {}
+
+    function claimHarbergerTax(uint256 _publication_Id)
+        public
+        returns (uint256)
+    {
+        uint256 licence_Id = licenceManager.getPublicationLicences(_publication_Id)[0];
+    }
 
     function getPublicationsAuthorAddress(address _address)
         public

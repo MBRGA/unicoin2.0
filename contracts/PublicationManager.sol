@@ -3,7 +3,7 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract PublicationManager is Initializable {
-    enum PricingStrategy {PrivateAuction, FixedRate}
+    enum PricingStrategy {PrivateAuction, FixedRate, PrivateAuctionHarberger}
 
     struct Publication {
         PricingStrategy pricingStrategy;
@@ -183,6 +183,14 @@ contract PublicationManager is Initializable {
         returns (uint256[] memory)
     {
         return publications[_publication_Id].auction_ids;
+    }
+
+    function GetPublicationPricingStrategy(uint256 _publication_Id)
+        public
+        view
+        returns (PricingStrategy)
+    {
+        return publications[_publication_Id].pricingStrategy;
     }
 
     function getAuthorPublications(uint256 _author_Id)

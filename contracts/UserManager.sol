@@ -30,7 +30,7 @@ contract UserManager is Initializable {
     function _registerUser(string memory _profile_uri, address _userAddress)
         public
         onlyRegistry
-        returns(uint256)
+        returns (uint256)
     {
         require(
             bytes(_profile_uri).length > 0,
