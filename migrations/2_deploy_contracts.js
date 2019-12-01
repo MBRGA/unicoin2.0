@@ -28,6 +28,10 @@ async function deploy(options, daiContractAddress) {
                 alias: 'AuctionManager'
             },
             {
+                name: 'HarbergerTaxManager',
+                alias: 'HarbergerTaxManager'
+            },
+            {
                 name: 'PublicationManager',
                 alias: 'PublicationManager'
             },
@@ -42,11 +46,12 @@ async function deploy(options, daiContractAddress) {
             {
                 name: 'LicenceManager',
                 alias: 'LicenceManager'
-            }
+            },
         ]
     });
 
     // deploys your project
+    console.log("pushing UnicoinRegistry settings")
     await push(options);
     console.log("Deploying UnicoinRegistry")
 
@@ -58,6 +63,13 @@ async function deploy(options, daiContractAddress) {
     console.log("Deploying AuctionManager")
     let auctionManager = await create(Object.assign({
         contractAlias: 'AuctionManager',
+        methodName: 'initialize',
+        methodArgs: [unicoinRegistry.address]
+    }, options));
+
+    console.log("Deploying HarbergerTaxManager")
+    let harbergerTaxManager = await create(Object.assign({
+        contractAlias: 'HarbergerTaxManager',
         methodName: 'initialize',
         methodArgs: [unicoinRegistry.address]
     }, options));
@@ -96,6 +108,7 @@ async function deploy(options, daiContractAddress) {
         licenceManager.address,
         publicationManager.address,
         userManager.address,
+        harbergerTaxManager.address,
         vault.address)
 }
 
