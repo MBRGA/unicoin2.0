@@ -63,7 +63,7 @@ contract AuctionManager is Initializable {
             "AuctionManager::Invalid auction start time"
         );
         require(
-            _auctionDuration >= 0,
+            _auctionDuration > 0,
             "AuctionManager::Invalid auction duration"
         );
 

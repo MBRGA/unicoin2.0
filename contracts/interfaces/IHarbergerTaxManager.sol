@@ -64,6 +64,8 @@ interface IHarbergerTaxManager {
         view
         returns (uint256);
 
+    function getTaxObjectLength() external view returns (uint256);
+
     function optimalExp(uint256 x) external pure returns (uint256);
 
     function capFunction(uint256 r, uint256 t1, uint256 t2)

@@ -153,7 +153,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         (uint256 winningBidAmount, uint256 winningBiderId, uint256 publicationId) = auctionManager
             .finalizeAuction(_auction_Id);
 
-        require(winningBidAmount > 0, "Invalid winning bid amount");
+        if (winningBidAmount == 0) {
+            return 0; //no one won the auction
+        }
         require(winningBiderId > 0, "Invalid winning bid Id");
         require(publicationId > 0, "Invalid publication Id");
 
@@ -191,13 +193,12 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             publicationLicenceNo
         );
         if (
-            uint8(
-                publicationManager.GetPublicationPricingStrategy(publicationId)
-            ) ==
+            publicationManager.GetPublicationPricingStrategy(publicationId) ==
             uint8(PricingStrategy.PrivateAuctionHarberger)
         ) {
             harbergerTaxManager.createTaxObject(licence_Id, winningBidAmount);
         }
+        return winningBidAmount;
     }
 
     function buyLicenceFixedRate() public {}
@@ -332,6 +333,26 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                 buyOutOwner_address
             );
         }
+    }
+
+    function getTaxObject(uint256 _taxObject_Id)
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256[] memory,
+            uint8
+        )
+    {
+        return (harbergerTaxManager.getTaxObject(_taxObject_Id));
+    }
+
+    function getTaxObjectLength() public view returns (uint256) {
+        return harbergerTaxManager.getTaxObjectLength();
     }
 
     function getMinBuyOutAmount(uint256 _publication_Id)

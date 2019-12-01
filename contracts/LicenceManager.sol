@@ -37,8 +37,8 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         ERC721Mintable.initialize(_unicoinRegistry);
 
         registry = _unicoinRegistry;
-
-        licences.push(Licence(0, 0, 0, LicenceStatus.Active));
+        //TODO: decide if you need this
+        licences.push(Licence(0, 0, 0, LicenceStatus.Revoked));
     }
 
     function registerNewLicence(

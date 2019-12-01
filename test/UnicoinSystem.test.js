@@ -266,7 +266,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 samplePublication_FixedRate._maxNumberOfLicences,
                 samplePublication_FixedRate._contributors,
                 samplePublication_FixedRate._contributors_weightings, {
-                    from: randomAddress
+                    from: publisher
                 }
             ))
         })
@@ -281,7 +281,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 samplePublication_FixedRate._maxNumberOfLicences,
                 samplePublication_FixedRate._contributors,
                 samplePublication_FixedRate._contributors_weightings, {
-                    from: randomAddress
+                    from: publisher
                 }
             ))
         })
@@ -296,38 +296,38 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 samplePublication_FixedRate._maxNumberOfLicences,
                 samplePublication_FixedRate._contributors,
                 samplePublication_FixedRate._contributors_weightings, {
-                    from: randomAddress
+                    from: publisher
                 }
             ))
         })
-        it("Reverts if invalid publication: invalid start time", async () => {
+        it("Reverts if invalid publication(auction): invalid start time", async () => {
             await time.increase(200) //current time is now ahead of the start time
             await expectRevert.unspecified(unicoinRegistry.createPublication(
-                samplePublication_FixedRate._pricing_Strategy,
-                samplePublication_FixedRate._publication_uri,
-                samplePublication_FixedRate._auctionFloor,
-                samplePublication_FixedRate._auctionStartTime,
-                samplePublication_FixedRate._fixed_sell_price,
-                samplePublication_FixedRate._auctionDuration,
-                samplePublication_FixedRate._maxNumberOfLicences,
-                samplePublication_FixedRate._contributors,
-                samplePublication_FixedRate._contributors_weightings, {
-                    from: randomAddress
+                samplePublication_PrivateAuction._pricing_Strategy,
+                samplePublication_PrivateAuction._publication_uri,
+                samplePublication_PrivateAuction._auctionFloor,
+                samplePublication_PrivateAuction._auctionStartTime,
+                samplePublication_PrivateAuction._fixed_sell_price,
+                samplePublication_PrivateAuction._auctionDuration,
+                samplePublication_PrivateAuction._maxNumberOfLicences,
+                samplePublication_PrivateAuction._contributors,
+                samplePublication_PrivateAuction._contributors_weightings, {
+                    from: publisher
                 }
             ))
         })
-        it("Reverts if invalid publication: invalid duration time", async () => {
+        it("Reverts if invalid publication(auction): invalid duration time", async () => {
             await expectRevert.unspecified(unicoinRegistry.createPublication(
-                samplePublication_FixedRate._pricing_Strategy,
-                samplePublication_FixedRate._publication_uri,
-                samplePublication_FixedRate._auctionFloor,
-                samplePublication_FixedRate._auctionStartTime,
+                samplePublication_PrivateAuction._pricing_Strategy,
+                samplePublication_PrivateAuction._publication_uri,
+                samplePublication_PrivateAuction._auctionFloor,
+                samplePublication_PrivateAuction._auctionStartTime,
                 0, //auction duration cant be zero
-                samplePublication_FixedRate._fixed_sell_price,
-                samplePublication_FixedRate._maxNumberOfLicences,
-                samplePublication_FixedRate._contributors,
-                samplePublication_FixedRate._contributors_weightings, {
-                    from: randomAddress
+                samplePublication_PrivateAuction._fixed_sell_price,
+                samplePublication_PrivateAuction._maxNumberOfLicences,
+                samplePublication_PrivateAuction._contributors,
+                samplePublication_PrivateAuction._contributors_weightings, {
+                    from: publisher
                 }
             ))
         })
@@ -663,9 +663,6 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             Object.keys(licence).forEach(function (key) {
                 assert.equal(licence[key].toString(), expectedObject[key], "Key value error on " + key)
             });
-
-            let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
-            assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
         })
         it("Can get licenses associated with a publication", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
@@ -676,6 +673,62 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         it("should be no licences associated with other publications", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(0);
             assert.equal(publicationLicences, 0, "There should be no licences with this publication")
+        })
+    })
+    context("Licence Management: Interacting with NFT 💼", function () {
+        it("Can get information about issued NFT", async () => {
+            let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
+            assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
+        })
+    })
+
+    context("Harberger Tax: publication management 🤑", function () {
+        it("can correctly create a licence with harberger tax enabled", async () => {
+            await unicoinRegistry.createPublication(
+                2, //PricingStrategy of 2 is for a PrivateAuctionHarberger
+                samplePublication_PrivateAuction._publication_uri,
+                samplePublication_PrivateAuction._auctionFloor,
+                samplePublication_PrivateAuction._auctionStartTime,
+                samplePublication_PrivateAuction._auctionDuration,
+                samplePublication_PrivateAuction._fixed_sell_price,
+                samplePublication_PrivateAuction._maxNumberOfLicences,
+                samplePublication_PrivateAuction._contributors,
+                samplePublication_PrivateAuction._contributors_weightings, {
+                    from: publisher
+                }
+            );
+            let numOfPublications = await unicoinRegistry.getPublicationLength()
+            assert.equal(numOfPublications.toNumber(), 3, "new publication was not created")
+        })
+
+        it("can bid (and win) auction on harberger tax", async () => {
+            await time.increase(150) //current time is now ahead of the start time
+            await unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 2 //2 is the auction number for the just created publication
+                , {
+                    from: bidder2
+                })
+
+            await time.increase(250) //current time is now after the auction ends
+            await unicoinRegistry.revealSealedBid(sealedBid2.bidAmount, sealedBid2.salt, 2, 3, {
+                from: bidder2
+            })
+
+            await unicoinRegistry.finalizeAuction(1, {
+                from: randomAddress
+            })
+        })
+
+        it("can get taxObjects length", async () => {
+            let length = await unicoinRegistry.getTaxObjectLength.call()
+            console.log(length.toNumber())
+            assert.equal(length.toNumber(), 1, "There should be 1 tax object");
+
+        })
+
+        it("can get info about tax object", async () => {
+            let taxObject = await unicoinRegistry.getTaxObject.call(0)
+            console.log(taxObject)
+
         })
     })
 })

@@ -54,7 +54,7 @@ contract PublicationManager is Initializable {
         );
 
         if (PricingStrategy(_pricing_stratergy) == PricingStrategy.FixedRate) {
-            require(_fixed_sell_price >= 0, "Fixed sell price cant be zero");
+            require(_fixed_sell_price > 0, "Fixed sell price cant be zero");
         } else {
             require(
                 _fixed_sell_price == 0,

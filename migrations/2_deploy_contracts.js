@@ -116,7 +116,7 @@ module.exports = function (deployer, networkName, accounts) {
     deployer.then(async () => {
 
         if (networkName === 'test') { //we dont want to run migrations when running unit tests
-            console.log("Running in test network! deploying Unicoin Registry")
+            console.log("Running in test network! migrations skipped")
             // unicoinRegistry = await deployer.deploy(UnicoinRegistry);
             return
         }

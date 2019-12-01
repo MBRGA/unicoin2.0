@@ -50,7 +50,6 @@ contract HarbergerTaxManager is Initializable {
 
     function initialize(address _unicoinRegistry) public initializer {
         registry = _unicoinRegistry;
-
     }
 
     function createTaxObject(
@@ -258,6 +257,10 @@ contract HarbergerTaxManager is Initializable {
         returns (uint256)
     {
         return buyOuts[_buyOut_Id].buyoutOwner_Id;
+    }
+
+    function getTaxObjectLength() public view returns (uint256){
+        return taxObjects.length;
     }
 
     /**
