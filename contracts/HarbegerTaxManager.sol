@@ -135,8 +135,13 @@ contract HarbegerTaxManager is Initializable {
         taxObjects[_taxObject].buyout_Ids.push(buyOut_Id);
     }
 
-    function finalizeBuyOutOffer(uint256 _buyOut_Id) public onlyRegistry returns(bool) {
+    function finalizeBuyOutOffer(uint256 _buyOut_Id)
+        public
+        onlyRegistry
+        returns (bool)
+    {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
+        TaxObject memory taxObject = taxObjects[buyOut.taxObject_Id];
         require(
             buyOut.status == BuyoutStatus.Pending,
             "Can only finalize buyout if buyout is pending"
@@ -147,30 +152,22 @@ contract HarbegerTaxManager is Initializable {
         );
         if (
             buyOut.buyoutAmount <
-            calculateMinBuyOutPrice(
-                taxObjects[buyOut.taxObject_Id].currentAssignedValue
-            )
+            calculateMinBuyOutPrice(taxObject.currentAssignedValue)
         ) {
             buyOuts[_buyOut_Id].status = BuyoutStatus.OutBid;
-            return false;
+            return false; //the buyout was not enough and so failed
         }
         if (
             buyOut.buyoutAmount >
-            calculateMinBuyOutPrice(
-                taxObjects[buyOut.taxObject_Id].currentAssignedValue
-            )
+            calculateMinBuyOutPrice(taxObject.currentAssignedValue)
         ) {
             buyOuts[_buyOut_Id].status = BuyoutStatus.Successful;
-            taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut.buyoutAmount;
+            taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut
+                .buyoutAmount;
             taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
             return true;
         }
     }
-
-    function outBidBuyOutOffer(uint256 _buyOutOffer_Id, uint256 _newOffer)
-        public
-        onlyRegistry
-    {}
 
     /**
       * @dev computes e ^ (x / FIXED_1) * FIXED_1

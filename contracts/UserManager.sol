@@ -30,6 +30,7 @@ contract UserManager is Initializable {
     function _registerUser(string memory _profile_uri, address _userAddress)
         public
         onlyRegistry
+        returns(uint256)
     {
         require(
             bytes(_profile_uri).length > 0,
@@ -38,6 +39,7 @@ contract UserManager is Initializable {
         require(userAddresses[_userAddress] == 0, "User already registered.");
         uint256 id = users.push(User(_userAddress, _profile_uri));
         userAddresses[_userAddress] = id - 1;
+        return id;
     }
 
     function isAddressRegistered(address _userAddress)
