@@ -674,7 +674,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
         })
 
-        it("should be no licences associated with other publications", async () => {
+        it("Should be no licences associated with other publications", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
             assert.equal(publicationLicences, 0, "There should be no licences with this publication")
         })
@@ -687,7 +687,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
     })
 
     context("Harberger Tax: publication management 📕", function () {
-        it("can correctly create a licence with harberger tax enabled", async () => {
+        it("Can correctly create a licence with harberger tax enabled", async () => {
             await unicoinRegistry.createPublication(
                 2, //PricingStrategy of 2 is for a PrivateAuctionHarberger
                 samplePublication_PrivateAuction._publication_uri,
@@ -705,7 +705,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             assert.equal(numOfPublications.toNumber(), 3, "new publication was not created")
         })
 
-        it("can bid (and win) auction on harberger tax", async () => {
+        it("Can bid (and win) auction on harberger tax", async () => {
             await time.increase(150) //current time is now ahead of the start time
             await unicoinRegistry.commitSealedBid(sealedBid2.bidHash, 2 //2 is the auction number for the just created publication
                 , {
@@ -722,13 +722,13 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             })
         })
 
-        it("can get taxObjects length", async () => {
+        it("Can get taxObjects length", async () => {
             let length = await unicoinRegistry.getTaxObjectLength.call()
             assert.equal(length.toNumber(), 1, "There should be 1 tax object");
 
         })
 
-        it("can get info about tax object", async () => {
+        it("Can get info about tax object", async () => {
             let taxObject = await unicoinRegistry.getTaxObject.call(0)
             let expectedObject = {
                 0: 1, //licenceId
@@ -750,14 +750,14 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
     })
     context("Harberger Tax: taxation calculations and payments 🤑", function () {
-        it("can correctly calculate outstanding tax", async () => {
+        it("Can correctly calculate outstanding tax", async () => {
             time.increase(oneMonthSeconds * 6 + 250) //plus 250 because this was when
             let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
             //exact tests of the tax amount paid are tested in another set of tests
             assert.equal(taxToPay.toNumber() > 0, true, "The tax should be bigger than 0");
         })
 
-        it("can correctly calculate min buy out price", async () => {
+        it("Can correctly calculate min buy out price", async () => {
             let contractCalculatedValue = await unicoinRegistry.getMinBuyOutPrice(0);
 
             let expectedValue = sealedBid2.bidAmount * 1.05
