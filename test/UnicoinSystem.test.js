@@ -93,6 +93,8 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
     const startingHarbergerTaxPerBlock = parseInt((0.04 / (4 * 60 * 24 * 365)) * 10 ** 18)
 
+    const oneMonthSeconds = 60 * 60 * 24 * 30
+
     before(async function () {
         daiContract = await Erc20Mock.new({
             from: tokenOwner
@@ -148,7 +150,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
     beforeEach(async function () {
         //before each test take the current blockchain time and set the auction 
         //to start 100 seconds later. This sets each test up in a consistent way
-        let contractTime = await unicoinRegistry.getBlockTime.call()
+        contractTime = await unicoinRegistry.getBlockTime.call()
         samplePublication_PrivateAuction._auctionStartTime = contractTime.toNumber() + 100
 
         //if sales have been added on chain then we need to increment the auction
@@ -684,7 +686,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
     })
 
-    context("Harberger Tax: publication management 🤑", function () {
+    context("Harberger Tax: publication management 📕", function () {
         it("can correctly create a licence with harberger tax enabled", async () => {
             await unicoinRegistry.createPublication(
                 2, //PricingStrategy of 2 is for a PrivateAuctionHarberger
@@ -722,7 +724,6 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
         it("can get taxObjects length", async () => {
             let length = await unicoinRegistry.getTaxObjectLength.call()
-            console.log(length.toNumber())
             assert.equal(length.toNumber(), 1, "There should be 1 tax object");
 
         })
@@ -732,7 +733,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let expectedObject = {
                 0: 1, //licenceId
                 1: startingHarbergerTaxPerBlock, //ratePerBlock
-                2: 0, //last payment
+                2: contractTime.toNumber(), //last payment
                 3: 0, //numberOfOutBids
                 4: sealedBid2.bidAmount, //currentAssignedValue
                 5: [], //buyout_Ids
@@ -740,8 +741,21 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             }
 
             Object.keys(taxObject).forEach(function (key) {
-                assert.equal(taxObject[key].toString(), expectedObject[key], "Key value error on " + key)
+                if (key != 2) {
+                    assert.equal(taxObject[key].toString(), expectedObject[key], "Key value error on " + key)
+                } else {
+                    assert.equal(taxObject[key].toNumber() <= contractTime, true, "start time should be less than or equal to current time")
+                }
             });
+        })
+    })
+    context("Harberger Tax: taxation calculations and payments 🤑", function () {
+        it("can correctly calculate outstanding tax", async () => {
+            time.increase(oneMonthSeconds * 6 + 250) //plus 250 because this was when
+            let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
+            //exact tests of the tax amount paid are tested in another set of tests
+            assert.equal(taxToPay.toNumber() > 0, true, "The tax should be bigger than 0");
+
         })
     })
 })

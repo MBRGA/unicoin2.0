@@ -78,7 +78,7 @@ contract HarbergerTaxManager is Initializable {
         TaxObject memory taxObject = TaxObject(
             _licence_Id,
             FIXED_INTEREST_RATE_PER_BLOCK,
-            0,
+            now,
             0,
             _currentAssignedValue,
             buyOutIds,
@@ -259,7 +259,7 @@ contract HarbergerTaxManager is Initializable {
         return buyOuts[_buyOut_Id].buyoutOwner_Id;
     }
 
-    function getTaxObjectLength() public view returns (uint256){
+    function getTaxObjectLength() public view returns (uint256) {
         return taxObjects.length;
     }
 

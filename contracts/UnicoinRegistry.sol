@@ -556,4 +556,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return licenceManager.ownerOf(tokenId);
     }
 
+    function getOutstandingTax(uint256 _taxObject) public view returns(uint256){
+        return harbergerTaxManager.calculateOutstandingTax(_taxObject);
+    }
 }
