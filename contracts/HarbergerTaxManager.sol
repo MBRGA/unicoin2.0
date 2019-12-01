@@ -13,6 +13,8 @@ contract HarbergerTaxManager is Initializable {
 
     address registry;
 
+    enum TaxObjectStatus {Active, Revoked}
+
     struct TaxObject {
         uint256 licenceId;
         uint256 ratePerBlock;
@@ -20,6 +22,7 @@ contract HarbergerTaxManager is Initializable {
         uint256 numberOfOutBids;
         uint256 currentAssignedValue;
         uint256[] buyout_Ids;
+        TaxObjectStatus status;
     }
 
     TaxObject[] taxObjects;
@@ -38,7 +41,7 @@ contract HarbergerTaxManager is Initializable {
 
     mapping(uint256 => uint256[]) public buyOutOwners;
 
-    mapping(uint256 => uint256) public licenceTaxObjects;
+    mapping(uint256 => uint256[]) public licenceTaxObjects;
 
     modifier onlyRegistry() {
         require(msg.sender == registry, "Can only be called by registry");
@@ -51,23 +54,41 @@ contract HarbergerTaxManager is Initializable {
     }
 
     function createTaxObject(
-        uint256 _licenceId,
+        uint256 _licence_Id,
         // uint256 _ratePerBlock,
         uint256 _currentAssignedValue
     ) public onlyRegistry returns (uint256) {
+        require(
+            _currentAssignedValue > 0,
+            "Value needs to be larger than zero"
+        );
+
+        //if there were previous tax objects then they must have been revoked
+        if (licenceTaxObjects[_licence_Id].length > 0) {
+            require(
+                taxObjects[licenceTaxObjects[_licence_Id][licenceTaxObjects[_licence_Id]
+                    .length -
+                    1]]
+                    .status ==
+                    TaxObjectStatus.Revoked,
+                "Can only create tax object if previous revoked"
+            );
+        }
+
         uint256[] memory buyOutIds;
         TaxObject memory taxObject = TaxObject(
-            _licenceId,
+            _licence_Id,
             FIXED_INTEREST_RATE_PER_BLOCK,
             now,
             0,
             _currentAssignedValue,
-            buyOutIds
+            buyOutIds,
+            TaxObjectStatus.Active
         );
 
         uint256 taxObjectId = taxObjects.push(taxObject) - 1;
 
-        licenceTaxObjects[_licenceId] = taxObjectId;
+        licenceTaxObjects[_licence_Id].push(taxObjectId);
 
         return taxObjectId;
     }
@@ -101,14 +122,14 @@ contract HarbergerTaxManager is Initializable {
             100;
     }
 
-    function updateTaxObjectLastPayment(uint256 _taxObject_Id)
+    function _updateTaxObjectLastPayment(uint256 _taxObject_Id)
         public
         onlyRegistry
     {
         taxObjects[_taxObject_Id].lastPayment = now;
     }
 
-    function updateTaxObjectPrivateValuation(
+    function _updateTaxObjectValuation(
         uint256 _taxObject_Id,
         uint256 _assignedValue
     ) public onlyRegistry {
@@ -126,6 +147,11 @@ contract HarbergerTaxManager is Initializable {
                     taxObjects[_taxObject].currentAssignedValue
                 ),
             "Value sent is less than the minimum buyout price"
+        );
+
+        require(
+            taxObjects[_taxObject].status == TaxObjectStatus.Active,
+            "Can only submit a buyout to an active active tax object"
         );
 
         BuyOut memory buyOut = BuyOut(
@@ -175,18 +201,31 @@ contract HarbergerTaxManager is Initializable {
         }
     }
 
+    function revokeTaxObject(uint256 _taxObject_Id) public onlyRegistry {
+        taxObjects[_taxObject_Id].status = TaxObjectStatus.Revoked;
+    }
+
     function getLicenceTaxObjectId(uint256 _licence_Id)
         public
         view
         returns (uint256)
     {
-        return licenceTaxObjects[_licence_Id];
+        uint256 numOfTaxObjects = licenceTaxObjects[_licence_Id].length;
+        return licenceTaxObjects[_licence_Id][numOfTaxObjects - 1];
     }
 
     function getTaxObject(uint256 _taxObject_Id)
         public
         view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory)
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256[] memory,
+            uint8
+        )
     {
         TaxObject memory taxObject = taxObjects[_taxObject_Id];
         return (
@@ -195,7 +234,8 @@ contract HarbergerTaxManager is Initializable {
             taxObject.lastPayment,
             taxObject.numberOfOutBids,
             taxObject.currentAssignedValue,
-            taxObject.buyout_Ids
+            taxObject.buyout_Ids,
+            uint8(taxObject.status)
         );
     }
 
