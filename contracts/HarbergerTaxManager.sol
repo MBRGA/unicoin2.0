@@ -211,6 +211,10 @@ contract HarbergerTaxManager is Initializable {
         returns (uint256)
     {
         uint256 numOfTaxObjects = licenceTaxObjects[_licence_Id].length;
+        require(
+            numOfTaxObjects >= 1,
+            "There is no tax object for this licence"
+        );
         return licenceTaxObjects[_licence_Id][numOfTaxObjects - 1];
     }
 
@@ -237,6 +241,19 @@ contract HarbergerTaxManager is Initializable {
             taxObject.buyout_Ids,
             uint8(taxObject.status)
         );
+    }
+
+    function getBuyOutLicenceId(uint256 _buyOut_Id)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 taxObject_Id = buyOuts[_buyOut_Id].taxObject_Id;
+        return taxObjects[taxObject_Id].licenceId;
+    }
+
+    function getBuyOutOwnerId(uint256 _buyOut_Id) public view returns (uint256) {
+        return buyOuts[_buyOut_Id].buyoutOwner_Id;
     }
 
     /**

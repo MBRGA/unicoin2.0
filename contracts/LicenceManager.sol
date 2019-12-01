@@ -81,6 +81,20 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         return licenceOwners[_user_Id];
     }
 
+    function allocateLicenceToNewOwner(
+        uint256 _licence_Id,
+        uint256 _newOwner_Id,
+        address _oldNFTOwner_address,
+        address _newNFTOwner_address
+    ) public onlyRegistry {
+        licences[_licence_Id].owner_Id = _newOwner_Id;
+        ERC721.transferFrom(
+            _oldNFTOwner_address,
+            _newNFTOwner_address,
+            _licence_Id
+        );
+    }
+
     function getLicence(uint256 _licence_Id)
         public
         view

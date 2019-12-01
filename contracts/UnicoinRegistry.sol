@@ -266,10 +266,10 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         }
     }
 
-    function updateLicenceValuation(uint256 _licence_Id, uint256 _newValuation)
-        public
-        returns (uint256)
-    {
+    function updateLicenceHarbergerValuation(
+        uint256 _licence_Id,
+        uint256 _newValuation
+    ) public returns (uint256) {
         uint256 licenceOwner_Id = licenceManager.getLicenceOwnerId(_licence_Id);
         require(
             licenceOwner_Id == getCallerId(),
@@ -285,6 +285,55 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             _newValuation
         );
     }
+
+    function createHarbergerBuyOut(uint256 _licence_Id, uint256 _buyOutAmount)
+        public
+    {
+        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(
+            _licence_Id
+        );
+        uint256 buyOutOwner_Id = getCallerId();
+
+        harbergerTaxManager.submitBuyOut(
+            taxObject_Id,
+            _buyOutAmount,
+            buyOutOwner_Id
+        );
+    }
+
+    function finalizeBuyoutOffer(uint256 _buyOut_Id) public {
+        bool offerSucceeded = harbergerTaxManager.finalizeBuyOutOffer(
+            _buyOut_Id
+        );
+        if (offerSucceeded) {
+            uint256 licence_Id = harbergerTaxManager.getBuyOutLicenceId(
+                _buyOut_Id
+            );
+            uint256 buyOutOwner_Id = harbergerTaxManager.getBuyOutOwnerId(
+                _buyOut_Id
+            );
+
+            address buyOutOwner_address = userManager.getUserAddress(
+                buyOutOwner_Id
+            );
+
+            uint256 previousOwner_Id = licenceManager.getLicenceOwnerId(
+                licence_Id
+            );
+
+            address previousOwner_address = userManager.getUserAddress(
+                previousOwner_Id
+            );
+
+            licenceManager.allocateLicenceToNewOwner(licence_Id,buyOutOwner_Id,previousOwner_address,buyOutOwner_address);
+        }
+    }
+
+    function getMinBuyOutAmount(uint256 _licence_Id)
+        public
+        view
+        returns (uint256)
+    {}
 
     function getPublicationsAuthorAddress(address _address)
         public
