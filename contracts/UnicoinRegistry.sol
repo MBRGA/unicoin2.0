@@ -325,7 +325,12 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                 previousOwner_Id
             );
 
-            licenceManager.allocateLicenceToNewOwner(licence_Id,buyOutOwner_Id,previousOwner_address,buyOutOwner_address);
+            licenceManager.allocateLicenceToNewOwner(
+                licence_Id,
+                buyOutOwner_Id,
+                previousOwner_address,
+                buyOutOwner_address
+            );
         }
     }
 

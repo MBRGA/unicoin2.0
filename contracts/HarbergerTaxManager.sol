@@ -252,7 +252,11 @@ contract HarbergerTaxManager is Initializable {
         return taxObjects[taxObject_Id].licenceId;
     }
 
-    function getBuyOutOwnerId(uint256 _buyOut_Id) public view returns (uint256) {
+    function getBuyOutOwnerId(uint256 _buyOut_Id)
+        public
+        view
+        returns (uint256)
+    {
         return buyOuts[_buyOut_Id].buyoutOwner_Id;
     }
 
