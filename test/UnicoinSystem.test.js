@@ -127,6 +127,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         vault = await Vault.new()
         await vault.initialize(daiContract.address,
             unicoinRegistry.address)
+
         await unicoinRegistry.initialize(auctionManager.address,
             licenceManager.address,
             publicationManager.address,
@@ -655,11 +656,12 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let expectedObject = {
                 0: 3, // buyerId
                 1: 1, // publicationId
-                2: 1 // publicationLicenceNo
+                2: 1, // publicationLicenceNo
+                3: 0 // licence status. 0 for active
             }
             let licence = await unicoinRegistry.getLicence.call(1)
             Object.keys(licence).forEach(function (key) {
-                assert.equal(licence[key].toString(), expectedObject[key], "Key value error on" + key)
+                assert.equal(licence[key].toString(), expectedObject[key], "Key value error on " + key)
             });
 
             let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
@@ -667,7 +669,13 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
         it("Can get licenses associated with a publication", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
-            console.log(publicationLicences)
+            assert.equal(publicationLicences, 1, "The 1st licence should be assicated with the publication")
+
+        })
+
+        it("should be no licences associated with other publications", async () => {
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(0);
+            assert.equal(publicationLicences, 0, "There should be no licences with this publication")
         })
     })
 })
