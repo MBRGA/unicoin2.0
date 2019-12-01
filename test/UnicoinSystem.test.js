@@ -26,6 +26,7 @@ const AuctionManager = artifacts.require("./AuctionManager.sol")
 const LicenceManager = artifacts.require("./LicenceManager.sol")
 const PublicationManager = artifacts.require("./PublicationManager.sol")
 const UserManager = artifacts.require("./UserManager.sol")
+const HarbergerTaxManager = artifacts.require("./HarbergerTaxManager.sol")
 const Vault = artifacts.require("./Vault.sol")
 
 // Mock Contracts
@@ -104,49 +105,33 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             from: tokenOwner
         });
 
-        unicoinRegistry = await UnicoinRegistry.new({
-            from: registryOwner
-        })
-        auctionManager = await AuctionManager.new({
-            from: registryOwner
-        })
-        await auctionManager.initialize(unicoinRegistry.address, {
-            from: registryOwner
-        })
-        licenceManager = await LicenceManager.new({
-            from: registryOwner
-        })
+        unicoinRegistry = await UnicoinRegistry.new()
+
+        auctionManager = await AuctionManager.new()
+        await auctionManager.initialize(unicoinRegistry.address, )
+
+        licenceManager = await LicenceManager.new()
         licenceManager.initialize("Unicoin NFT Licence",
             "NFT",
-            unicoinRegistry.address, {
-                from: registryOwner
-            })
-        publicationManager = await PublicationManager.new({
-            from: registryOwner
-        })
-        publicationManager.initialize(unicoinRegistry.address, {
-            from: registryOwner
-        })
-        userManager = await UserManager.new({
-            from: registryOwner
-        })
-        userManager.initialize(unicoinRegistry.address, {
-            from: registryOwner
-        })
-        vault = await Vault.new({
-            from: registryOwner
-        })
+            unicoinRegistry.address)
+
+        publicationManager = await PublicationManager.new()
+        publicationManager.initialize(unicoinRegistry.address, )
+
+        userManager = await UserManager.new()
+        userManager.initialize(unicoinRegistry.address, )
+
+        harbergerTaxManager = await HarbergerTaxManager.new()
+        await harbergerTaxManager.initialize(unicoinRegistry.address)
+
+        vault = await Vault.new()
         await vault.initialize(daiContract.address,
-            unicoinRegistry.address, {
-                from: registryOwner
-            })
+            unicoinRegistry.address)
         await unicoinRegistry.initialize(auctionManager.address,
             licenceManager.address,
             publicationManager.address,
             userManager.address,
-            vault.address, {
-                from: registryOwner
-            })
+            harbergerTaxManager.address, vault.address)
 
         //approve the vault to spend the bidders dai
         await daiContract.approve(vault.address, 100000, {
