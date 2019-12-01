@@ -191,8 +191,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             publicationLicenceNo
         );
         if (
-            publicationManager.GetPublicationPricingStrategy(publicationId) ==
-            PricingStrategy.PrivateAuctionHarberger
+            uint8(publicationManager.GetPublicationPricingStrategy(publicationId)) ==
+            uint8(PricingStrategy.PrivateAuctionHarberger)
         ) {
             harbergerTaxManager.createTaxObject(licence_Id, winningBidAmount);
         }
@@ -204,7 +204,57 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         public
         returns (uint256)
     {
-        uint256 licence_Id = licenceManager.getPublicationLicences(_publication_Id)[0];
+        uint256 licence_Id = licenceManager.getPublicationLicences(
+            _publication_Id
+        )[0];
+        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(
+            licence_Id
+        );
+        uint256 outstandingTax = harbergerTaxManager.calculateOutstandingTax(
+            taxObject_Id
+        );
+        address licenceOwner = licenceManager.ownerOf(licence_Id);
+        bool licenceOwnerSolvent = vault.canAddressPay(
+            licenceOwner,
+            outstandingTax
+        );
+
+        if (licenceOwnerSolvent) {
+            //the licence owner can pay the tax and all contributers are paid
+            uint256 authorId = publicationManager.getAuthorId(_publication_Id);
+            address authorAddress = userManager.getUserAddress(authorId);
+            (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
+                ._getContributers(_publication_Id);
+            address[] memory contributorAddresses = userManager.getAddressArray(
+                contributorIds
+            );
+            require(
+                vault.settleBulkPayment(
+                    licenceOwner,
+                    authorAddress,
+                    contributorAddresses,
+                    contributorWeightings,
+                    outstandingTax
+                ),
+                "Bulk harberger getTaxObject(_taxObject_Id); settlement failed"
+            );
+            return outstandingTax;
+        }
+        //the licence owner cant pay the tax. they loose their licence which is placed for auction again
+        if (!licenceOwnerSolvent) {
+            licenceManager.revokeLicence(licence_Id);
+            publicationManager.revokeLicence(_publication_Id);
+            uint256 auctionId = auctionManager._createAuction(
+                _publication_Id,
+                0, //auction floor
+                now, //auction start time
+                60 * 60 * 24 * 30 // one month duration for the auction
+            );
+            publicationManager._addAuctionToPublication(
+                _publication_Id,
+                auctionId
+            );
+        }
     }
 
     function getPublicationsAuthorAddress(address _address)
@@ -287,7 +337,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     function getLicence(uint256 _licence_Id)
         public
         view
-        returns (uint256, uint256, uint256)
+        returns (uint256, uint256, uint256, uint8)
     {
         return (licenceManager.getLicence(_licence_Id));
     }

@@ -114,6 +114,16 @@ contract PublicationManager is Initializable {
         return licenceNo;
     }
 
+    function revokeLicence(uint256 _publication_Id)
+        public
+        onlyRegistry
+        returns (uint256)
+    {
+        uint256 licenceNo = publications[_publication_Id].licencesIssued - 1;
+        publications[_publication_Id].licencesIssued = licenceNo;
+        return licenceNo;
+    }
+
     function getAuthorId(uint256 _publication_Id)
         public
         view
@@ -188,9 +198,9 @@ contract PublicationManager is Initializable {
     function GetPublicationPricingStrategy(uint256 _publication_Id)
         public
         view
-        returns (PricingStrategy)
+        returns (uint8)
     {
-        return publications[_publication_Id].pricingStrategy;
+        return uint8(publications[_publication_Id].pricingStrategy);
     }
 
     function getAuthorPublications(uint256 _author_Id)

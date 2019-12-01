@@ -7,11 +7,19 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.s
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Full.sol";
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol";
-contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
+
+contract LicenceManager is
+    Initializable,
+    ERC721Full,
+    ERC721Mintable
+{
+    enum LicenceStatus {Active, Revoked}
+
     struct Licence {
-        uint256 buyer_Id;
+        uint256 owner_Id;
         uint256 publication_Id;
         uint256 publicationLicenceNo;
+        LicenceStatus status;
     }
 
     Licence[] public licences;
@@ -38,23 +46,24 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
 
         registry = _unicoinRegistry;
 
-        licences.push(Licence(0, 0, 0));
+        licences.push(Licence(0, 0, 0, LicenceStatus.Active));
     }
 
     function registerNewLicence(
         address _ownerAddress,
-        uint256 _buyer_Id,
+        uint256 _owner_Id,
         uint256 _publication_Id,
         uint256 _publicationLicenceNo
     ) public onlyRegistry returns (uint256) {
         Licence memory licence = Licence(
-            _buyer_Id,
+            _owner_Id,
             _publication_Id,
-            _publicationLicenceNo
+            _publicationLicenceNo,
+            LicenceStatus.Active
         );
         uint256 licence_Id = licences.push(licence) - 1;
 
-        licenceOwners[_buyer_Id].push(licence_Id);
+        licenceOwners[_owner_Id].push(licence_Id);
         publicationLicences[_publication_Id].push(licence_Id);
 
         require(
@@ -62,6 +71,10 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
             "Licence minting failed"
         );
         return licence_Id;
+    }
+
+    function revokeLicence(uint256 _licence_Id) public onlyRegistry {
+        licences[_licence_Id].status = LicenceStatus.Revoked;
     }
 
     function getLicenceForUser(uint256 _user_Id)
@@ -75,14 +88,15 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     function getLicence(uint256 _licence_Id)
         public
         view
-        returns (uint256, uint256, uint256)
+        returns (uint256, uint256, uint256, uint8)
     {
         require(_licence_Id > 0, "Zeroth licence is not valid");
         Licence memory _licence = licences[_licence_Id];
         return (
-            _licence.buyer_Id,
+            _licence.owner_Id,
             _licence.publication_Id,
-            _licence.publicationLicenceNo
+            _licence.publicationLicenceNo,
+            uint8(_licence.status)
         );
     }
 

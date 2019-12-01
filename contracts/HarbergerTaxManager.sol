@@ -186,7 +186,7 @@ contract HarbergerTaxManager is Initializable {
     function getTaxObject(uint256 _taxObject_Id)
         public
         view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256[])
+        returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory)
     {
         TaxObject memory taxObject = taxObjects[_taxObject_Id];
         return (
@@ -301,7 +301,7 @@ contract HarbergerTaxManager is Initializable {
 
     function futureValue(uint256 N, uint256 r, uint256 t1, uint256 t2)
         public
-        view
+        pure
         returns (uint256)
     {
         return (capFunction(r, t1, t2) * N) / 10**18;
