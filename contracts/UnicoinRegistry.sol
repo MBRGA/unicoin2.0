@@ -206,9 +206,9 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         public
         returns (uint256)
     {
-        uint256 licence_Id = licenceManager.getPublicationLicences(
+        uint256 licence_Id = licenceManager.getMostRecentPublicationLicence(
             _publication_Id
-        )[0];
+        );
         uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(
             licence_Id
         );
@@ -334,7 +334,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         }
     }
 
-    function getMinBuyOutAmount(uint256 _licence_Id)
+    function getMinBuyOutAmount(uint256 _publication_Id)
         public
         view
         returns (uint256)
