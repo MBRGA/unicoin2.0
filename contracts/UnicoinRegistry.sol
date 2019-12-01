@@ -11,7 +11,7 @@ import "./LicenceManager.sol";
 import "./PublicationManager.sol";
 import "./UserManager.sol";
 import "./Vault.sol";
-import "./HarbegerTaxManager";
+import "./HarbergerTaxManager.sol";
 
 contract UnicoinRegistry is Initializable, GSNRecipient {
     address owner;
