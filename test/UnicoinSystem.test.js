@@ -755,7 +755,14 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
             //exact tests of the tax amount paid are tested in another set of tests
             assert.equal(taxToPay.toNumber() > 0, true, "The tax should be bigger than 0");
+        })
 
+        it("can correctly calculate min buy out price", async () => {
+            let contractCalculatedValue = await unicoinRegistry.getMinBuyOutPrice(0);
+
+            let expectedValue = sealedBid2.bidAmount * 1.05
+            assert.equal(contractCalculatedValue, expectedValue, "wrong calculated raise prise value")
         })
     })
+
 })
