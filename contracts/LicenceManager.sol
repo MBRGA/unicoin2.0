@@ -1,16 +1,12 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
-
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Full.sol";
-
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol";
 
 contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     enum LicenceStatus {Active, Revoked}
-
     struct Licence {
         uint256 owner_Id;
         uint256 publication_Id;
@@ -131,8 +127,8 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         view
         returns (uint256)
     {
-        return
-            publicationLicences[_publication_Id][publicationLicences[_publication_Id]
-            .length - 1];
+        uint256 numberOfPublications = publicationLicences[_publication_Id]
+            .length;
+        return publicationLicences[_publication_Id][numberOfPublications - 1];
     }
 }
