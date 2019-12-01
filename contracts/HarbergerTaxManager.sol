@@ -78,7 +78,7 @@ contract HarbergerTaxManager is Initializable {
         TaxObject memory taxObject = TaxObject(
             _licence_Id,
             FIXED_INTEREST_RATE_PER_BLOCK,
-            now,
+            0,
             0,
             _currentAssignedValue,
             buyOutIds,

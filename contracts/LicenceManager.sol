@@ -37,8 +37,6 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         ERC721Mintable.initialize(_unicoinRegistry);
 
         registry = _unicoinRegistry;
-        //TODO: decide if you need this
-        licences.push(Licence(0, 0, 0, LicenceStatus.Revoked));
     }
 
     function registerNewLicence(
@@ -96,7 +94,6 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         view
         returns (uint256, uint256, uint256, uint8)
     {
-        require(_licence_Id > 0, "Zeroth licence is not valid");
         Licence memory _licence = licences[_licence_Id];
         return (
             _licence.owner_Id,

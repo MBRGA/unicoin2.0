@@ -91,6 +91,8 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         bidHash: web3.utils.soliditySha3(1250, 13579)
     }
 
+    const startingHarbergerTaxPerBlock = parseInt((0.04 / (4 * 60 * 24 * 365)) * 10 ** 18)
+
     before(async function () {
         daiContract = await Erc20Mock.new({
             from: tokenOwner
@@ -659,25 +661,25 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 2: 1, // publicationLicenceNo
                 3: 0 // licence status. 0 for active
             }
-            let licence = await unicoinRegistry.getLicence.call(1)
+            let licence = await unicoinRegistry.getLicence.call(0)
             Object.keys(licence).forEach(function (key) {
                 assert.equal(licence[key].toString(), expectedObject[key], "Key value error on " + key)
             });
         })
         it("Can get licenses associated with a publication", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
-            assert.equal(publicationLicences, 1, "The 1st licence should be assicated with the publication")
+            assert.equal(publicationLicences, 0, "The 1st licence should be assicated with the publication")
 
         })
 
         it("should be no licences associated with other publications", async () => {
-            let publicationLicences = await unicoinRegistry.getPublicationLicences(0);
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
             assert.equal(publicationLicences, 0, "There should be no licences with this publication")
         })
     })
     context("Licence Management: Interacting with NFT 💼", function () {
         it("Can get information about issued NFT", async () => {
-            let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
+            let ownerOfLicence = await unicoinRegistry.ownerOf.call(0)
             assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
         })
     })
@@ -727,8 +729,19 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
         it("can get info about tax object", async () => {
             let taxObject = await unicoinRegistry.getTaxObject.call(0)
-            console.log(taxObject)
+            let expectedObject = {
+                0: 1, //licenceId
+                1: startingHarbergerTaxPerBlock, //ratePerBlock
+                2: 0, //last payment
+                3: 0, //numberOfOutBids
+                4: sealedBid2.bidAmount, //currentAssignedValue
+                5: [], //buyout_Ids
+                6: 0, //status. 0 = active
+            }
 
+            Object.keys(taxObject).forEach(function (key) {
+                assert.equal(taxObject[key].toString(), expectedObject[key], "Key value error on " + key)
+            });
         })
     })
 })
