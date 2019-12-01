@@ -6,22 +6,22 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-import "./AuctionManager.sol";
-import "./LicenceManager.sol";
-import "./PublicationManager.sol";
-import "./UserManager.sol";
-import "./Vault.sol";
-import "./HarbergerTaxManager.sol";
+import "./interfaces/iAuctionManager.sol";
+import "./interfaces/iLicenceManager.sol";
+import "./interfaces/iPublicationManager.sol";
+import "./interfaces/iUserManager.sol";
+import "./interfaces/iVault.sol";
+import "./interfaces/iHarbergerTaxManager.sol";
 
 contract UnicoinRegistry is Initializable, GSNRecipient {
     address owner;
 
-    AuctionManager private auctionManager;
-    LicenceManager private licenceManager;
-    PublicationManager private publicationManager;
-    UserManager private userManager;
-    HarbergerTaxManager private harbergerTaxManager;
-    Vault private vault;
+    IAuctionManager private auctionManager;
+    ILicenceManager private licenceManager;
+    IPublicationManager private publicationManager;
+    IUserManager private userManager;
+    IHarbergerTaxManager private harbergerTaxManager;
+    IVault private vault;
 
     enum PricingStrategy {PrivateAuction, FixedRate, PrivateAuctionHarberger}
 
@@ -37,12 +37,12 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
         GSNRecipient.initialize();
 
-        auctionManager = AuctionManager(_auctionManager);
-        licenceManager = LicenceManager(_licenceManager);
-        publicationManager = PublicationManager(_publicationManager);
-        userManager = UserManager(_userManager);
-        harbergerTaxManager = HarbergerTaxManager(_harbergerTaxManager);
-        vault = Vault(_vault);
+        auctionManager = IAuctionManager(_auctionManager);
+        licenceManager = ILicenceManager(_licenceManager);
+        publicationManager = IPublicationManager(_publicationManager);
+        userManager = IUserManager(_userManager);
+        harbergerTaxManager = IHarbergerTaxManager(_harbergerTaxManager);
+        vault = IVault(_vault);
     }
 
     // accept all requests
@@ -245,7 +245,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
             return outstandingTax; //returns the total tax sent
         }
-        //the licence owner cant pay the tax. they loose their licence which is placed for auction again
+        // the licence owner cant pay the tax. they loose their licence which is placed for auction again
         if (!licenceOwnerSolvent) {
             licenceManager.revokeLicence(licence_Id);
             publicationManager.revokeLicence(_publication_Id);
