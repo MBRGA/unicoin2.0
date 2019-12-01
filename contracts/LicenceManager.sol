@@ -46,7 +46,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         uint256 _buyer_Id,
         uint256 _publication_Id,
         uint256 _publicationLicenceNo
-    ) public onlyRegistry {
+    ) public onlyRegistry returns (uint256) {
         Licence memory licence = Licence(
             _buyer_Id,
             _publication_Id,
@@ -61,6 +61,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
             ERC721Mintable.mint(_ownerAddress, licence_Id),
             "Licence minting failed"
         );
+        return licence_Id;
     }
 
     function getLicenceForUser(uint256 _user_Id)
