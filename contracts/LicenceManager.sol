@@ -17,7 +17,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
     Licence[] public licences;
     // user Id to their array of licences
     mapping(uint256 => uint256[]) public licenceOwners;
-    // licence Id to get the publication Id
+    // publication Id to array of licnces IDs
     mapping(uint256 => uint256[]) public publicationLicences;
 
     modifier onlyRegistry() {
@@ -124,8 +124,9 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         view
         returns (uint256)
     {
-        uint256 numberOfPublications = publicationLicences[_publication_Id]
+        uint256 numberOfLicences = getPublicationLicences(_publication_Id)
             .length;
-        return publicationLicences[_publication_Id][numberOfPublications - 1];
+        require(numberOfLicences > 0, "no licences found");
+        return getPublicationLicences(_publication_Id)[numberOfLicences - 1];
     }
 }
