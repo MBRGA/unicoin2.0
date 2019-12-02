@@ -54,6 +54,11 @@ interface IHarbergerTaxManager {
             uint8
         );
 
+    function getBuyOut(uint256 _buyOut_Id)
+        external
+        view
+        returns (uint256, uint256, uint256, uint256, uint8);
+
     function getBuyOutLicenceId(uint256 _buyOut_Id)
         external
         view
@@ -65,6 +70,17 @@ interface IHarbergerTaxManager {
         returns (uint256);
 
     function getTaxObjectLength() external view returns (uint256);
+
+    function getLicenceBuyOuts(uint256 _licence_Id)
+        external
+        view
+        returns (
+            uint256[] memory taxObject_Id_,
+            uint256[] memory buyOutOwner_Id_,
+            uint256[] memory buyOutAmount_,
+            uint256[] memory buyOutExpiration_,
+            uint8[] memory status_
+        );
 
     function optimalExp(uint256 x) external pure returns (uint256);
 
