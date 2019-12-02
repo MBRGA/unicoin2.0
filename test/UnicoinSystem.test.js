@@ -778,15 +778,13 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             assert.equal(contractCalculatedValue, expectedValue, "wrong calculated raise prise value")
         })
     })
-    context("Harberger Tax: claiming claimHarbergerTax", function () {
+    context("Harberger Tax: claiming claimHarbergerTax 👮‍♂️", function () {
         it("correctly distributes tax to recipients", async () => {
             let publisherBalanceBefore = await daiContract.balanceOf(publisher)
 
             let contributor1BalanceBefore = await daiContract.balanceOf(contributor1)
 
             let contributor2BalanceBefore = await daiContract.balanceOf(contributor2)
-
-            let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
 
             await unicoinRegistry.claimHarbergerTax(2)
 
@@ -798,6 +796,14 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
             let contributor2BalanceAfter = await daiContract.balanceOf(contributor2)
             assert.equal(contributor2BalanceAfter > contributor2BalanceBefore, true, "contributor2 balance did not increase")
+        })
+        it("correctly updates tax object after paying tax", async () => {
+            let taxObject = await unicoinRegistry.getTaxObject.call(0)
+            //the last payment was set 6 months ago from a few tests ago.
+            //this assert checks that it was updated such that the current contract time
+            //and the last payment time are within 5 seconds of each other
+            // indicating that it has been updated
+            assert.equal((contractTime.toNumber() - taxObject[2].toNumber()) < 5, true, "did not correctly update last payment date")
         })
     })
     context("Harberger Tax: buyout creation 💳", function () {
