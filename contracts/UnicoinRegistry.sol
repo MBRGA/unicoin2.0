@@ -603,4 +603,12 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     {
         return (harbergerTaxManager.getLicenceBuyOuts(_licence_Id));
     }
+
+    function getMostRecentPublicationLicence(uint256 _publication_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return licenceManager.getMostRecentPublicationLicence(_publication_Id);
+    }
 }
