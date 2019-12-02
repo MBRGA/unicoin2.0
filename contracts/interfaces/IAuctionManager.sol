@@ -55,4 +55,17 @@ interface IAuctionManager {
         external
         view
         returns (uint256);
+
+    function getAuction(uint256 _auction_Id)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256[] memory,
+            uint256,
+            uint8
+        );
 }
