@@ -671,18 +671,23 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         it("Can get licenses associated with a publication", async () => {
             let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
             assert.equal(publicationLicences, 0, "The 1st licence should be assicated with the publication")
-
         })
 
         it("Should be no licences associated with other publications", async () => {
-            let publicationLicences = await unicoinRegistry.getPublicationLicences(1);
-            assert.equal(publicationLicences, 0, "There should be no licences with this publication")
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(0);
+            assert.equal(publicationLicences[0], undefined, "There should be no licences with this publication")
         })
     })
     context("Licence Management: Interacting with NFT 💼", function () {
         it("Can get information about issued NFT", async () => {
             let ownerOfLicence = await unicoinRegistry.ownerOf.call(0)
             assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
+        })
+        it("Can get info about a publication's licence", async () => {
+            let mostRecentPublicationLicence = await unicoinRegistry.getMostRecentPublicationLicence(1)
+            assert.equal(mostRecentPublicationLicence.toNumber(), 0, "Most recent publication licence is wrong")
+
+            await expectRevert.unspecified(unicoinRegistry.getMostRecentPublicationLicence(0))
         })
     })
 
@@ -702,7 +707,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 }
             );
             let numOfPublications = await unicoinRegistry.getPublicationLength()
-            assert.equal(numOfPublications.toNumber(), 3, "new publication was not created")
+            assert.equal(numOfPublications.toNumber(), 3, "new publication was not created with the correct id")
         })
 
         it("Can bid (and win) auction on harberger tax", async () => {
@@ -720,6 +725,9 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             await unicoinRegistry.finalizeAuction(1, {
                 from: randomAddress
             })
+
+            let mostRecentPublicationLicence = await unicoinRegistry.getMostRecentPublicationLicence(2)
+            assert.equal(mostRecentPublicationLicence.toNumber(), 1, "Most recent publication licence is wrong")
         })
 
         it("Can get taxObjects length", async () => {
@@ -748,11 +756,17 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
                 }
             });
         })
+        it("Can get licenses associated with harberger publication", async () => {
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(2);
+            assert.equal(publicationLicences[0], 1, "The 1st licence should be associated with the publication")
+
+        })
     })
     context("Harberger Tax: taxation calculations and payments 🤑", function () {
         it("Can correctly calculate outstanding tax", async () => {
             time.increase(oneMonthSeconds * 6 + 250) //plus 250 because this was when
             let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
+
             //exact tests of the tax amount paid are tested in another set of tests
             assert.equal(taxToPay.toNumber() > 0, true, "The tax should be bigger than 0");
         })
@@ -762,6 +776,28 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
 
             let expectedValue = sealedBid2.bidAmount * 1.05
             assert.equal(contractCalculatedValue, expectedValue, "wrong calculated raise prise value")
+        })
+    })
+    context("Harberger Tax: claiming claimHarbergerTax", function () {
+        it("correctly distributes tax to recipients", async () => {
+            let publisherBalanceBefore = await daiContract.balanceOf(publisher)
+
+            let contributor1BalanceBefore = await daiContract.balanceOf(contributor1)
+
+            let contributor2BalanceBefore = await daiContract.balanceOf(contributor2)
+
+            let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
+
+            await unicoinRegistry.claimHarbergerTax(2)
+
+            let publisherBalanceAfter = await daiContract.balanceOf(publisher)
+            assert.equal(publisherBalanceAfter > publisherBalanceBefore, true, "Publisher balance did not increase")
+
+            let contributor1BalanceAfter = await daiContract.balanceOf(contributor1)
+            assert.equal(contributor1BalanceAfter > contributor1BalanceBefore, true, "contributor1 balance did not increase")
+
+            let contributor2BalanceAfter = await daiContract.balanceOf(contributor2)
+            assert.equal(contributor2BalanceAfter > contributor2BalanceBefore, true, "contributor2 balance did not increase")
         })
     })
     context("Harberger Tax: buyout creation 💳", function () {
