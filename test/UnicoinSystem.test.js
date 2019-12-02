@@ -764,5 +764,48 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             assert.equal(contractCalculatedValue, expectedValue, "wrong calculated raise prise value")
         })
     })
+    context("Harberger Tax: buyout creation 💳", function () {
+        it("Can correctly check if a licence has harberger tax", async () => {
+            await expectRevert.unspecified(unicoinRegistry.getLicenceTaxObjectId(0))
+
+            let harbergerTaxObjectId = await unicoinRegistry.getLicenceTaxObjectId.call(1)
+            console.log(harbergerTaxObjectId.toNumber())
+            assert.equal(harbergerTaxObjectId.toNumber(), 0, "the 0th harbergertax object should have id 0")
+        })
+        it("Can correctly create a valid buyout request", async () => {
+            await unicoinRegistry.createHarbergerBuyOut(1, sealedBid2.bidAmount * 1.10, {
+                from: bidder1
+            })
+
+            let licenceTaxObjectId = await unicoinRegistry.getLicenceTaxObjectId.call(1)
+
+            let taxObject = await unicoinRegistry.getTaxObject.call(licenceTaxObjectId)
+
+            //this tax object is the same as tested before except we now have a buyout ID
+
+            let buyOutId = taxObject[5][0].toNumber()
+            assert.equal(buyOutId, 0, "There should be a buyout ID")
+
+            let expectedObject = {
+                0: 0, //taxObject_Id
+                1: 2, //buyOutOwner_Id
+                2: sealedBid2.bidAmount * 1.10, //buyOutAmount
+                3: contractTime.toNumber() + 60 * 60 * 24 * 10, //buyOutExpiration
+                4: 0
+            }
+
+            let buyout = await unicoinRegistry.getBuyOut(buyOutId)
+
+            Object.keys(buyout).forEach(function (key) {
+                assert.equal(buyout[key].toString(), expectedObject[key], "Key value error on " + key)
+            });
+        })
+
+        it("Reverts if not a harberger tax licence", async () => {
+
+        })
+        it("Reverts if value sent less than min buyout price", async () => {})
+        it("Reverts if not an active harbergertax object", async () => {})
+    })
 
 })
