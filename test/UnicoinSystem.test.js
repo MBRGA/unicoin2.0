@@ -769,7 +769,6 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             await expectRevert.unspecified(unicoinRegistry.getLicenceTaxObjectId(0))
 
             let harbergerTaxObjectId = await unicoinRegistry.getLicenceTaxObjectId.call(1)
-            console.log(harbergerTaxObjectId.toNumber())
             assert.equal(harbergerTaxObjectId.toNumber(), 0, "the 0th harbergertax object should have id 0")
         })
         it("Can correctly create a valid buyout request", async () => {
@@ -802,10 +801,15 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
         })
 
         it("Reverts if not a harberger tax licence", async () => {
-
+            await expectRevert.unspecified(unicoinRegistry.createHarbergerBuyOut(0, sealedBid2.bidAmount * 1.10, {
+                from: bidder1
+            }))
         })
-        it("Reverts if value sent less than min buyout price", async () => {})
-        it("Reverts if not an active harbergertax object", async () => {})
+        it("Reverts if value sent less than min buyout price", async () => {
+            await expectRevert.unspecified(unicoinRegistry.createHarbergerBuyOut(1, sealedBid2.bidAmount * 1.04, {
+                from: bidder1
+            }))
+        })
     })
 
 })
