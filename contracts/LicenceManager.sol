@@ -65,6 +65,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
 
     function revokeLicence(uint256 _licence_Id) public onlyRegistry {
         licences[_licence_Id].status = LicenceStatus.Revoked;
+        licences[_licence_Id].publicationLicenceNo -= 1;
     }
 
     function getLicenceForUser(uint256 _user_Id)
