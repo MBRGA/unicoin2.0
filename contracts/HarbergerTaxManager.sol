@@ -4,9 +4,9 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract HarbergerTaxManager is Initializable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
-    //percentage increase over previous price that must be paid to buy out the licence
+    //percentage increase over previous price that must be paid to buy Out the licence
     uint256 MIN_BUYOUT_PRICE_INCREASE = 5;
-    //a buyout has an expiratory of 10 days for the owner to raize the price or loose the licence
+    //a buyOut has an expiratory of 10 days for the owner to raize the price or loose the licence
     uint256 BUYOUT_TIMEOUT = 60 * 60 * 24 * 10;
     // 4% compounding per block, scaled 1e18
     uint256 FIXED_INTEREST_RATE_PER_BLOCK = 19025875190;
@@ -21,20 +21,20 @@ contract HarbergerTaxManager is Initializable {
         uint256 lastPayment;
         uint256 numberOfOutBids;
         uint256 currentAssignedValue;
-        uint256[] buyout_Ids;
+        uint256[] buyOut_Ids;
         TaxObjectStatus status;
     }
 
     TaxObject[] taxObjects;
 
-    enum BuyoutStatus {Pending, Successful, OutBid}
+    enum BuyOutStatus {Pending, Successful, OutBid}
 
     struct BuyOut {
         uint256 taxObject_Id;
-        uint256 buyoutOwner_Id;
-        uint256 buyoutAmount;
+        uint256 buyOutOwner_Id;
+        uint256 buyOutAmount;
         uint256 buyOutExpiration;
-        BuyoutStatus status;
+        BuyOutStatus status;
     }
 
     BuyOut[] buyOuts;
@@ -136,34 +136,31 @@ contract HarbergerTaxManager is Initializable {
     }
 
     function submitBuyOut(
-        uint256 _taxObject,
+        uint256 _taxObject_Id,
         uint256 _offer,
         uint256 _buyOutOwner_Id
     ) public onlyRegistry returns (uint256) {
         require(
-            _offer >=
-                calculateMinBuyOutPrice(
-                    taxObjects[_taxObject].currentAssignedValue
-                ),
-            "Value sent is less than the minimum buyout price"
+            _offer >= calculateMinBuyOutPrice(_taxObject_Id),
+            "Value sent is less than the minimum buyOut price"
         );
 
         require(
-            taxObjects[_taxObject].status == TaxObjectStatus.Active,
-            "Can only submit a buyout to an active active tax object"
+            taxObjects[_taxObject_Id].status == TaxObjectStatus.Active,
+            "Can only submit a buyOut to an active active tax object"
         );
 
         BuyOut memory buyOut = BuyOut(
-            _taxObject,
+            _taxObject_Id,
             _buyOutOwner_Id,
             _offer,
             now + BUYOUT_TIMEOUT,
-            BuyoutStatus.Pending
+            BuyOutStatus.Pending
         );
 
         uint256 buyOut_Id = buyOuts.push(buyOut) - 1;
         buyOutOwners[_buyOutOwner_Id].push(buyOut_Id);
-        taxObjects[_taxObject].buyout_Ids.push(buyOut_Id);
+        taxObjects[_taxObject_Id].buyOut_Ids.push(buyOut_Id);
     }
 
     function finalizeBuyOutOffer(uint256 _buyOut_Id)
@@ -174,27 +171,27 @@ contract HarbergerTaxManager is Initializable {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
         TaxObject memory taxObject = taxObjects[buyOut.taxObject_Id];
         require(
-            buyOut.status == BuyoutStatus.Pending,
-            "Can only finalize buyout if buyout is pending"
+            buyOut.status == BuyOutStatus.Pending,
+            "Can only finalize buyOut if buyOut is pending"
         );
         require(
             buyOut.buyOutExpiration < now,
-            "can only finalize buyout if it is past the expiration time"
+            "can only finalize buyOut if it is past the expiration time"
         );
         if (
-            buyOut.buyoutAmount <
+            buyOut.buyOutAmount <
             calculateMinBuyOutPrice(taxObject.currentAssignedValue)
         ) {
-            buyOuts[_buyOut_Id].status = BuyoutStatus.OutBid;
-            return false; //the buyout was not enough and so failed
+            buyOuts[_buyOut_Id].status = BuyOutStatus.OutBid;
+            return false; //the buyOut was not enough and so failed
         }
         if (
-            buyOut.buyoutAmount >
+            buyOut.buyOutAmount >
             calculateMinBuyOutPrice(taxObject.currentAssignedValue)
         ) {
-            buyOuts[_buyOut_Id].status = BuyoutStatus.Successful;
+            buyOuts[_buyOut_Id].status = BuyOutStatus.Successful;
             taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut
-                .buyoutAmount;
+                .buyOutAmount;
             taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
             return true;
         }
@@ -237,8 +234,29 @@ contract HarbergerTaxManager is Initializable {
             taxObject.lastPayment,
             taxObject.numberOfOutBids,
             taxObject.currentAssignedValue,
-            taxObject.buyout_Ids,
+            taxObject.buyOut_Ids,
             uint8(taxObject.status)
+        );
+    }
+
+    // taxObject_Id;
+    //     uint256 buyOutOwner_Id;
+    //     uint256 buyOutAmount;
+    //     uint256 buyOutExpiration;
+    //     BuyOutStatus status;
+
+    function getBuyOut(uint256 _buyOut_Id)
+        public
+        view
+        returns (uint256, uint256, uint256, uint256, uint8)
+    {
+        BuyOut memory buyOut = buyOuts[_buyOut_Id];
+        return (
+            buyOut.taxObject_Id,
+            buyOut.buyOutOwner_Id,
+            buyOut.buyOutAmount,
+            buyOut.buyOutExpiration,
+            uint8(buyOut.status)
         );
     }
 
@@ -256,11 +274,47 @@ contract HarbergerTaxManager is Initializable {
         view
         returns (uint256)
     {
-        return buyOuts[_buyOut_Id].buyoutOwner_Id;
+        return buyOuts[_buyOut_Id].buyOutOwner_Id;
     }
 
     function getTaxObjectLength() public view returns (uint256) {
         return taxObjects.length;
+    }
+
+    function getLicenceBuyOuts(uint256 _licence_Id)
+        public
+        view
+        returns (
+            uint256[] memory taxObject_Id_,
+            uint256[] memory buyOutOwner_Id_,
+            uint256[] memory buyOutAmount_,
+            uint256[] memory buyOutExpiration_,
+            uint8[] memory status_
+        )
+    {
+        uint256 numberOfBuyOuts = licenceTaxObjects[_licence_Id].length;
+
+        taxObject_Id_ = new uint256[](numberOfBuyOuts);
+        buyOutOwner_Id_ = new uint256[](numberOfBuyOuts);
+        buyOutAmount_ = new uint256[](numberOfBuyOuts);
+        buyOutExpiration_ = new uint256[](numberOfBuyOuts);
+        status_ = new uint8[](numberOfBuyOuts);
+
+        for (uint256 i = 0; i < numberOfBuyOuts; i++) {
+            uint256 buyOutId = licenceTaxObjects[_licence_Id][i];
+            taxObject_Id_[i] = buyOuts[buyOutId].taxObject_Id;
+            buyOutOwner_Id_[i] = buyOuts[buyOutId].buyOutOwner_Id;
+            buyOutAmount_[i] = buyOuts[buyOutId].buyOutAmount;
+            buyOutExpiration_[i] = buyOuts[buyOutId].buyOutExpiration;
+            status_[i] = uint8(buyOuts[buyOutId].status);
+        }
+        return (
+            taxObject_Id_,
+            buyOutOwner_Id_,
+            buyOutAmount_,
+            buyOutExpiration_,
+            status_
+        );
     }
 
     /**
