@@ -289,17 +289,19 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     function createHarbergerBuyOut(uint256 _licence_Id, uint256 _buyOutAmount)
         public
+        returns (uint256)
     {
         uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(
             _licence_Id
         );
         uint256 buyOutOwner_Id = getCallerId();
 
-        harbergerTaxManager.submitBuyOut(
+        uint256 buyOut_Id = harbergerTaxManager.submitBuyOut(
             taxObject_Id,
             _buyOutAmount,
             buyOutOwner_Id
         );
+        return buyOut_Id;
     }
 
     function finalizeBuyoutOffer(uint256 _buyOut_Id) public {
@@ -349,6 +351,14 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         )
     {
         return (harbergerTaxManager.getTaxObject(_taxObject_Id));
+    }
+
+    function getBuyOut(uint256 _buyOut_Id)
+        public
+        view
+        returns (uint256, uint256, uint256, uint256, uint8)
+    {
+        return (harbergerTaxManager.getBuyOut(_buyOut_Id));
     }
 
     function getTaxObjectLength() public view returns (uint256) {
@@ -556,11 +566,41 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return licenceManager.ownerOf(tokenId);
     }
 
-    function getOutstandingTax(uint256 _taxObject_Id) public view returns(uint256){
+    function getOutstandingTax(uint256 _taxObject_Id)
+        public
+        view
+        returns (uint256)
+    {
         return harbergerTaxManager.calculateOutstandingTax(_taxObject_Id);
     }
 
-    function getMinBuyOutPrice(uint256 _taxObject_Id) public view returns (uint256){
+    function getMinBuyOutPrice(uint256 _taxObject_Id)
+        public
+        view
+        returns (uint256)
+    {
         return harbergerTaxManager.calculateMinBuyOutPrice(_taxObject_Id);
+    }
+
+    function getLicenceTaxObjectId(uint256 _licence_Id)
+        public
+        view
+        returns (uint256)
+    {
+        return harbergerTaxManager.getLicenceTaxObjectId(_licence_Id);
+    }
+
+    function getLicenceBuyOuts(uint256 _licence_Id)
+        public
+        view
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            uint8[] memory
+        )
+    {
+        return (harbergerTaxManager.getLicenceBuyOuts(_licence_Id));
     }
 }
