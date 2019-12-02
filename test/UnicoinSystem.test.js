@@ -764,7 +764,7 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
     })
     context("Harberger Tax: taxation calculations and payments 🤑", function () {
         it("Can correctly calculate outstanding tax", async () => {
-            time.increase(oneMonthSeconds * 6 + 250) //plus 250 because this was when
+            time.increase(oneMonthSeconds * 6)
             let taxToPay = await unicoinRegistry.getOutstandingTax.call(0)
 
             //exact tests of the tax amount paid are tested in another set of tests
@@ -838,7 +838,11 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             let buyout = await unicoinRegistry.getBuyOut(buyOutId)
 
             Object.keys(buyout).forEach(function (key) {
-                assert.equal(buyout[key].toString(), expectedObject[key], "Key value error on " + key)
+                if (key != 3) {
+                    assert.equal(buyout[key].toString(), expectedObject[key], "Key value error on " + key)
+                } else {
+                    assert.equal(buyout[key] - expectedObject[key] < 5, true, "The delta between expected and actual time should be < 5")
+                }
             });
         })
 
@@ -853,5 +857,62 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             }))
         })
     })
+    context("Harberger Tax: buyout finilization 🏎", function () {
+        it("reverts if invalid finilization time", async () => {
+            await expectRevert.unspecified(unicoinRegistry.finalizeBuyoutOffer(0))
+        })
+        it("can finalize buyout", async () => {
+            time.increase(60 * 60 * 24 * 10) // 10 days. specified as the buyout expiration
 
+            let bidder1BalanceBefore = await licenceManager.balanceOf(bidder1)
+
+            await unicoinRegistry.finalizeBuyoutOffer(0)
+
+            let bidder1BalanceAfter = await licenceManager.balanceOf(bidder1)
+
+            assert(bidder1BalanceAfter.toNumber(), bidder1BalanceBefore.toNumber() + 1, "Outbidder did not gain a licence")
+        })
+        it("reverts if buyout already finalized", async () => {
+            await expectRevert.unspecified(unicoinRegistry.finalizeBuyoutOffer(0))
+        })
+        it("correctly updates buyout information", async () => {
+            let buyout = await unicoinRegistry.getBuyOut(0)
+            //check the status has been updated to successful
+            assert.equal(buyout[4], 1, "Buyout should be successful")
+        })
+
+        it("correctly updates tax object information", async () => {
+            let taxObject = await unicoinRegistry.getTaxObject.call(0)
+            //number of outbids
+            assert.equal(taxObject[3], 1, "Should be 1 out bid")
+            //new private valuation
+            assert.equal(taxObject[4], sealedBid2.bidAmount * 1.10, "Should have the correct outbid amount")
+        })
+        it("correctly updates licence information", async () => {
+            //the new owner of licence 1 should be bidder1. this bidder
+            //submitted the buyout and if this is correct then the licence
+            //was transfered away from bidder2, the original owner
+            let ownerOfLicence = await unicoinRegistry.ownerOf.call(1)
+            assert(ownerOfLicence, bidder1, "incorrect asigment of licence owner")
+        })
+
+    })
+    context("Harberger Tax: solvent licence owner 🔏", function () {
+        it("places licence for auction if owner is underfunded", async () => {
+            //start by advancing time so there is outstanding tax to be paid
+            time.increase(oneMonthSeconds * 6)
+
+            //then remove all the current owners tokens to simulate being insolvent
+            let currentBidder2Balance = await daiContract.balanceOf(bidder2)
+            await daiContract.transfer(randomAddress, currentBidder2Balance.toNumber(), {
+                from: bidder2
+            })
+
+            let newBidder2Balance = await daiContract.balanceOf(bidder2)
+            assert.equal(newBidder2Balance, 0, "bidder 2 should have zero tokens")
+
+            //now try claim tax that the current owner has no tokens
+            await unicoinRegistry.claimHarbergerTax(2)
+        })
+    })
 })

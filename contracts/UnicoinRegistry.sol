@@ -304,7 +304,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return buyOut_Id;
     }
 
-    function finalizeBuyoutOffer(uint256 _buyOut_Id) public {
+    function finalizeBuyoutOffer(uint256 _buyOut_Id) public returns (bool) {
         bool offerSucceeded = harbergerTaxManager.finalizeBuyOutOffer(
             _buyOut_Id
         );

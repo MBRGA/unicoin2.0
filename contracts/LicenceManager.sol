@@ -82,11 +82,7 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
         address _newNFTOwner_address
     ) public onlyRegistry {
         licences[_licence_Id].owner_Id = _newOwner_Id;
-        ERC721.transferFrom(
-            _oldNFTOwner_address,
-            _newNFTOwner_address,
-            _licence_Id
-        );
+        transferFrom(_oldNFTOwner_address, _newNFTOwner_address, _licence_Id);
     }
 
     function getLicence(uint256 _licence_Id)
@@ -128,5 +124,14 @@ contract LicenceManager is Initializable, ERC721Full, ERC721Mintable {
             .length;
         require(numberOfLicences > 0, "no licences found");
         return getPublicationLicences(_publication_Id)[numberOfLicences - 1];
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public {
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId) ||
+                _msgSender() == registry,
+            "ERC721: transfer caller is not owner nor approved nor registry"
+        );
+        ERC721._transferFrom(from, to, tokenId);
     }
 }
