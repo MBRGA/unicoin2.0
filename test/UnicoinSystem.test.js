@@ -903,16 +903,77 @@ contract("Unicoin Registry Full system test 🧪🔬", (accounts) => {
             time.increase(oneMonthSeconds * 6)
 
             //then remove all the current owners tokens to simulate being insolvent
-            let currentBidder2Balance = await daiContract.balanceOf(bidder2)
-            await daiContract.transfer(randomAddress, currentBidder2Balance.toNumber(), {
-                from: bidder2
+            // note that the current owner is bidder 1 from the 
+            // buyout in the previous set of tests
+            let currentBidder1Balance = await daiContract.balanceOf(bidder1)
+            await daiContract.transfer(randomAddress, currentBidder1Balance.toNumber(), {
+                from: bidder1
             })
 
-            let newBidder2Balance = await daiContract.balanceOf(bidder2)
-            assert.equal(newBidder2Balance, 0, "bidder 2 should have zero tokens")
+            let newBidder1Balance = await daiContract.balanceOf(bidder1)
+            assert.equal(newBidder1Balance, 0, "bidder 2 should have zero tokens")
+
+            //the licence should not be revoked before the call
+            let licenceInfoBefore = await unicoinRegistry.getLicence(1)
+            assert.equal(licenceInfoBefore[3].toNumber(), 0, "The licence should not be revoked")
 
             //now try claim tax that the current owner has no tokens
             await unicoinRegistry.claimHarbergerTax(2)
+
+            //the licence should now be revoked
+            let licenceInfoAfter = await unicoinRegistry.getLicence(1)
+            assert.equal(licenceInfoAfter[3].toNumber(), 1, "The licence should be revoked")
+
+            //and a new auction is created for the publication
+            let publicationAuctions = await unicoinRegistry.getPublicationAuctions(2)
+
+            assert.equal(publicationAuctions.length, 2, "There should now be a second auction")
+
+            //get the second auction information
+            let newAuctionInformation = await unicoinRegistry.getAuction(publicationAuctions[1].toNumber())
+            assert.equal(newAuctionInformation[0].toNumber(), 2, "publication Id error")
+            assert.equal(newAuctionInformation[1].toNumber(), 0, "auction floor error")
+            assert.equal(contractTime - newAuctionInformation[2].toNumber() < 5, true, "auction start time error")
+            // one month duration for the auction,
+            assert.equal(newAuctionInformation[3].toNumber(), 60 * 60 * 24 * 30,
+                "auction duration error")
+            assert.equal(newAuctionInformation[4][0], undefined,
+                "there should be no bids associated with the auction")
+            assert.equal(newAuctionInformation[5], 0,
+                "currently no winning bid")
+            assert.equal(newAuctionInformation[6], 0,
+                "status should be commit")
+        })
+        it("can bid on auction and win new licence", async () => {
+            // move auction into commit phase
+            time.increase(10)
+
+            //add a sealed bid
+            await unicoinRegistry.commitSealedBid(sealedBid1.bidHash, 2, {
+                from: bidder2
+            })
+
+            //move auction until after end of auction phase
+            time.increase(60 * 60 * 24 * 30)
+
+            //get the bids for user 2 (bidder1)
+            let bidderBids = await unicoinRegistry.getBidderBids(3) //get all bids for bidder1
+
+            //from this get the latest bid id to reveal
+            let latestBidId = bidderBids[bidderBids.length - 1].toNumber()
+
+            await unicoinRegistry.revealSealedBid(sealedBid1.bidAmount, sealedBid1.salt, 2, latestBidId, {
+                from: bidder2
+            })
+
+            await unicoinRegistry.finalizeAuction(2)
+
+            let publicationLicences = await unicoinRegistry.getPublicationLicences(2)
+            assert.equal(publicationLicences[1].toNumber(), 2, "Licence number 2 should be added to the array of licences for the object")
+
+            let ownerOfLicence = await unicoinRegistry.ownerOf.call(2)
+            assert(ownerOfLicence, bidder2, "incorrect asigment of licence owner")
+
         })
     })
 })
