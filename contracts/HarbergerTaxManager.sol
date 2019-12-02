@@ -169,7 +169,6 @@ contract HarbergerTaxManager is Initializable {
         returns (bool)
     {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
-        TaxObject memory taxObject = taxObjects[buyOut.taxObject_Id];
         require(
             buyOut.status == BuyOutStatus.Pending,
             "Can only finalize buyOut if buyOut is pending"
@@ -179,20 +178,19 @@ contract HarbergerTaxManager is Initializable {
             "can only finalize buyOut if it is past the expiration time"
         );
         if (
-            buyOut.buyOutAmount <
-            calculateMinBuyOutPrice(taxObject.currentAssignedValue)
+            buyOut.buyOutAmount < calculateMinBuyOutPrice(buyOut.taxObject_Id)
         ) {
             buyOuts[_buyOut_Id].status = BuyOutStatus.OutBid;
             return false; //the buyOut was not enough and so failed
         }
         if (
-            buyOut.buyOutAmount >
-            calculateMinBuyOutPrice(taxObject.currentAssignedValue)
+            buyOut.buyOutAmount > calculateMinBuyOutPrice(buyOut.taxObject_Id)
         ) {
             buyOuts[_buyOut_Id].status = BuyOutStatus.Successful;
             taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut
                 .buyOutAmount;
             taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
+            taxObjects[buyOut.taxObject_Id].lastPayment = now;
             return true;
         }
     }
