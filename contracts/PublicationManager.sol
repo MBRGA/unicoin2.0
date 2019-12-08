@@ -85,7 +85,7 @@ contract PublicationManager is Initializable {
             PricingStrategy(_pricing_stratergy)
         );
 
-        return (publicationId);
+        return publicationId;
     }
 
     function _addAuctionToPublication(
