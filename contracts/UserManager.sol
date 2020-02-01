@@ -27,26 +27,15 @@ contract UserManager is Initializable {
         registry = _unicoinRegistry;
     }
 
-    function _registerUser(string memory _profile_uri, address _userAddress)
-        public
-        onlyRegistry
-        returns (uint256)
-    {
-        require(
-            bytes(_profile_uri).length > 0,
-            "Profile URI should not be empty."
-        );
+    function _registerUser(string memory _profile_uri, address _userAddress) public onlyRegistry returns (uint256) {
+        require(bytes(_profile_uri).length > 0, "Profile URI should not be empty.");
         require(userAddresses[_userAddress] == 0, "User already registered.");
         uint256 id = users.push(User(_userAddress, _profile_uri));
         userAddresses[_userAddress] = id - 1;
         return id;
     }
 
-    function isAddressRegistered(address _userAddress)
-        public
-        view
-        returns (bool)
-    {
+    function isAddressRegistered(address _userAddress) public view returns (bool) {
         return userAddresses[_userAddress] != 0;
     }
 
@@ -58,11 +47,7 @@ contract UserManager is Initializable {
         return users[_user_Id].owned_address;
     }
 
-    function getAddressArray(uint256[] memory _user_Ids)
-        public
-        view
-        returns (address[] memory returnedAddresses_)
-    {
+    function getAddressArray(uint256[] memory _user_Ids) public view returns (address[] memory returnedAddresses_) {
         returnedAddresses_ = new address[](_user_Ids.length);
         for (uint256 i = 0; i < _user_Ids.length; i++) {
             returnedAddresses_[i] = getUserAddress(_user_Ids[i]);

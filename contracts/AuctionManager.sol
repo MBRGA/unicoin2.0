@@ -7,9 +7,9 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 // import "./UnicoinRegistry.sol";
 
 contract AuctionManager is Initializable {
-    enum BidStatus {Committed, Revealed, Winner}
+    enum BidStatus { Committed, Revealed, Winner }
 
-    enum AuctionStatus {Pending, Commit, Reveal, Finalized}
+    enum AuctionStatus { Pending, Commit, Reveal, Finalized }
 
     struct Auction {
         uint256 publication_Id;
@@ -58,14 +58,8 @@ contract AuctionManager is Initializable {
         uint256 _auctionStartTime,
         uint256 _auctionDuration
     ) public onlyRegistry returns (uint256) {
-        require(
-            _auctionStartTime >= now,
-            "AuctionManager::Invalid auction start time"
-        );
-        require(
-            _auctionDuration > 0,
-            "AuctionManager::Invalid auction duration"
-        );
+        require(_auctionStartTime >= now, "AuctionManager::Invalid auction start time");
+        require(_auctionDuration > 0, "AuctionManager::Invalid auction duration");
 
         uint256[] memory auction_bid_ids;
         Auction memory auction = Auction(
@@ -82,25 +76,14 @@ contract AuctionManager is Initializable {
         return auctionId;
     }
 
-    function _commitSealedBid(
-        bytes32 _bidHash,
-        uint256 _auction_Id,
-        uint256 _bidder_Id
-    ) public onlyRegistry returns (uint256) {
+    function _commitSealedBid(bytes32 _bidHash, uint256 _auction_Id, uint256 _bidder_Id)
+        public
+        onlyRegistry
+        returns (uint256)
+    {
         Auction memory auction = auctions[_auction_Id];
-        require(
-            getAuctionStatus(_auction_Id) == AuctionStatus.Commit,
-            "Can only commit during the commit phase"
-        );
-        Bid memory bid = Bid(
-            _bidHash,
-            0,
-            0,
-            BidStatus.Committed,
-            auction.publication_Id,
-            _auction_Id,
-            _bidder_Id
-        );
+        require(getAuctionStatus(_auction_Id) == AuctionStatus.Commit, "Can only commit during the commit phase");
+        Bid memory bid = Bid(_bidHash, 0, 0, BidStatus.Committed, auction.publication_Id, _auction_Id, _bidder_Id);
         uint256 bidId = bids.push(bid) - 1;
         auctions[_auction_Id].auction_bid_ids.push(bidId);
         bidOwners[_bidder_Id].push(bidId);
@@ -108,44 +91,25 @@ contract AuctionManager is Initializable {
         return bidId;
     }
 
-    function revealSealedBid(
-        uint256 _bid,
-        uint256 _salt,
-        uint256 _auction_Id,
-        uint256 _bid_Id,
-        uint256 _bidder_Id
-    ) public onlyRegistry {
+    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _auction_Id, uint256 _bid_Id, uint256 _bidder_Id)
+        public
+        onlyRegistry
+    {
         Bid memory bid = bids[_bid_Id];
-        require(
-            getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
-            "Can only commit during the reveal phase"
-        );
-        require(
-            bid.bidder_Id == _bidder_Id,
-            "Only the bidder can reveal their bid"
-        );
-        require(
-            bid.status == BidStatus.Committed,
-            "Can only reveal a committed bid"
-        );
+        require(getAuctionStatus(_auction_Id) == AuctionStatus.Reveal, "Can only commit during the reveal phase");
+        require(bid.bidder_Id == _bidder_Id, "Only the bidder can reveal their bid");
+        require(bid.status == BidStatus.Committed, "Can only reveal a committed bid");
 
         bytes32 revealedBidHash = keccak256(abi.encode(_bid, _salt));
 
-        require(
-            bid.commitBid == revealedBidHash,
-            "Committed bid does not match the revealed bid"
-        );
+        require(bid.commitBid == revealedBidHash, "Committed bid does not match the revealed bid");
 
         bids[_bid_Id].revealedBid = _bid;
         bids[_bid_Id].revealedSalt = _salt;
         bids[_bid_Id].status = BidStatus.Revealed;
     }
 
-    function finalizeAuction(uint256 _auction_Id)
-        public
-        onlyRegistry
-        returns (uint256, uint256, uint256)
-    {
+    function finalizeAuction(uint256 _auction_Id) public onlyRegistry returns (uint256, uint256, uint256) {
         require(
             getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
             "Can only finalize an auction in the reveal stage"
@@ -181,27 +145,17 @@ contract AuctionManager is Initializable {
             bids[leadingBid].status = BidStatus.Winner;
         }
 
-        return (
-            leadingBidAmount,
-            bids[leadingBid].bidder_Id,
-            auction.publication_Id
-        );
+        return (leadingBidAmount, bids[leadingBid].bidder_Id, auction.publication_Id);
     }
 
-    function getAuctionStatus(uint256 _auction_Id)
-        public
-        returns (AuctionStatus)
-    {
+    function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
         Auction memory auction = auctions[_auction_Id];
         if (now < auction.starting_time) {
             auctions[_auction_Id].status = AuctionStatus.Pending;
             return AuctionStatus.Pending;
         }
 
-        if (
-            now > auction.starting_time &&
-            now < (auction.starting_time + auction.duration)
-        ) {
+        if (now > auction.starting_time && now < (auction.starting_time + auction.duration)) {
             auctions[_auction_Id].status = AuctionStatus.Commit;
             return AuctionStatus.Commit;
         }
@@ -212,34 +166,19 @@ contract AuctionManager is Initializable {
         }
     }
 
-    function getBidderBids(uint256 _bidder_Id)
-        public
-        view
-        returns (uint256[] memory)
-    {
+    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
         return bidOwners[_bidder_Id];
     }
 
-    function updateAuctionStartTime(uint256 _auction_Id, uint256 _newStartTime)
-        public
-        onlyRegistry
-    {
+    function updateAuctionStartTime(uint256 _auction_Id, uint256 _newStartTime) public onlyRegistry {
         auctions[_auction_Id].starting_time = _newStartTime;
     }
 
-    function getAuctionBids(uint256 _auction_Id)
-        public
-        view
-        returns (uint256[] memory)
-    {
+    function getAuctionBids(uint256 _auction_Id) public view returns (uint256[] memory) {
         return auctions[_auction_Id].auction_bid_ids;
     }
 
-    function getBid(uint256 _bid_Id)
-        public
-        view
-        returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256)
-    {
+    function getBid(uint256 _bid_Id) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
         Bid memory bid = bids[_bid_Id];
         return (
             bid.commitBid,
@@ -252,26 +191,14 @@ contract AuctionManager is Initializable {
         );
     }
 
-    function getNumberOfBidsInAuction(uint256 _auction_Id)
-        public
-        view
-        returns (uint256)
-    {
+    function getNumberOfBidsInAuction(uint256 _auction_Id) public view returns (uint256) {
         return auctions[_auction_Id].auction_bid_ids.length;
     }
 
     function getAuction(uint256 _auction_Id)
         public
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256[] memory,
-            uint256,
-            uint8
-        )
+        returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
     {
         Auction memory auction = auctions[_auction_Id];
         return (

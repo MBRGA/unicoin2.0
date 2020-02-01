@@ -1,0 +1,1489 @@
+{
+  "contracts": {
+    "UnicoinRegistry": {
+      "address": "0x5311348A9A920BBfF2D467e5Fe5018884e4cf83B",
+      "constructorCode": "6080604052615869806100136000396000f3fe",
+      "bodyBytecodeHash": "55ff530791e7efa796a5496381bdc0c61dddc69a416cff126c312acf1ca13cef",
+      "localBytecodeHash": "9f3ba7e050b30933e63cbbe0a136632ceeac74881020943fdd072bd88020370b",
+      "deployedBytecodeHash": "9f3ba7e050b30933e63cbbe0a136632ceeac74881020943fdd072bd88020370b",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "GSNRecipient",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol",
+          "label": "_relayHub",
+          "astId": 5933,
+          "type": "t_address",
+          "src": "1133:25:23"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "owner",
+          "astId": 2780,
+          "type": "t_address",
+          "src": "547:13:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "auctionManager",
+          "astId": 2782,
+          "type": "t_address",
+          "src": "567:38:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "licenceManager",
+          "astId": 2784,
+          "type": "t_address",
+          "src": "611:38:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "publicationManager",
+          "astId": 2786,
+          "type": "t_address",
+          "src": "655:46:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "userManager",
+          "astId": 2788,
+          "type": "t_address",
+          "src": "707:32:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "harbergerTaxManager",
+          "astId": 2790,
+          "type": "t_address",
+          "src": "745:48:5"
+        },
+        {
+          "contract": "UnicoinRegistry",
+          "path": "contracts/UnicoinRegistry.sol",
+          "label": "vault",
+          "astId": 2792,
+          "type": "t_address",
+          "src": "799:20:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "AuctionManager": {
+      "address": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+      "constructorCode": "608060405234801561001057600080fd5b50611932806100206000396000f3fe",
+      "bodyBytecodeHash": "d12ae1d8255e1f0c93e383fdbc3fbb337adfcfe14b4017e392ee0e66fab74d59",
+      "localBytecodeHash": "58108909d618d04552f8ca54fcef03f3899bace8c12ecf31c8f44dac1e6e56ca",
+      "deployedBytecodeHash": "58108909d618d04552f8ca54fcef03f3899bace8c12ecf31c8f44dac1e6e56ca",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AuctionManager.Auction>": {
+          "id": "t_struct<AuctionManager.Auction>",
+          "kind": "struct",
+          "label": "AuctionManager.Auction",
+          "members": [
+            {
+              "label": "publication_Id",
+              "astId": 16,
+              "type": "t_uint256",
+              "src": "391:22:0"
+            },
+            {
+              "label": "auctionFloor",
+              "astId": 18,
+              "type": "t_uint256",
+              "src": "423:20:0"
+            },
+            {
+              "label": "starting_time",
+              "astId": 20,
+              "type": "t_uint256",
+              "src": "453:21:0"
+            },
+            {
+              "label": "duration",
+              "astId": 22,
+              "type": "t_uint256",
+              "src": "484:16:0"
+            },
+            {
+              "label": "auction_bid_ids",
+              "astId": 25,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "510:25:0"
+            },
+            {
+              "label": "winning_bid_Id",
+              "astId": 27,
+              "type": "t_uint256",
+              "src": "545:22:0"
+            },
+            {
+              "label": "status",
+              "astId": 29,
+              "type": "t_enum<AuctionManager.AuctionStatus>",
+              "src": "577:20:0"
+            }
+          ]
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_enum<AuctionManager.AuctionStatus>": {
+          "id": "t_enum<AuctionManager.AuctionStatus>",
+          "kind": "enum",
+          "label": "AuctionManager.AuctionStatus",
+          "members": [
+            "Pending",
+            "Commit",
+            "Reveal",
+            "Finalized"
+          ]
+        },
+        "t_array:dyn<t_struct<AuctionManager.Auction>>": {
+          "id": "t_array:dyn<t_struct<AuctionManager.Auction>>",
+          "valueType": "t_struct<AuctionManager.Auction>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "AuctionManager.Auction[]"
+        },
+        "t_struct<AuctionManager.Bid>": {
+          "id": "t_struct<AuctionManager.Bid>",
+          "kind": "struct",
+          "label": "AuctionManager.Bid",
+          "members": [
+            {
+              "label": "commitBid",
+              "astId": 35,
+              "type": "t_bytes32",
+              "src": "663:17:0"
+            },
+            {
+              "label": "revealedBid",
+              "astId": 37,
+              "type": "t_uint256",
+              "src": "690:19:0"
+            },
+            {
+              "label": "revealedSalt",
+              "astId": 39,
+              "type": "t_uint256",
+              "src": "719:20:0"
+            },
+            {
+              "label": "status",
+              "astId": 41,
+              "type": "t_enum<AuctionManager.BidStatus>",
+              "src": "749:16:0"
+            },
+            {
+              "label": "publication_Id",
+              "astId": 43,
+              "type": "t_uint256",
+              "src": "775:22:0"
+            },
+            {
+              "label": "auction_Id",
+              "astId": 45,
+              "type": "t_uint256",
+              "src": "807:18:0"
+            },
+            {
+              "label": "bidder_Id",
+              "astId": 47,
+              "type": "t_uint256",
+              "src": "835:17:0"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_enum<AuctionManager.BidStatus>": {
+          "id": "t_enum<AuctionManager.BidStatus>",
+          "kind": "enum",
+          "label": "AuctionManager.BidStatus",
+          "members": [
+            "Committed",
+            "Revealed",
+            "Winner"
+          ]
+        },
+        "t_array:dyn<t_struct<AuctionManager.Bid>>": {
+          "id": "t_array:dyn<t_struct<AuctionManager.Bid>>",
+          "valueType": "t_struct<AuctionManager.Bid>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "AuctionManager.Bid[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "auctions",
+          "astId": 33,
+          "type": "t_array:dyn<t_struct<AuctionManager.Auction>>",
+          "src": "610:25:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "bids",
+          "astId": 51,
+          "type": "t_array:dyn<t_struct<AuctionManager.Bid>>",
+          "src": "885:10:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "bidOwners",
+          "astId": 56,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "945:46:0"
+        },
+        {
+          "contract": "AuctionManager",
+          "path": "contracts/AuctionManager.sol",
+          "label": "registry",
+          "astId": 58,
+          "type": "t_address",
+          "src": "998:16:0"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "HarbergerTaxManager": {
+      "address": "0x7A2BB95073543A876Ded72f2638aBB5b02117edc",
+      "constructorCode": "60806040526005603355620d2f0060345564046e07d0f660355534801561002557600080fd5b50611ee5806100356000396000f3fe",
+      "bodyBytecodeHash": "fd14a15418a695faf7402917c6d1d727f468d787a635034404b119743e169c30",
+      "localBytecodeHash": "e8b1acd959e289019bd1af12ae2657c048449dc33aca813271699a5c113ad602",
+      "deployedBytecodeHash": "e8b1acd959e289019bd1af12ae2657c048449dc33aca813271699a5c113ad602",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_struct<HarbergerTaxManager.TaxObject>": {
+          "id": "t_struct<HarbergerTaxManager.TaxObject>",
+          "kind": "struct",
+          "label": "HarbergerTaxManager.TaxObject",
+          "members": [
+            {
+              "label": "licenceId",
+              "astId": 675,
+              "type": "t_uint256",
+              "src": "689:17:1"
+            },
+            {
+              "label": "ratePerBlock",
+              "astId": 677,
+              "type": "t_uint256",
+              "src": "716:20:1"
+            },
+            {
+              "label": "lastPayment",
+              "astId": 679,
+              "type": "t_uint256",
+              "src": "746:19:1"
+            },
+            {
+              "label": "numberOfOutBids",
+              "astId": 681,
+              "type": "t_uint256",
+              "src": "775:23:1"
+            },
+            {
+              "label": "currentAssignedValue",
+              "astId": 683,
+              "type": "t_uint256",
+              "src": "808:28:1"
+            },
+            {
+              "label": "buyOut_Ids",
+              "astId": 686,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "846:20:1"
+            },
+            {
+              "label": "status",
+              "astId": 688,
+              "type": "t_enum<HarbergerTaxManager.TaxObjectStatus>",
+              "src": "876:22:1"
+            }
+          ]
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_enum<HarbergerTaxManager.TaxObjectStatus>": {
+          "id": "t_enum<HarbergerTaxManager.TaxObjectStatus>",
+          "kind": "enum",
+          "label": "HarbergerTaxManager.TaxObjectStatus",
+          "members": [
+            "Active",
+            "Revoked"
+          ]
+        },
+        "t_array:dyn<t_struct<HarbergerTaxManager.TaxObject>>": {
+          "id": "t_array:dyn<t_struct<HarbergerTaxManager.TaxObject>>",
+          "valueType": "t_struct<HarbergerTaxManager.TaxObject>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "HarbergerTaxManager.TaxObject[]"
+        },
+        "t_struct<HarbergerTaxManager.BuyOut>": {
+          "id": "t_struct<HarbergerTaxManager.BuyOut>",
+          "kind": "struct",
+          "label": "HarbergerTaxManager.BuyOut",
+          "members": [
+            {
+              "label": "taxObject_Id",
+              "astId": 698,
+              "type": "t_uint256",
+              "src": "1017:20:1"
+            },
+            {
+              "label": "buyOutOwner_Id",
+              "astId": 700,
+              "type": "t_uint256",
+              "src": "1047:22:1"
+            },
+            {
+              "label": "buyOutAmount",
+              "astId": 702,
+              "type": "t_uint256",
+              "src": "1079:20:1"
+            },
+            {
+              "label": "buyOutExpiration",
+              "astId": 704,
+              "type": "t_uint256",
+              "src": "1109:24:1"
+            },
+            {
+              "label": "status",
+              "astId": 706,
+              "type": "t_enum<HarbergerTaxManager.BuyOutStatus>",
+              "src": "1143:19:1"
+            }
+          ]
+        },
+        "t_enum<HarbergerTaxManager.BuyOutStatus>": {
+          "id": "t_enum<HarbergerTaxManager.BuyOutStatus>",
+          "kind": "enum",
+          "label": "HarbergerTaxManager.BuyOutStatus",
+          "members": [
+            "Pending",
+            "Successful",
+            "OutBid"
+          ]
+        },
+        "t_array:dyn<t_struct<HarbergerTaxManager.BuyOut>>": {
+          "id": "t_array:dyn<t_struct<HarbergerTaxManager.BuyOut>>",
+          "valueType": "t_struct<HarbergerTaxManager.BuyOut>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "HarbergerTaxManager.BuyOut[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "MIN_BUYOUT_PRICE_INCREASE",
+          "astId": 656,
+          "type": "t_uint256",
+          "src": "303:37:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "BUYOUT_TIMEOUT",
+          "astId": 665,
+          "type": "t_uint256",
+          "src": "444:42:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "FIXED_INTEREST_RATE_PER_BLOCK",
+          "astId": 668,
+          "type": "t_uint256",
+          "src": "537:51:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "registry",
+          "astId": 670,
+          "type": "t_address",
+          "src": "595:16:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "taxObjects",
+          "astId": 692,
+          "type": "t_array:dyn<t_struct<HarbergerTaxManager.TaxObject>>",
+          "src": "911:22:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "buyOuts",
+          "astId": 710,
+          "type": "t_array:dyn<t_struct<HarbergerTaxManager.BuyOut>>",
+          "src": "1175:16:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "buyOutOwners",
+          "astId": 715,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "1198:49:1"
+        },
+        {
+          "contract": "HarbergerTaxManager",
+          "path": "contracts/HarbergerTaxManager.sol",
+          "label": "licenceTaxObjects",
+          "astId": 720,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "1254:54:1"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": true,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "PublicationManager": {
+      "address": "0xD4E0d22b2A30a12F5b4115B6dB6B9592241ee7b3",
+      "constructorCode": "608060405234801561001057600080fd5b50611864806100206000396000f3fe",
+      "bodyBytecodeHash": "11472b41e4e7d1b941f865d6cb3df9e331a2dee5e2b272972561c5ea47bea392",
+      "localBytecodeHash": "d69b32cfabfc2f1898dfe0baed095e930dd711d747b9be23c6f50731d76157cf",
+      "deployedBytecodeHash": "d69b32cfabfc2f1898dfe0baed095e930dd711d747b9be23c6f50731d76157cf",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<PublicationManager.Publication>": {
+          "id": "t_struct<PublicationManager.Publication>",
+          "kind": "struct",
+          "label": "PublicationManager.Publication",
+          "members": [
+            {
+              "label": "pricingStrategy",
+              "astId": 2307,
+              "type": "t_enum<PublicationManager.PricingStrategy>",
+              "src": "247:31:4"
+            },
+            {
+              "label": "publication_uri",
+              "astId": 2309,
+              "type": "t_string",
+              "src": "288:22:4"
+            },
+            {
+              "label": "author_id",
+              "astId": 2311,
+              "type": "t_uint256",
+              "src": "359:17:4"
+            },
+            {
+              "label": "sell_price",
+              "astId": 2313,
+              "type": "t_uint256",
+              "src": "405:18:4"
+            },
+            {
+              "label": "maxNumberOfLicences",
+              "astId": 2315,
+              "type": "t_uint256",
+              "src": "433:27:4"
+            },
+            {
+              "label": "licencesIssued",
+              "astId": 2317,
+              "type": "t_uint256",
+              "src": "470:22:4"
+            },
+            {
+              "label": "auction_ids",
+              "astId": 2320,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "502:21:4"
+            },
+            {
+              "label": "contributors",
+              "astId": 2323,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "566:22:4"
+            },
+            {
+              "label": "contributors_weightings",
+              "astId": 2326,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "598:33:4"
+            },
+            {
+              "label": "donations",
+              "astId": 2329,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "673:19:4"
+            }
+          ]
+        },
+        "t_enum<PublicationManager.PricingStrategy>": {
+          "id": "t_enum<PublicationManager.PricingStrategy>",
+          "kind": "enum",
+          "label": "PublicationManager.PricingStrategy",
+          "members": [
+            "PrivateAuction",
+            "FixedRate",
+            "PrivateAuctionHarberger"
+          ]
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_array:dyn<t_struct<PublicationManager.Publication>>": {
+          "id": "t_array:dyn<t_struct<PublicationManager.Publication>>",
+          "valueType": "t_struct<PublicationManager.Publication>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "PublicationManager.Publication[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "publications",
+          "astId": 2333,
+          "type": "t_array:dyn<t_struct<PublicationManager.Publication>>",
+          "src": "705:33:4"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "publicationOwners",
+          "astId": 2338,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "745:54:4"
+        },
+        {
+          "contract": "PublicationManager",
+          "path": "contracts/PublicationManager.sol",
+          "label": "registry",
+          "astId": 2340,
+          "type": "t_address",
+          "src": "806:16:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "UserManager": {
+      "address": "0x6dcCda779a45F862492D388c7F24A56a6f347498",
+      "constructorCode": "608060405234801561001057600080fd5b50610a06806100206000396000f3fe",
+      "bodyBytecodeHash": "c80c625837dae7cfee6fd904a513ae81385101f0e5059b9ef8409afacee1ef94",
+      "localBytecodeHash": "afa8d089de5f18e0c9e624545973962317f0000f8a301901cbb7511cd6282b4f",
+      "deployedBytecodeHash": "afa8d089de5f18e0c9e624545973962317f0000f8a301901cbb7511cd6282b4f",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<UserManager.User>": {
+          "id": "t_struct<UserManager.User>",
+          "kind": "struct",
+          "label": "UserManager.User",
+          "members": [
+            {
+              "label": "owned_address",
+              "astId": 4137,
+              "type": "t_address",
+              "src": "154:21:6"
+            },
+            {
+              "label": "profile_uri",
+              "astId": 4139,
+              "type": "t_string",
+              "src": "185:18:6"
+            }
+          ]
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_array:dyn<t_struct<UserManager.User>>": {
+          "id": "t_array:dyn<t_struct<UserManager.User>>",
+          "valueType": "t_struct<UserManager.User>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "UserManager.User[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "users",
+          "astId": 4143,
+          "type": "t_array:dyn<t_struct<UserManager.User>>",
+          "src": "247:19:6"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "userAddresses",
+          "astId": 4147,
+          "type": "t_mapping<t_uint256>",
+          "src": "316:48:6"
+        },
+        {
+          "contract": "UserManager",
+          "path": "contracts/UserManager.sol",
+          "label": "registry",
+          "astId": 4149,
+          "type": "t_address",
+          "src": "371:16:6"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "Vault": {
+      "address": "0x15ed966E133FcEEf59e5E86DbCeE066F90500E42",
+      "constructorCode": "608060405234801561001057600080fd5b50610767806100206000396000f3fe",
+      "bodyBytecodeHash": "e56dc6b188e6ae70eed61524f863e451f0d0a236ad10dfef399370e8fe1cc0fb",
+      "localBytecodeHash": "cfa2018b38702ffa165e79bab53f8a5aa3bd5de97c6ae2ee8a974031ecc5f936",
+      "deployedBytecodeHash": "cfa2018b38702ffa165e79bab53f8a5aa3bd5de97c6ae2ee8a974031ecc5f936",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "Vault",
+          "path": "contracts/Vault.sol",
+          "label": "token",
+          "astId": 4327,
+          "type": "t_address",
+          "src": "210:11:7"
+        },
+        {
+          "contract": "Vault",
+          "path": "contracts/Vault.sol",
+          "label": "registry",
+          "astId": 4329,
+          "type": "t_address",
+          "src": "228:16:7"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "LicenceManager": {
+      "address": "0xbE2060C110FDff80958f1Cd91EAE84D2BD4Ed551",
+      "constructorCode": "6080604052612f19806100136000396000f3fe",
+      "bodyBytecodeHash": "5fe0c7edf67e843b65d9c5a4baad1c9a1a65a1d701b93311f4dc2a5c85f06c5c",
+      "localBytecodeHash": "f34e472b857d114deb85f28b7fe3b2cb192cf30a476190daa05ec299611a534b",
+      "deployedBytecodeHash": "f34e472b857d114deb85f28b7fe3b2cb192cf30a476190daa05ec299611a534b",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_struct<Counters.Counter>": {
+          "id": "t_struct<Counters.Counter>",
+          "kind": "struct",
+          "label": "Counters.Counter",
+          "members": [
+            {
+              "label": "_value",
+              "astId": 6769,
+              "type": "t_uint256",
+              "src": "1024:14:28"
+            }
+          ]
+        },
+        "t_mapping<t_struct<Counters.Counter>>": {
+          "id": "t_mapping<t_struct<Counters.Counter>>",
+          "valueType": "t_struct<Counters.Counter>",
+          "label": "mapping(key => Counters.Counter)",
+          "kind": "mapping"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_string>": {
+          "id": "t_mapping<t_string>",
+          "valueType": "t_string",
+          "label": "mapping(key => string)",
+          "kind": "mapping"
+        },
+        "t_struct<Roles.Role>": {
+          "id": "t_struct<Roles.Role>",
+          "kind": "struct",
+          "label": "Roles.Role",
+          "members": [
+            {
+              "label": "bearer",
+              "astId": 6563,
+              "type": "t_mapping<t_bool>",
+              "src": "150:32:26"
+            }
+          ]
+        },
+        "t_struct<LicenceManager.Licence>": {
+          "id": "t_struct<LicenceManager.Licence>",
+          "kind": "struct",
+          "label": "LicenceManager.Licence",
+          "members": [
+            {
+              "label": "owner_Id",
+              "astId": 1922,
+              "type": "t_uint256",
+              "src": "496:16:2"
+            },
+            {
+              "label": "publication_Id",
+              "astId": 1924,
+              "type": "t_uint256",
+              "src": "522:22:2"
+            },
+            {
+              "label": "publicationLicenceNo",
+              "astId": 1926,
+              "type": "t_uint256",
+              "src": "554:28:2"
+            },
+            {
+              "label": "status",
+              "astId": 1928,
+              "type": "t_enum<LicenceManager.LicenceStatus>",
+              "src": "592:20:2"
+            }
+          ]
+        },
+        "t_enum<LicenceManager.LicenceStatus>": {
+          "id": "t_enum<LicenceManager.LicenceStatus>",
+          "kind": "enum",
+          "label": "LicenceManager.LicenceStatus",
+          "members": [
+            "Active",
+            "Revoked"
+          ]
+        },
+        "t_array:dyn<t_struct<LicenceManager.Licence>>": {
+          "id": "t_array:dyn<t_struct<LicenceManager.Licence>>",
+          "valueType": "t_struct<LicenceManager.Licence>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "LicenceManager.Licence[]"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 9104,
+          "type": "t_bool",
+          "src": "757:24:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 9106,
+          "type": "t_bool",
+          "src": "876:25:44"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 9162,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:44"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "_supportedInterfaces",
+          "astId": 6825,
+          "type": "t_mapping<t_bool>",
+          "src": "565:52:29"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "______gap",
+          "astId": 6870,
+          "type": "t_array:50<t_uint256>",
+          "src": "1729:29:29"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenOwner",
+          "astId": 7583,
+          "type": "t_mapping<t_address>",
+          "src": "886:48:34"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenApprovals",
+          "astId": 7587,
+          "type": "t_mapping<t_address>",
+          "src": "990:52:34"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_ownedTokensCount",
+          "astId": 7591,
+          "type": "t_mapping<t_struct<Counters.Counter>>",
+          "src": "1100:63:34"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_operatorApprovals",
+          "astId": 7597,
+          "type": "t_mapping<t_bool>",
+          "src": "1218:73:34"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "______gap",
+          "astId": 8209,
+          "type": "t_array:50<t_uint256>",
+          "src": "15262:29:34"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokens",
+          "astId": 8232,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "502:50:35"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokensIndex",
+          "astId": 8236,
+          "type": "t_mapping<t_uint256>",
+          "src": "622:53:35"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokens",
+          "astId": 8239,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "736:28:35"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokensIndex",
+          "astId": 8243,
+          "type": "t_mapping<t_uint256>",
+          "src": "835:51:35"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "______gap",
+          "astId": 8574,
+          "type": "t_array:50<t_uint256>",
+          "src": "9053:29:35"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_name",
+          "astId": 8613,
+          "type": "t_string",
+          "src": "323:20:37"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_symbol",
+          "astId": 8615,
+          "type": "t_string",
+          "src": "370:22:37"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_tokenURIs",
+          "astId": 8619,
+          "type": "t_mapping<t_string>",
+          "src": "438:45:37"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "______gap",
+          "astId": 8750,
+          "type": "t_array:50<t_uint256>",
+          "src": "3086:29:37"
+        },
+        {
+          "contract": "ERC721Full",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Full.sol",
+          "label": "______gap",
+          "astId": 8593,
+          "type": "t_array:50<t_uint256>",
+          "src": "532:29:36"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "_minters",
+          "astId": 6660,
+          "type": "t_struct<Roles.Role>",
+          "src": "327:27:27"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "______gap",
+          "astId": 6760,
+          "type": "t_array:50<t_uint256>",
+          "src": "1193:29:27"
+        },
+        {
+          "contract": "ERC721Mintable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol",
+          "label": "______gap",
+          "astId": 8846,
+          "type": "t_array:50<t_uint256>",
+          "src": "1687:29:38"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "licences",
+          "astId": 1932,
+          "type": "t_array:dyn<t_struct<LicenceManager.Licence>>",
+          "src": "625:25:2"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "licenceOwners",
+          "astId": 1937,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "698:50:2"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "publicationLicences",
+          "astId": 1942,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "800:56:2"
+        },
+        {
+          "contract": "LicenceManager",
+          "path": "contracts/LicenceManager.sol",
+          "label": "registry",
+          "astId": 1956,
+          "type": "t_address",
+          "src": "986:16:2"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "UniCoin/AuctionManager": [
+      {
+        "address": "0x6e7c9C99d47Df4aA4ed4FD054a8C94a13260F189",
+        "version": "2.0.0",
+        "implementation": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x1929E5e3d57Eabcf13Cf6CB548E9E186C06a13a3",
+        "version": "2.0.0",
+        "implementation": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/UnicoinRegistry": [
+      {
+        "address": "0x05B5657502284Ad0BBf5cd62d19585fbF0233Bc6",
+        "version": "2.0.0",
+        "implementation": "0x5311348A9A920BBfF2D467e5Fe5018884e4cf83B",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/HarbergerTaxManager": [
+      {
+        "address": "0x1C37072063f3CEB575FfCe3D9eE7a0e5402fFBa2",
+        "version": "2.0.0",
+        "implementation": "0x7A2BB95073543A876Ded72f2638aBB5b02117edc",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/PublicationManager": [
+      {
+        "address": "0x0346297376eEB7e0a950E3d4c98252a91cdb4b7F",
+        "version": "2.0.0",
+        "implementation": "0xD4E0d22b2A30a12F5b4115B6dB6B9592241ee7b3",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/UserManager": [
+      {
+        "address": "0x60d5fb55fD191AdCff514eD0A28BAa4D79e9e4e2",
+        "version": "2.0.0",
+        "implementation": "0x6dcCda779a45F862492D388c7F24A56a6f347498",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/Vault": [
+      {
+        "address": "0x6A5e7b1E3815D8896B5a45A9C9eE4d1e3110aBBd",
+        "version": "2.0.0",
+        "implementation": "0x15ed966E133FcEEf59e5E86DbCeE066F90500E42",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ],
+    "UniCoin/LicenceManager": [
+      {
+        "address": "0xeee63382e8c07353C74B45f7EcE3D85862a1C455",
+        "version": "2.0.0",
+        "implementation": "0xbE2060C110FDff80958f1Cd91EAE84D2BD4Ed551",
+        "admin": "0xCc2518811Cf645466A39757B04502e45040e00d6",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "2.0.0",
+  "proxyAdmin": {
+    "address": "0xCc2518811Cf645466A39757B04502e45040e00d6"
+  }
+}

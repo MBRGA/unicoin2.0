@@ -13,7 +13,7 @@ contract HarbergerTaxManager is Initializable {
 
     address registry;
 
-    enum TaxObjectStatus {Active, Revoked}
+    enum TaxObjectStatus { Active, Revoked }
 
     struct TaxObject {
         uint256 licenceId;
@@ -27,7 +27,7 @@ contract HarbergerTaxManager is Initializable {
 
     TaxObject[] taxObjects;
 
-    enum BuyOutStatus {Pending, Successful, OutBid}
+    enum BuyOutStatus { Pending, Successful, OutBid }
 
     struct BuyOut {
         uint256 taxObject_Id;
@@ -57,18 +57,12 @@ contract HarbergerTaxManager is Initializable {
         // uint256 _ratePerBlock,
         uint256 _currentAssignedValue
     ) public onlyRegistry returns (uint256) {
-        require(
-            _currentAssignedValue > 0,
-            "Value needs to be larger than zero"
-        );
+        require(_currentAssignedValue > 0, "Value needs to be larger than zero");
 
         //if there were previous tax objects then they must have been revoked
         if (licenceTaxObjects[_licence_Id].length > 0) {
             require(
-                taxObjects[licenceTaxObjects[_licence_Id][licenceTaxObjects[_licence_Id]
-                    .length -
-                    1]]
-                    .status ==
+                taxObjects[licenceTaxObjects[_licence_Id][licenceTaxObjects[_licence_Id].length - 1]].status ==
                     TaxObjectStatus.Revoked,
                 "Can only create tax object if previous revoked"
             );
@@ -92,11 +86,7 @@ contract HarbergerTaxManager is Initializable {
         return taxObjectId;
     }
 
-    function calculateOutstandingTax(uint256 _taxObject_Id)
-        public
-        view
-        returns (uint256)
-    {
+    function calculateOutstandingTax(uint256 _taxObject_Id) public view returns (uint256) {
         TaxObject memory taxObject = taxObjects[_taxObject_Id];
         uint256 futureValue = futureValue(
             taxObject.currentAssignedValue,
@@ -105,45 +95,28 @@ contract HarbergerTaxManager is Initializable {
             now
         );
 
-        uint256 interestOutstanding = futureValue -
-            taxObject.currentAssignedValue;
+        uint256 interestOutstanding = futureValue - taxObject.currentAssignedValue;
         return interestOutstanding;
     }
 
-    function calculateMinBuyOutPrice(uint256 _taxObject_Id)
-        public
-        view
-        returns (uint256)
-    {
-        return
-            (taxObjects[_taxObject_Id].currentAssignedValue *
-                (100 + MIN_BUYOUT_PRICE_INCREASE)) /
-            100;
+    function calculateMinBuyOutPrice(uint256 _taxObject_Id) public view returns (uint256) {
+        return (taxObjects[_taxObject_Id].currentAssignedValue * (100 + MIN_BUYOUT_PRICE_INCREASE)) / 100;
     }
 
-    function _updateTaxObjectLastPayment(uint256 _taxObject_Id)
-        public
-        onlyRegistry
-    {
+    function _updateTaxObjectLastPayment(uint256 _taxObject_Id) public onlyRegistry {
         taxObjects[_taxObject_Id].lastPayment = now;
     }
 
-    function _updateTaxObjectValuation(
-        uint256 _taxObject_Id,
-        uint256 _assignedValue
-    ) public onlyRegistry {
+    function _updateTaxObjectValuation(uint256 _taxObject_Id, uint256 _assignedValue) public onlyRegistry {
         taxObjects[_taxObject_Id].currentAssignedValue = _assignedValue;
     }
 
-    function submitBuyOut(
-        uint256 _taxObject_Id,
-        uint256 _offer,
-        uint256 _buyOutOwner_Id
-    ) public onlyRegistry returns (uint256) {
-        require(
-            _offer >= calculateMinBuyOutPrice(_taxObject_Id),
-            "Value sent is less than the minimum buyOut price"
-        );
+    function submitBuyOut(uint256 _taxObject_Id, uint256 _offer, uint256 _buyOutOwner_Id)
+        public
+        onlyRegistry
+        returns (uint256)
+    {
+        require(_offer >= calculateMinBuyOutPrice(_taxObject_Id), "Value sent is less than the minimum buyOut price");
 
         require(
             taxObjects[_taxObject_Id].status == TaxObjectStatus.Active,
@@ -163,32 +136,17 @@ contract HarbergerTaxManager is Initializable {
         taxObjects[_taxObject_Id].buyOut_Ids.push(buyOut_Id);
     }
 
-    function finalizeBuyOutOffer(uint256 _buyOut_Id)
-        public
-        onlyRegistry
-        returns (bool)
-    {
+    function finalizeBuyOutOffer(uint256 _buyOut_Id) public onlyRegistry returns (bool) {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
-        require(
-            buyOut.status == BuyOutStatus.Pending,
-            "Can only finalize buyOut if buyOut is pending"
-        );
-        require(
-            buyOut.buyOutExpiration < now,
-            "can only finalize buyOut if it is past the expiration time"
-        );
-        if (
-            buyOut.buyOutAmount < calculateMinBuyOutPrice(buyOut.taxObject_Id)
-        ) {
+        require(buyOut.status == BuyOutStatus.Pending, "Can only finalize buyOut if buyOut is pending");
+        require(buyOut.buyOutExpiration < now, "can only finalize buyOut if it is past the expiration time");
+        if (buyOut.buyOutAmount < calculateMinBuyOutPrice(buyOut.taxObject_Id)) {
             buyOuts[_buyOut_Id].status = BuyOutStatus.OutBid;
             return false; //the buyOut was not enough and so failed
         }
-        if (
-            buyOut.buyOutAmount > calculateMinBuyOutPrice(buyOut.taxObject_Id)
-        ) {
+        if (buyOut.buyOutAmount > calculateMinBuyOutPrice(buyOut.taxObject_Id)) {
             buyOuts[_buyOut_Id].status = BuyOutStatus.Successful;
-            taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut
-                .buyOutAmount;
+            taxObjects[buyOut.taxObject_Id].currentAssignedValue = buyOut.buyOutAmount;
             taxObjects[buyOut.taxObject_Id].numberOfOutBids += 1;
             taxObjects[buyOut.taxObject_Id].lastPayment = now;
             return true;
@@ -199,31 +157,16 @@ contract HarbergerTaxManager is Initializable {
         taxObjects[_taxObject_Id].status = TaxObjectStatus.Revoked;
     }
 
-    function getLicenceTaxObjectId(uint256 _licence_Id)
-        public
-        view
-        returns (uint256)
-    {
+    function getLicenceTaxObjectId(uint256 _licence_Id) public view returns (uint256) {
         uint256 numOfTaxObjects = licenceTaxObjects[_licence_Id].length;
-        require(
-            numOfTaxObjects >= 1,
-            "There is no tax object for this licence"
-        );
+        require(numOfTaxObjects >= 1, "There is no tax object for this licence");
         return licenceTaxObjects[_licence_Id][numOfTaxObjects - 1];
     }
 
     function getTaxObject(uint256 _taxObject_Id)
         public
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256[] memory,
-            uint8
-        )
+        returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory, uint8)
     {
         TaxObject memory taxObject = taxObjects[_taxObject_Id];
         return (
@@ -243,11 +186,7 @@ contract HarbergerTaxManager is Initializable {
     //     uint256 buyOutExpiration;
     //     BuyOutStatus status;
 
-    function getBuyOut(uint256 _buyOut_Id)
-        public
-        view
-        returns (uint256, uint256, uint256, uint256, uint8)
-    {
+    function getBuyOut(uint256 _buyOut_Id) public view returns (uint256, uint256, uint256, uint256, uint8) {
         BuyOut memory buyOut = buyOuts[_buyOut_Id];
         return (
             buyOut.taxObject_Id,
@@ -258,20 +197,12 @@ contract HarbergerTaxManager is Initializable {
         );
     }
 
-    function getBuyOutLicenceId(uint256 _buyOut_Id)
-        public
-        view
-        returns (uint256)
-    {
+    function getBuyOutLicenceId(uint256 _buyOut_Id) public view returns (uint256) {
         uint256 taxObject_Id = buyOuts[_buyOut_Id].taxObject_Id;
         return taxObjects[taxObject_Id].licenceId;
     }
 
-    function getBuyOutOwnerId(uint256 _buyOut_Id)
-        public
-        view
-        returns (uint256)
-    {
+    function getBuyOutOwnerId(uint256 _buyOut_Id) public view returns (uint256) {
         return buyOuts[_buyOut_Id].buyOutOwner_Id;
     }
 
@@ -306,13 +237,7 @@ contract HarbergerTaxManager is Initializable {
             buyOutExpiration_[i] = buyOuts[buyOutId].buyOutExpiration;
             status_[i] = uint8(buyOuts[buyOutId].status);
         }
-        return (
-            taxObject_Id_,
-            buyOutOwner_Id_,
-            buyOutAmount_,
-            buyOutExpiration_,
-            status_
-        );
+        return (taxObject_Id_, buyOutOwner_Id_, buyOutAmount_, buyOutExpiration_, status_);
     }
 
     /**
@@ -373,53 +298,31 @@ contract HarbergerTaxManager is Initializable {
         res = res / 0x21c3677c82b40000 + y + FIXED_1; // divide by 20! and then add y^1 / 1! + y^0 / 0!
 
         if ((x & 0x010000000000000000000000000000000) != 0)
-            res =
-                (res * 0x1c3d6a24ed82218787d624d3e5eba95f9) /
-                0x18ebef9eac820ae8682b9793ac6d1e776; // multiply by e^2^(-3)
+            res = (res * 0x1c3d6a24ed82218787d624d3e5eba95f9) / 0x18ebef9eac820ae8682b9793ac6d1e776; // multiply by e^2^(-3)
         if ((x & 0x020000000000000000000000000000000) != 0)
-            res =
-                (res * 0x18ebef9eac820ae8682b9793ac6d1e778) /
-                0x1368b2fc6f9609fe7aceb46aa619baed4; // multiply by e^2^(-2)
+            res = (res * 0x18ebef9eac820ae8682b9793ac6d1e778) / 0x1368b2fc6f9609fe7aceb46aa619baed4; // multiply by e^2^(-2)
         if ((x & 0x040000000000000000000000000000000) != 0)
-            res =
-                (res * 0x1368b2fc6f9609fe7aceb46aa619baed5) /
-                0x0bc5ab1b16779be3575bd8f0520a9f21f; // multiply by e^2^(-1)
+            res = (res * 0x1368b2fc6f9609fe7aceb46aa619baed5) / 0x0bc5ab1b16779be3575bd8f0520a9f21f; // multiply by e^2^(-1)
         if ((x & 0x080000000000000000000000000000000) != 0)
-            res =
-                (res * 0x0bc5ab1b16779be3575bd8f0520a9f21e) /
-                0x0454aaa8efe072e7f6ddbab84b40a55c9; // multiply by e^2^(+0)
+            res = (res * 0x0bc5ab1b16779be3575bd8f0520a9f21e) / 0x0454aaa8efe072e7f6ddbab84b40a55c9; // multiply by e^2^(+0)
         if ((x & 0x100000000000000000000000000000000) != 0)
-            res =
-                (res * 0x0454aaa8efe072e7f6ddbab84b40a55c5) /
-                0x00960aadc109e7a3bf4578099615711ea; // multiply by e^2^(+1)
+            res = (res * 0x0454aaa8efe072e7f6ddbab84b40a55c5) / 0x00960aadc109e7a3bf4578099615711ea; // multiply by e^2^(+1)
         if ((x & 0x200000000000000000000000000000000) != 0)
-            res =
-                (res * 0x00960aadc109e7a3bf4578099615711d7) /
-                0x0002bf84208204f5977f9a8cf01fdce3d; // multiply by e^2^(+2)
+            res = (res * 0x00960aadc109e7a3bf4578099615711d7) / 0x0002bf84208204f5977f9a8cf01fdce3d; // multiply by e^2^(+2)
         if ((x & 0x400000000000000000000000000000000) != 0)
-            res =
-                (res * 0x0002bf84208204f5977f9a8cf01fdc307) /
-                0x0000003c6ab775dd0b95b4cbee7e65d11; // multiply by e^2^(+3)
+            res = (res * 0x0002bf84208204f5977f9a8cf01fdc307) / 0x0000003c6ab775dd0b95b4cbee7e65d11; // multiply by e^2^(+3)
 
         return res;
     }
 
-    function capFunction(uint256 r, uint256 t1, uint256 t2)
-        public
-        pure
-        returns (uint256)
-    {
+    function capFunction(uint256 r, uint256 t1, uint256 t2) public pure returns (uint256) {
         uint256 t = t2 - t1;
         uint256 x = (r * t * FIXED_1) / (15 * 10**18);
         uint256 c = (optimalExp(x) * 10**18) / FIXED_1;
         return c;
     }
 
-    function futureValue(uint256 N, uint256 r, uint256 t1, uint256 t2)
-        public
-        pure
-        returns (uint256)
-    {
+    function futureValue(uint256 N, uint256 r, uint256 t1, uint256 t2) public pure returns (uint256) {
         return (capFunction(r, t1, t2) * N) / 10**18;
     }
 }

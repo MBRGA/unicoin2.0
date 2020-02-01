@@ -14,29 +14,18 @@ contract Vault is Initializable {
         _;
     }
 
-    function initialize(address _tokenAddress, address _unicoinRegistry)
-        public
-        initializer
-    {
+    function initialize(address _tokenAddress, address _unicoinRegistry) public initializer {
         token = ERC20(_tokenAddress);
         registry = _unicoinRegistry;
     }
 
-    function canAddressPay(address _address, uint256 _amount)
-        public
-        view
-        returns (bool)
-    {
+    function canAddressPay(address _address, uint256 _amount) public view returns (bool) {
         uint256 userBalance = token.balanceOf(_address);
         uint256 userContractAproval = token.allowance(_address, address(this));
         return (userBalance >= _amount) && (userContractAproval >= _amount);
     }
 
-    function settlePayment(address _sender, address _reciver, uint256 _amount)
-        public
-        onlyRegistry
-        returns (uint256)
-    {
+    function settlePayment(address _sender, address _reciver, uint256 _amount) public onlyRegistry returns (uint256) {
         token.transferFrom(_sender, _reciver, _amount);
     }
 
@@ -49,15 +38,12 @@ contract Vault is Initializable {
     ) public returns (bool) {
         uint256 totalPaidToContributors = 0;
         for (uint256 i = 0; i < _contributorAddresses.length; i++) {
-            uint256 amountToPay = (_paymentAmount * _contributorWeightings[i]) /
-                1e2;
+            uint256 amountToPay = (_paymentAmount * _contributorWeightings[i]) / 1e2;
             totalPaidToContributors += _contributorWeightings[i];
             token.transferFrom(_sender, _contributorAddresses[i], amountToPay);
         }
 
-        uint256 authorAmount = ((1e2 - totalPaidToContributors) *
-            _paymentAmount) /
-            1e2;
+        uint256 authorAmount = ((1e2 - totalPaidToContributors) * _paymentAmount) / 1e2;
         token.transferFrom(_sender, _authorAddress, authorAmount);
         return true;
     }
