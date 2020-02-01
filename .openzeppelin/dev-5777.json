@@ -1,11 +1,11 @@
 {
   "contracts": {
     "UnicoinRegistry": {
-      "address": "0x5311348A9A920BBfF2D467e5Fe5018884e4cf83B",
-      "constructorCode": "6080604052615869806100136000396000f3fe",
-      "bodyBytecodeHash": "55ff530791e7efa796a5496381bdc0c61dddc69a416cff126c312acf1ca13cef",
-      "localBytecodeHash": "9f3ba7e050b30933e63cbbe0a136632ceeac74881020943fdd072bd88020370b",
-      "deployedBytecodeHash": "9f3ba7e050b30933e63cbbe0a136632ceeac74881020943fdd072bd88020370b",
+      "address": "0xF837d39a529F47895Ea50979154792703671465E",
+      "constructorCode": "60806040526158bc806100136000396000f3fe",
+      "bodyBytecodeHash": "a4d31742ac504a1c6a384a8451a6d55a49e9aff666d614a7546d7ac1dc2b2b78",
+      "localBytecodeHash": "a49517381c906e82578e588f8e2e74b54817f1ef91e8597e306be2903a676f43",
+      "deployedBytecodeHash": "a49517381c906e82578e588f8e2e74b54817f1ef91e8597e306be2903a676f43",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -35,7 +35,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -43,7 +43,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -51,7 +51,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -59,7 +59,7 @@
           "contract": "GSNRecipient",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol",
           "label": "_relayHub",
-          "astId": 5933,
+          "astId": 5940,
           "type": "t_address",
           "src": "1133:25:23"
         },
@@ -125,11 +125,13 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [],
+        "storageDiff": []
       }
     },
     "AuctionManager": {
-      "address": "0xDe6E958DECb83513958Baf7eBcB27cCF2019f52e",
+      "address": "0x55e075b1473A8d79E29ee270725Fa9eD8Bed5472",
       "constructorCode": "608060405234801561001057600080fd5b50611932806100206000396000f3fe",
       "bodyBytecodeHash": "d12ae1d8255e1f0c93e383fdbc3fbb337adfcfe14b4017e392ee0e66fab74d59",
       "localBytecodeHash": "58108909d618d04552f8ca54fcef03f3899bace8c12ecf31c8f44dac1e6e56ca",
@@ -161,43 +163,43 @@
               "label": "publication_Id",
               "astId": 16,
               "type": "t_uint256",
-              "src": "391:22:0"
+              "src": "395:22:0"
             },
             {
               "label": "auctionFloor",
               "astId": 18,
               "type": "t_uint256",
-              "src": "423:20:0"
+              "src": "427:20:0"
             },
             {
               "label": "starting_time",
               "astId": 20,
               "type": "t_uint256",
-              "src": "453:21:0"
+              "src": "457:21:0"
             },
             {
               "label": "duration",
               "astId": 22,
               "type": "t_uint256",
-              "src": "484:16:0"
+              "src": "488:16:0"
             },
             {
               "label": "auction_bid_ids",
               "astId": 25,
               "type": "t_array:dyn<t_uint256>",
-              "src": "510:25:0"
+              "src": "514:25:0"
             },
             {
               "label": "winning_bid_Id",
               "astId": 27,
               "type": "t_uint256",
-              "src": "545:22:0"
+              "src": "549:22:0"
             },
             {
               "label": "status",
               "astId": 29,
               "type": "t_enum<AuctionManager.AuctionStatus>",
-              "src": "577:20:0"
+              "src": "581:20:0"
             }
           ]
         },
@@ -235,43 +237,43 @@
               "label": "commitBid",
               "astId": 35,
               "type": "t_bytes32",
-              "src": "663:17:0"
+              "src": "667:17:0"
             },
             {
               "label": "revealedBid",
               "astId": 37,
               "type": "t_uint256",
-              "src": "690:19:0"
+              "src": "694:19:0"
             },
             {
               "label": "revealedSalt",
               "astId": 39,
               "type": "t_uint256",
-              "src": "719:20:0"
+              "src": "723:20:0"
             },
             {
               "label": "status",
               "astId": 41,
               "type": "t_enum<AuctionManager.BidStatus>",
-              "src": "749:16:0"
+              "src": "753:16:0"
             },
             {
               "label": "publication_Id",
               "astId": 43,
               "type": "t_uint256",
-              "src": "775:22:0"
+              "src": "779:22:0"
             },
             {
               "label": "auction_Id",
               "astId": 45,
               "type": "t_uint256",
-              "src": "807:18:0"
+              "src": "811:18:0"
             },
             {
               "label": "bidder_Id",
               "astId": 47,
               "type": "t_uint256",
-              "src": "835:17:0"
+              "src": "839:17:0"
             }
           ]
         },
@@ -314,7 +316,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -322,7 +324,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -330,7 +332,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -340,7 +342,7 @@
           "label": "auctions",
           "astId": 33,
           "type": "t_array:dyn<t_struct<AuctionManager.Auction>>",
-          "src": "610:25:0"
+          "src": "614:25:0"
         },
         {
           "contract": "AuctionManager",
@@ -348,7 +350,7 @@
           "label": "bids",
           "astId": 51,
           "type": "t_array:dyn<t_struct<AuctionManager.Bid>>",
-          "src": "885:10:0"
+          "src": "889:10:0"
         },
         {
           "contract": "AuctionManager",
@@ -356,7 +358,7 @@
           "label": "bidOwners",
           "astId": 56,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "945:46:0"
+          "src": "949:46:0"
         },
         {
           "contract": "AuctionManager",
@@ -364,7 +366,7 @@
           "label": "registry",
           "astId": 58,
           "type": "t_address",
-          "src": "998:16:0"
+          "src": "1002:16:0"
         }
       ],
       "warnings": {
@@ -372,11 +374,30 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "AuctionManager",
+            "path": "contracts/AuctionManager.sol",
+            "label": "auctions",
+            "astId": 33,
+            "type": "t_array:dyn<t_struct<AuctionManager.Auction>>",
+            "src": "614:25:0"
+          },
+          {
+            "contract": "AuctionManager",
+            "path": "contracts/AuctionManager.sol",
+            "label": "bids",
+            "astId": 51,
+            "type": "t_array:dyn<t_struct<AuctionManager.Bid>>",
+            "src": "889:10:0"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "HarbergerTaxManager": {
-      "address": "0x7A2BB95073543A876Ded72f2638aBB5b02117edc",
+      "address": "0x8BcA38296C0A019C8e0db9E158fE27625b1E252b",
       "constructorCode": "60806040526005603355620d2f0060345564046e07d0f660355534801561002557600080fd5b50611ee5806100356000396000f3fe",
       "bodyBytecodeHash": "fd14a15418a695faf7402917c6d1d727f468d787a635034404b119743e169c30",
       "localBytecodeHash": "e8b1acd959e289019bd1af12ae2657c048449dc33aca813271699a5c113ad602",
@@ -413,43 +434,43 @@
               "label": "licenceId",
               "astId": 675,
               "type": "t_uint256",
-              "src": "689:17:1"
+              "src": "691:17:1"
             },
             {
               "label": "ratePerBlock",
               "astId": 677,
               "type": "t_uint256",
-              "src": "716:20:1"
+              "src": "718:20:1"
             },
             {
               "label": "lastPayment",
               "astId": 679,
               "type": "t_uint256",
-              "src": "746:19:1"
+              "src": "748:19:1"
             },
             {
               "label": "numberOfOutBids",
               "astId": 681,
               "type": "t_uint256",
-              "src": "775:23:1"
+              "src": "777:23:1"
             },
             {
               "label": "currentAssignedValue",
               "astId": 683,
               "type": "t_uint256",
-              "src": "808:28:1"
+              "src": "810:28:1"
             },
             {
               "label": "buyOut_Ids",
               "astId": 686,
               "type": "t_array:dyn<t_uint256>",
-              "src": "846:20:1"
+              "src": "848:20:1"
             },
             {
               "label": "status",
               "astId": 688,
               "type": "t_enum<HarbergerTaxManager.TaxObjectStatus>",
-              "src": "876:22:1"
+              "src": "878:22:1"
             }
           ]
         },
@@ -485,31 +506,31 @@
               "label": "taxObject_Id",
               "astId": 698,
               "type": "t_uint256",
-              "src": "1017:20:1"
+              "src": "1021:20:1"
             },
             {
               "label": "buyOutOwner_Id",
               "astId": 700,
               "type": "t_uint256",
-              "src": "1047:22:1"
+              "src": "1051:22:1"
             },
             {
               "label": "buyOutAmount",
               "astId": 702,
               "type": "t_uint256",
-              "src": "1079:20:1"
+              "src": "1083:20:1"
             },
             {
               "label": "buyOutExpiration",
               "astId": 704,
               "type": "t_uint256",
-              "src": "1109:24:1"
+              "src": "1113:24:1"
             },
             {
               "label": "status",
               "astId": 706,
               "type": "t_enum<HarbergerTaxManager.BuyOutStatus>",
-              "src": "1143:19:1"
+              "src": "1147:19:1"
             }
           ]
         },
@@ -542,7 +563,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -550,7 +571,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -558,7 +579,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -600,7 +621,7 @@
           "label": "taxObjects",
           "astId": 692,
           "type": "t_array:dyn<t_struct<HarbergerTaxManager.TaxObject>>",
-          "src": "911:22:1"
+          "src": "913:22:1"
         },
         {
           "contract": "HarbergerTaxManager",
@@ -608,7 +629,7 @@
           "label": "buyOuts",
           "astId": 710,
           "type": "t_array:dyn<t_struct<HarbergerTaxManager.BuyOut>>",
-          "src": "1175:16:1"
+          "src": "1179:16:1"
         },
         {
           "contract": "HarbergerTaxManager",
@@ -616,7 +637,7 @@
           "label": "buyOutOwners",
           "astId": 715,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "1198:49:1"
+          "src": "1202:49:1"
         },
         {
           "contract": "HarbergerTaxManager",
@@ -624,7 +645,7 @@
           "label": "licenceTaxObjects",
           "astId": 720,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "1254:54:1"
+          "src": "1258:54:1"
         }
       ],
       "warnings": {
@@ -632,11 +653,30 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": true,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "HarbergerTaxManager",
+            "path": "contracts/HarbergerTaxManager.sol",
+            "label": "taxObjects",
+            "astId": 692,
+            "type": "t_array:dyn<t_struct<HarbergerTaxManager.TaxObject>>",
+            "src": "913:22:1"
+          },
+          {
+            "contract": "HarbergerTaxManager",
+            "path": "contracts/HarbergerTaxManager.sol",
+            "label": "buyOuts",
+            "astId": 710,
+            "type": "t_array:dyn<t_struct<HarbergerTaxManager.BuyOut>>",
+            "src": "1179:16:1"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "PublicationManager": {
-      "address": "0xD4E0d22b2A30a12F5b4115B6dB6B9592241ee7b3",
+      "address": "0xEb76AadFd7e4C1B8d19CDef2066b7b737d51B584",
       "constructorCode": "608060405234801561001057600080fd5b50611864806100206000396000f3fe",
       "bodyBytecodeHash": "11472b41e4e7d1b941f865d6cb3df9e331a2dee5e2b272972561c5ea47bea392",
       "localBytecodeHash": "d69b32cfabfc2f1898dfe0baed095e930dd711d747b9be23c6f50731d76157cf",
@@ -668,61 +708,61 @@
               "label": "pricingStrategy",
               "astId": 2307,
               "type": "t_enum<PublicationManager.PricingStrategy>",
-              "src": "247:31:4"
+              "src": "249:31:4"
             },
             {
               "label": "publication_uri",
               "astId": 2309,
               "type": "t_string",
-              "src": "288:22:4"
+              "src": "290:22:4"
             },
             {
               "label": "author_id",
               "astId": 2311,
               "type": "t_uint256",
-              "src": "359:17:4"
+              "src": "361:17:4"
             },
             {
               "label": "sell_price",
               "astId": 2313,
               "type": "t_uint256",
-              "src": "405:18:4"
+              "src": "407:18:4"
             },
             {
               "label": "maxNumberOfLicences",
               "astId": 2315,
               "type": "t_uint256",
-              "src": "433:27:4"
+              "src": "435:27:4"
             },
             {
               "label": "licencesIssued",
               "astId": 2317,
               "type": "t_uint256",
-              "src": "470:22:4"
+              "src": "472:22:4"
             },
             {
               "label": "auction_ids",
               "astId": 2320,
               "type": "t_array:dyn<t_uint256>",
-              "src": "502:21:4"
+              "src": "504:21:4"
             },
             {
               "label": "contributors",
               "astId": 2323,
               "type": "t_array:dyn<t_uint256>",
-              "src": "566:22:4"
+              "src": "568:22:4"
             },
             {
               "label": "contributors_weightings",
               "astId": 2326,
               "type": "t_array:dyn<t_uint256>",
-              "src": "598:33:4"
+              "src": "600:33:4"
             },
             {
               "label": "donations",
               "astId": 2329,
               "type": "t_array:dyn<t_uint256>",
-              "src": "673:19:4"
+              "src": "675:19:4"
             }
           ]
         },
@@ -772,7 +812,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -780,7 +820,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -788,7 +828,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -798,7 +838,7 @@
           "label": "publications",
           "astId": 2333,
           "type": "t_array:dyn<t_struct<PublicationManager.Publication>>",
-          "src": "705:33:4"
+          "src": "707:33:4"
         },
         {
           "contract": "PublicationManager",
@@ -806,7 +846,7 @@
           "label": "publicationOwners",
           "astId": 2338,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "745:54:4"
+          "src": "747:54:4"
         },
         {
           "contract": "PublicationManager",
@@ -814,7 +854,7 @@
           "label": "registry",
           "astId": 2340,
           "type": "t_address",
-          "src": "806:16:4"
+          "src": "808:16:4"
         }
       ],
       "warnings": {
@@ -822,11 +862,22 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "PublicationManager",
+            "path": "contracts/PublicationManager.sol",
+            "label": "publications",
+            "astId": 2333,
+            "type": "t_array:dyn<t_struct<PublicationManager.Publication>>",
+            "src": "707:33:4"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "UserManager": {
-      "address": "0x6dcCda779a45F862492D388c7F24A56a6f347498",
+      "address": "0xE1b97938a0Ab819446D6f2b39c90E1660a1341e3",
       "constructorCode": "608060405234801561001057600080fd5b50610a06806100206000396000f3fe",
       "bodyBytecodeHash": "c80c625837dae7cfee6fd904a513ae81385101f0e5059b9ef8409afacee1ef94",
       "localBytecodeHash": "afa8d089de5f18e0c9e624545973962317f0000f8a301901cbb7511cd6282b4f",
@@ -856,13 +907,13 @@
           "members": [
             {
               "label": "owned_address",
-              "astId": 4137,
+              "astId": 4144,
               "type": "t_address",
               "src": "154:21:6"
             },
             {
               "label": "profile_uri",
-              "astId": 4139,
+              "astId": 4146,
               "type": "t_string",
               "src": "185:18:6"
             }
@@ -897,7 +948,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -905,7 +956,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -913,7 +964,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -921,7 +972,7 @@
           "contract": "UserManager",
           "path": "contracts/UserManager.sol",
           "label": "users",
-          "astId": 4143,
+          "astId": 4150,
           "type": "t_array:dyn<t_struct<UserManager.User>>",
           "src": "247:19:6"
         },
@@ -929,7 +980,7 @@
           "contract": "UserManager",
           "path": "contracts/UserManager.sol",
           "label": "userAddresses",
-          "astId": 4147,
+          "astId": 4154,
           "type": "t_mapping<t_uint256>",
           "src": "316:48:6"
         },
@@ -937,7 +988,7 @@
           "contract": "UserManager",
           "path": "contracts/UserManager.sol",
           "label": "registry",
-          "astId": 4149,
+          "astId": 4156,
           "type": "t_address",
           "src": "371:16:6"
         }
@@ -947,11 +998,22 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "UserManager",
+            "path": "contracts/UserManager.sol",
+            "label": "users",
+            "astId": 4150,
+            "type": "t_array:dyn<t_struct<UserManager.User>>",
+            "src": "247:19:6"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "Vault": {
-      "address": "0x15ed966E133FcEEf59e5E86DbCeE066F90500E42",
+      "address": "0x49EB08E38952C03AB312AE53CC99b9063f37a640",
       "constructorCode": "608060405234801561001057600080fd5b50610767806100206000396000f3fe",
       "bodyBytecodeHash": "e56dc6b188e6ae70eed61524f863e451f0d0a236ad10dfef399370e8fe1cc0fb",
       "localBytecodeHash": "cfa2018b38702ffa165e79bab53f8a5aa3bd5de97c6ae2ee8a974031ecc5f936",
@@ -985,7 +1047,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -993,7 +1055,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -1001,7 +1063,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -1009,7 +1071,7 @@
           "contract": "Vault",
           "path": "contracts/Vault.sol",
           "label": "token",
-          "astId": 4327,
+          "astId": 4334,
           "type": "t_address",
           "src": "210:11:7"
         },
@@ -1017,7 +1079,7 @@
           "contract": "Vault",
           "path": "contracts/Vault.sol",
           "label": "registry",
-          "astId": 4329,
+          "astId": 4336,
           "type": "t_address",
           "src": "228:16:7"
         }
@@ -1027,11 +1089,13 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [],
+        "storageDiff": []
       }
     },
     "LicenceManager": {
-      "address": "0xbE2060C110FDff80958f1Cd91EAE84D2BD4Ed551",
+      "address": "0x547eacC2cFe7D29Ca0cC6e6e5DA64d19535FCF01",
       "constructorCode": "6080604052612f19806100136000396000f3fe",
       "bodyBytecodeHash": "5fe0c7edf67e843b65d9c5a4baad1c9a1a65a1d701b93311f4dc2a5c85f06c5c",
       "localBytecodeHash": "f34e472b857d114deb85f28b7fe3b2cb192cf30a476190daa05ec299611a534b",
@@ -1078,7 +1142,7 @@
           "members": [
             {
               "label": "_value",
-              "astId": 6769,
+              "astId": 6776,
               "type": "t_uint256",
               "src": "1024:14:28"
             }
@@ -1127,7 +1191,7 @@
           "members": [
             {
               "label": "bearer",
-              "astId": 6563,
+              "astId": 6570,
               "type": "t_mapping<t_bool>",
               "src": "150:32:26"
             }
@@ -1142,25 +1206,25 @@
               "label": "owner_Id",
               "astId": 1922,
               "type": "t_uint256",
-              "src": "496:16:2"
+              "src": "498:16:2"
             },
             {
               "label": "publication_Id",
               "astId": 1924,
               "type": "t_uint256",
-              "src": "522:22:2"
+              "src": "524:22:2"
             },
             {
               "label": "publicationLicenceNo",
               "astId": 1926,
               "type": "t_uint256",
-              "src": "554:28:2"
+              "src": "556:28:2"
             },
             {
               "label": "status",
               "astId": 1928,
               "type": "t_enum<LicenceManager.LicenceStatus>",
-              "src": "592:20:2"
+              "src": "594:20:2"
             }
           ]
         },
@@ -1186,7 +1250,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 9104,
+          "astId": 9111,
           "type": "t_bool",
           "src": "757:24:44"
         },
@@ -1194,7 +1258,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 9106,
+          "astId": 9113,
           "type": "t_bool",
           "src": "876:25:44"
         },
@@ -1202,7 +1266,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 9162,
+          "astId": 9169,
           "type": "t_array:50<t_uint256>",
           "src": "1951:29:44"
         },
@@ -1210,7 +1274,7 @@
           "contract": "ERC165",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
           "label": "_supportedInterfaces",
-          "astId": 6825,
+          "astId": 6832,
           "type": "t_mapping<t_bool>",
           "src": "565:52:29"
         },
@@ -1218,7 +1282,7 @@
           "contract": "ERC165",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
           "label": "______gap",
-          "astId": 6870,
+          "astId": 6877,
           "type": "t_array:50<t_uint256>",
           "src": "1729:29:29"
         },
@@ -1226,7 +1290,7 @@
           "contract": "ERC721",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
           "label": "_tokenOwner",
-          "astId": 7583,
+          "astId": 7590,
           "type": "t_mapping<t_address>",
           "src": "886:48:34"
         },
@@ -1234,7 +1298,7 @@
           "contract": "ERC721",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
           "label": "_tokenApprovals",
-          "astId": 7587,
+          "astId": 7594,
           "type": "t_mapping<t_address>",
           "src": "990:52:34"
         },
@@ -1242,7 +1306,7 @@
           "contract": "ERC721",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
           "label": "_ownedTokensCount",
-          "astId": 7591,
+          "astId": 7598,
           "type": "t_mapping<t_struct<Counters.Counter>>",
           "src": "1100:63:34"
         },
@@ -1250,7 +1314,7 @@
           "contract": "ERC721",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
           "label": "_operatorApprovals",
-          "astId": 7597,
+          "astId": 7604,
           "type": "t_mapping<t_bool>",
           "src": "1218:73:34"
         },
@@ -1258,7 +1322,7 @@
           "contract": "ERC721",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
           "label": "______gap",
-          "astId": 8209,
+          "astId": 8216,
           "type": "t_array:50<t_uint256>",
           "src": "15262:29:34"
         },
@@ -1266,7 +1330,7 @@
           "contract": "ERC721Enumerable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
           "label": "_ownedTokens",
-          "astId": 8232,
+          "astId": 8239,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
           "src": "502:50:35"
         },
@@ -1274,7 +1338,7 @@
           "contract": "ERC721Enumerable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
           "label": "_ownedTokensIndex",
-          "astId": 8236,
+          "astId": 8243,
           "type": "t_mapping<t_uint256>",
           "src": "622:53:35"
         },
@@ -1282,7 +1346,7 @@
           "contract": "ERC721Enumerable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
           "label": "_allTokens",
-          "astId": 8239,
+          "astId": 8246,
           "type": "t_array:dyn<t_uint256>",
           "src": "736:28:35"
         },
@@ -1290,7 +1354,7 @@
           "contract": "ERC721Enumerable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
           "label": "_allTokensIndex",
-          "astId": 8243,
+          "astId": 8250,
           "type": "t_mapping<t_uint256>",
           "src": "835:51:35"
         },
@@ -1298,7 +1362,7 @@
           "contract": "ERC721Enumerable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
           "label": "______gap",
-          "astId": 8574,
+          "astId": 8581,
           "type": "t_array:50<t_uint256>",
           "src": "9053:29:35"
         },
@@ -1306,7 +1370,7 @@
           "contract": "ERC721Metadata",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
           "label": "_name",
-          "astId": 8613,
+          "astId": 8620,
           "type": "t_string",
           "src": "323:20:37"
         },
@@ -1314,7 +1378,7 @@
           "contract": "ERC721Metadata",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
           "label": "_symbol",
-          "astId": 8615,
+          "astId": 8622,
           "type": "t_string",
           "src": "370:22:37"
         },
@@ -1322,7 +1386,7 @@
           "contract": "ERC721Metadata",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
           "label": "_tokenURIs",
-          "astId": 8619,
+          "astId": 8626,
           "type": "t_mapping<t_string>",
           "src": "438:45:37"
         },
@@ -1330,7 +1394,7 @@
           "contract": "ERC721Metadata",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
           "label": "______gap",
-          "astId": 8750,
+          "astId": 8757,
           "type": "t_array:50<t_uint256>",
           "src": "3086:29:37"
         },
@@ -1338,7 +1402,7 @@
           "contract": "ERC721Full",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Full.sol",
           "label": "______gap",
-          "astId": 8593,
+          "astId": 8600,
           "type": "t_array:50<t_uint256>",
           "src": "532:29:36"
         },
@@ -1346,7 +1410,7 @@
           "contract": "MinterRole",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
           "label": "_minters",
-          "astId": 6660,
+          "astId": 6667,
           "type": "t_struct<Roles.Role>",
           "src": "327:27:27"
         },
@@ -1354,7 +1418,7 @@
           "contract": "MinterRole",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
           "label": "______gap",
-          "astId": 6760,
+          "astId": 6767,
           "type": "t_array:50<t_uint256>",
           "src": "1193:29:27"
         },
@@ -1362,7 +1426,7 @@
           "contract": "ERC721Mintable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Mintable.sol",
           "label": "______gap",
-          "astId": 8846,
+          "astId": 8853,
           "type": "t_array:50<t_uint256>",
           "src": "1687:29:38"
         },
@@ -1372,7 +1436,7 @@
           "label": "licences",
           "astId": 1932,
           "type": "t_array:dyn<t_struct<LicenceManager.Licence>>",
-          "src": "625:25:2"
+          "src": "627:25:2"
         },
         {
           "contract": "LicenceManager",
@@ -1380,7 +1444,7 @@
           "label": "licenceOwners",
           "astId": 1937,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "698:50:2"
+          "src": "700:50:2"
         },
         {
           "contract": "LicenceManager",
@@ -1388,7 +1452,7 @@
           "label": "publicationLicences",
           "astId": 1942,
           "type": "t_mapping<t_array:dyn<t_uint256>>",
-          "src": "800:56:2"
+          "src": "802:56:2"
         },
         {
           "contract": "LicenceManager",
@@ -1396,7 +1460,7 @@
           "label": "registry",
           "astId": 1956,
           "type": "t_address",
-          "src": "986:16:2"
+          "src": "988:16:2"
         }
       ],
       "warnings": {
@@ -1404,7 +1468,34 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "ERC721",
+            "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+            "label": "_ownedTokensCount",
+            "astId": 7598,
+            "type": "t_mapping<t_struct<Counters.Counter>>",
+            "src": "1100:63:34"
+          },
+          {
+            "contract": "MinterRole",
+            "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+            "label": "_minters",
+            "astId": 6667,
+            "type": "t_struct<Roles.Role>",
+            "src": "327:27:27"
+          },
+          {
+            "contract": "LicenceManager",
+            "path": "contracts/LicenceManager.sol",
+            "label": "licences",
+            "astId": 1932,
+            "type": "t_array:dyn<t_struct<LicenceManager.Licence>>",
+            "src": "627:25:2"
+          }
+        ],
+        "storageDiff": []
       }
     }
   },
@@ -1482,7 +1573,7 @@
     ]
   },
   "manifestVersion": "2.2",
-  "version": "2.0.0",
+  "version": "0.1.0",
   "proxyAdmin": {
     "address": "0xCc2518811Cf645466A39757B04502e45040e00d6"
   }
