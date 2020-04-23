@@ -6,7 +6,7 @@ UniCoin is a decentralized, smart contract based non-custodial research marketpl
 
 Unicoin began as a group project for the Mphil in Financial Technology at the University of Cape Town for the courses Fintech and Crypto Currencies and Financial Software Engineering and later formed the basis for a number of masters dissertations. The original repo can be found [here](https://github.com/unicoinlicences/unicoindapp).
 
-The masters thesis accompanying this repository and all associated documentation can be found [here](./documentation/Thesis.pdf). The other thesis, created by Luke Meiklejohn, can be found [here](https://github.com/lukemeiklejohn/HowToAttributeCredit).
+The masters thesis accompanying this repository and all associated documentation can be found [here](./Documentation/Thesis.pdf). The other thesis, created by Luke Meiklejohn, can be found [here](https://github.com/lukemeiklejohn/HowToAttributeCredit).
 
 
 # Documentation
