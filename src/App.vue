@@ -1,20 +1,17 @@
 <template>
-  <md-app id="app" md-mode="reveal" style="min-height: 100vh;">
+  <md-app id="app" md-mode="reveal" style="min-height: 100vh">
     <md-app-toolbar class="md-primary">
       <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
         <md-icon>menu</md-icon>
       </md-button>
-      <span class="md-title">{{$route.name}}</span>
+      <span class="md-title">{{ $route.name }}</span>
 
       <!-- <logo style="margin-left:600px"/> -->
 
       <div class="md-toolbar-section-end">
-        <div
-          class="md-layout md-gutter md-alignment-center-right"
-          style="text-align:right; width:500px"
-        >
+        <div class="md-layout md-gutter md-alignment-center-right" style="text-align: right; width: 500px">
           <div class="md-layout-item">
-            <div class="md-subheading">{{userProfile.firstName}} {{userProfile.lastName}}</div>
+            <div class="md-subheading">{{ userProfile.firstName }} {{ userProfile.lastName }}</div>
           </div>
           <div class="md-layout-item">
             <div class="md-subheading">
@@ -25,7 +22,7 @@
       </div>
     </md-app-toolbar>
 
-    <md-app-drawer :md-active.sync="menuVisible">
+    <md-app-drawer v-model:md-active="menuVisible">
       <md-list>
         <md-list-item>
           <md-icon>home</md-icon>
@@ -99,7 +96,8 @@
             <a
               href="https://github.com/unicoinlicences/unicoindapp/tree/master/Documentation/TechnicalArchitecture.md"
               target="__blank"
-            >Documentation</a>
+              >Documentation</a
+            >
           </span>
         </md-list-item>
 
@@ -115,15 +113,15 @@
       </md-list>
     </md-app-drawer>
 
-    <md-app-content style="background-color: #F5F9F9; padding-left:0px; padding-right:0px">
+    <md-app-content style="background-color: #f5f9f9; padding-left: 0px; padding-right: 0px">
       <mining-transaction />
       <router-view />
-      <div style="padding-top:20px;padding-left:20px; padding-right:20px">
+      <div style="padding-top: 20px; padding-left: 20px; padding-right: 20px">
         <span class="md-subheading">
           <a href="/TermsOfService">Terms Of Service</a>
         </span>
-        <span class="md-caption" style="float: right;">
-          {{currentNetwork}}
+        <span class="md-caption" style="float: right">
+          {{ currentNetwork }}
           <clickable-address :light="false" :icon="false" :eth-address="contractAddress" />
         </span>
       </div>
@@ -133,7 +131,6 @@
 
 <script>
 /* global web3:true */
-
 import Web3 from "web3";
 import * as actions from "@/store/actions";
 import * as mutations from "@/store/mutation-types";
@@ -141,44 +138,41 @@ import ClickableAddress from "@/components/widgets/ClickableAddress";
 import MiningTransaction from "@/components/widgets/MiningTransaction";
 import { mapActions, mapState } from "vuex";
 import router from "@/router";
-
 export default {
   name: "app",
   components: { ClickableAddress, MiningTransaction },
   data() {
     return {
       web3Detected: true,
-      menuVisible: false
+      menuVisible: false,
     };
   },
   methods: {
     ...mapActions(["INIT_APP"]),
     redirect(_path) {
       router.push({ name: _path });
-    }
+    },
   },
+
+// Make sure ESLint knows about ethereum global variable
+/* global ethereum */
+
   async mounted() {
     if (window.ethereum) {
       window.web3 = new Web3(ethereum);
       console.log("web3 provider detected!");
       console.log(window.web3);
-
       // Request account access if needed
       ethereum
         .enable()
-        .then(value => {
+        .then((value) => {
           console.log("Bootstrapping web app - provider acknowedgled", value);
           this.INIT_APP(window.web3);
         })
-        .catch(error => {
-          console.log(
-            "User denied access, boostrapping application using infura",
-            error
-          );
+        .catch((error) => {
+          console.log("User denied access, boostrapping application using infura", error);
           window.web3 = new Web3(
-            new Web3.providers.HttpProvider(
-              "https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df"
-            )
+            new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
           );
           this.INIT_APP(window.web3);
         });
@@ -188,47 +182,38 @@ export default {
       this.INIT_APP(window.web3);
     } else {
       window.web3 = new Web3(
-        new Web3.providers.HttpProvider(
-          "https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df"
-        )
+        new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
       );
-      console.log(
-        "Non-Ethereum browser detected. You should consider trying MetaMask!"
-      );
+      console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
       this.INIT_APP(window.web3);
     }
   },
   computed: {
-    ...mapState(["currentNetwork", "account", "contractAddress", "userProfile"])
-  }
+    ...mapState(["currentNetwork", "account", "contractAddress", "userProfile"]),
+  },
 };
 </script>
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css?family=Space+Mono");
 @import "~vue-material/dist/theme/engine"; // Import the theme engine
-
 @include md-register-theme(
   "default",
   (
     primary: #828ec6,
     // The primary color of your brand
-      accent: #dd688c // The secondary color of your brand
+    accent: #dd688c // The secondary color of your brand,,,,,,,,,,
   )
 );
-
 @import "~vue-material/dist/theme/all"; // Apply the theme
-
 html,
 body {
   font-family: "Space Mono", sans-serif;
 }
-
 #app {
   /* text-align: center; */
   color: #454a50;
 }
-
 #app {
   font-family: "Space Mono", sans-serif;
 }
@@ -238,7 +223,6 @@ nav li.router-link-exact-active {
   background-color: indianred;
   cursor: pointer;
 }
-
 .text-center {
   display: block;
   margin-left: auto;
