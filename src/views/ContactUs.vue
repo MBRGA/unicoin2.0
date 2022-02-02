@@ -1,8 +1,8 @@
 <template>
-  <div style="padding:50px;">
+  <div style="padding: 50px">
     <div class="md-layout md-gutter">
       <div class="md-layout-item">
-        <md-content style="padding:20px">
+        <md-content style="padding: 20px">
           <h2>We'd love to hear from you. Please reach out with any comments, complaints, compliments, or queries.</h2>
           <md-field>
             <label>Full Name</label>
@@ -31,12 +31,7 @@
         <br />
         <br />
         <br />
-        <img
-          class="text-center"
-          alt="step logo"
-          style="height:350px"
-          src="../assets/pooUnicorn.gif"
-        />
+        <img class="text-center" alt="step logo" style="height: 350px" src="../assets/pooUnicorn.gif" />
       </div>
     </div>
   </div>
@@ -45,12 +40,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { validationMixin } from "vuelidate";
-import {
-  required,
-  Email,
-  minLength,
-  maxLength
-} from "vuelidate/lib/validators";
+import { required, Email, minLength, maxLength } from "vuelidate/lib/validators";
 import router from "@/router";
 import { min } from "bn.js";
 
@@ -63,27 +53,26 @@ export default {
       FullName: null,
       Institution: null,
       Email: null,
-      textarea: null
+      textarea: null,
     },
     userSaved: false,
     sending: false,
-    lastUser: null
+    lastUser: null,
   }),
   validations: {
     form: {
       FullName: {
         required,
-        minLength: minLength(3)
+        minLength: minLength(3),
       },
       Email: {
         required,
-        minLength: minLength(3)
-      }
-    }
-  }
+        minLength: minLength(3),
+      },
+    },
+  },
 };
 </script>
-
 
 <style lang="scss" scoped>
 .md-progress-bar {

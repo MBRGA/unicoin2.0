@@ -1,14 +1,10 @@
 <template>
   <div v-if="ethAddress" class="md-layout">
     <jazzicon v-if="icon" :address="ethAddress" :diameter="25" />
-    <a
-      class="eth-address md-subheading"
-      :href="buildLink"
-      target="_blank"
-      style="color: white;"
-      v-if="light==true"
-    >{{ dotDotDot }}</a>
-    <a class="eth-address" :href="buildLink" target="_blank" v-if="light==false">{{ dotDotDot }}</a>
+    <a class="eth-address md-subheading" :href="buildLink" target="_blank" style="color: white" v-if="light == true">{{
+      dotDotDot
+    }}</a>
+    <a class="eth-address" :href="buildLink" target="_blank" v-if="light == false">{{ dotDotDot }}</a>
   </div>
 </template>
 
@@ -21,35 +17,32 @@ export default {
   components: {},
   props: {
     ethAddress: {
-      type: String
+      type: String,
     },
     light: {
-      type: Boolean
+      type: Boolean,
     },
     icon: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   computed: {
     ...mapState(["etherscanBase"]),
-    dotDotDot: function() {
+    dotDotDot: function () {
       if (this.ethAddress) {
         return (
           this.ethAddress.substr(0, 6) +
           "..." +
-          this.ethAddress.substr(
-            this.ethAddress.length - 6,
-            this.ethAddress.length
-          )
+          this.ethAddress.substr(this.ethAddress.length - 6, this.ethAddress.length)
         );
       }
       return "";
     },
-    buildLink: function() {
+    buildLink: function () {
       return `${this.etherscanBase}/address/${this.ethAddress}`;
-    }
-  }
+    },
+  },
 };
 </script>
 

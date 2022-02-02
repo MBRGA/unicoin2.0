@@ -1,13 +1,16 @@
 <template>
-  <div class="page-container" style="padding-left:20px; padding-right:20px">
+  <div class="page-container" style="padding-left: 20px; padding-right: 20px">
     <div class="md-layout">
       <div class="md-layout">
         <div class="md-layout-item">
-          <md-content style="padding: 20px;">
+          <md-content style="padding: 20px">
             <md-card-header>
               <div class="md-title">Welcome to UniCoin!</div>
             </md-card-header>
-            <p>Create your profile here. Are you a researcher wanting to publish material, or do you represent a company wishing to licence a researcher's work?</p>
+            <p>
+              Create your profile here. Are you a researcher wanting to publish material, or do you represent a company
+              wishing to licence a researcher's work?
+            </p>
             <br />
           </md-content>
         </div>
@@ -18,18 +21,16 @@
     <md-radio v-model="accountType" value="company" @change="clearForm">Company</md-radio>
     <br />
     <form
-      v-if="accountType=='academic'"
+      v-if="accountType == 'academic'"
       class="md-layout"
       novalidate
       @submit.prevent="$v.$touch()"
-      style="padding-top:20px"
+      style="padding-top: 20px"
     >
       <div class="md-layout-item md-size-15 md-size-small-0" />
       <md-content class="md-layout-item md-size-70 md-small-size-100">
         <md-card-header>
-          <div
-            class="md-title"
-          >To verify your profile as a researcher, please login with ORCID below.</div>
+          <div class="md-title">To verify your profile as a researcher, please login with ORCID below.</div>
         </md-card-header>
 
         <md-card-content>
@@ -49,14 +50,8 @@
                   v-model="academicForm.firstName"
                   :disabled="true"
                 />
-                <span
-                  class="md-error"
-                  v-if="!$v.academicForm.firstName.required"
-                >The first name is required</span>
-                <span
-                  class="md-error"
-                  v-else-if="!$v.academicForm.firstName.minlength"
-                >Invalid first name</span>
+                <span class="md-error" v-if="!$v.academicForm.firstName.required">The first name is required</span>
+                <span class="md-error" v-else-if="!$v.academicForm.firstName.minlength">Invalid first name</span>
               </md-field>
             </div>
 
@@ -70,14 +65,8 @@
                   v-model="academicForm.lastName"
                   :disabled="true"
                 />
-                <span
-                  class="md-error"
-                  v-if="!$v.academicForm.lastName.required"
-                >The last name is required</span>
-                <span
-                  class="md-error"
-                  v-else-if="!$v.academicForm.lastName.minlength"
-                >Invalid last name</span>
+                <span class="md-error" v-if="!$v.academicForm.lastName.required">The last name is required</span>
+                <span class="md-error" v-else-if="!$v.academicForm.lastName.minlength">Invalid last name</span>
               </md-field>
             </div>
           </div>
@@ -92,27 +81,15 @@
                   autocomplete="university"
                   v-model="academicForm.university"
                 />
-                <span
-                  class="md-error"
-                  v-if="!$v.academicForm.university.required"
-                >The university is required</span>
-                <span
-                  class="md-error"
-                  v-else-if="!$v.academicForm.university.minlength"
-                >Invalid university name</span>
+                <span class="md-error" v-if="!$v.academicForm.university.required">The university is required</span>
+                <span class="md-error" v-else-if="!$v.academicForm.university.minlength">Invalid university name</span>
               </md-field>
             </div>
           </div>
 
           <md-field :class="getAcademicValidationClass('email')">
             <label for="email">Email</label>
-            <md-input
-              type="email"
-              name="email"
-              id="email"
-              autocomplete="email"
-              v-model="academicForm.email"
-            />
+            <md-input type="email" name="email" id="email" autocomplete="email" v-model="academicForm.email" />
             <span class="md-error" v-if="!$v.academicForm.email.required">The email is required</span>
             <span class="md-error" v-else-if="!$v.academicForm.email.email">Invalid email</span>
           </md-field>
@@ -126,22 +103,22 @@
         <!-- {{form.orcid}} -->
       </md-content>
 
-      <md-snackbar :md-active.sync="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
+      <md-snackbar v-model:md-active="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
     </form>
 
     <form
-      v-if="accountType=='company'"
+      v-if="accountType == 'company'"
       novalidate
       class="md-layout"
       @submit.prevent="$v.$touch()"
-      style="padding-top:20px"
+      style="padding-top: 20px"
     >
       <div class="md-layout-item md-size-15 md-size-small-0" />
       <md-content class="md-layout-item md-size-70 md-small-size-100">
         <md-card-header>
-          <div
-            class="md-title"
-          >To verify your profile as an institution, please provide your company details below.</div>
+          <div class="md-title">
+            To verify your profile as an institution, please provide your company details below.
+          </div>
         </md-card-header>
 
         <md-card-content>
@@ -149,33 +126,16 @@
             <div class="md-layout-item md-small-size-100">
               <md-field :class="getCompanyValidationClass('name')">
                 <label for="company">Company</label>
-                <md-input
-                  name="company"
-                  id="company"
-                  autocomplete="company"
-                  v-model="companyForm.name"
-                />
-                <span
-                  class="md-error"
-                  v-if="!$v.companyForm.name.required"
-                >The company name is required</span>
-                <span
-                  class="md-error"
-                  v-else-if="!$v.companyForm.name.minlength"
-                >Invalid company name</span>
+                <md-input name="company" id="company" autocomplete="company" v-model="companyForm.name" />
+                <span class="md-error" v-if="!$v.companyForm.name.required">The company name is required</span>
+                <span class="md-error" v-else-if="!$v.companyForm.name.minlength">Invalid company name</span>
               </md-field>
             </div>
           </div>
 
           <md-field :class="getCompanyValidationClass('email')">
             <label for="email">Email</label>
-            <md-input
-              type="email"
-              name="email"
-              id="email"
-              autocomplete="email"
-              v-model="companyForm.email"
-            />
+            <md-input type="email" name="email" id="email" autocomplete="email" v-model="companyForm.email" />
             <span class="md-error" v-if="!$v.companyForm.email.required">The email is required</span>
             <span class="md-error" v-else-if="!$v.companyForm.email.email">Invalid email</span>
           </md-field>
@@ -189,14 +149,18 @@
         <!-- {{form.orcid}} -->
       </md-content>
 
-      <md-snackbar :md-active.sync="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
+      <md-snackbar v-model:md-active="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
     </form>
     <br />
     <br />
-    <md-dialog :md-active.sync="newUser">
+    <md-dialog v-model:md-active="newUser">
       <md-dialog-title>Create an account</md-dialog-title>
-      <md-content style="padding:30px">
-        <p>To use the Unicorn platform you first need to create an account. This will add your information to the blockchain and be used to verify your identity when you add new publications or place bids on research. As an academic you will require an OrcidID to make your account. A company needs a name an an email address.</p>
+      <md-content style="padding: 30px">
+        <p>
+          To use the Unicorn platform you first need to create an account. This will add your information to the
+          blockchain and be used to verify your identity when you add new publications or place bids on research. As an
+          academic you will require an OrcidID to make your account. A company needs a name an an email address.
+        </p>
       </md-content>
     </md-dialog>
     <!-- <mining-transaction /> -->
@@ -208,12 +172,7 @@ import MiningTransaction from "@/components/widgets/MiningTransaction";
 
 import { mapActions, mapState } from "vuex";
 import { validationMixin } from "vuelidate";
-import {
-  required,
-  email,
-  minLength,
-  maxLength
-} from "vuelidate/lib/validators";
+import { required, email, minLength, maxLength } from "vuelidate/lib/validators";
 import router from "@/router";
 import { min } from "bn.js";
 var jwt = require("jsonwebtoken");
@@ -229,45 +188,45 @@ export default {
       lastName: "",
       email: "",
       orcid: "",
-      university: ""
+      university: "",
     },
     companyForm: {
       name: "",
-      email: ""
+      email: "",
     },
     userSaved: false,
     sending: false,
-    lastUser: ""
+    lastUser: "",
   }),
   validations: {
     academicForm: {
       firstName: {
         required,
-        minLength: minLength(3)
+        minLength: minLength(3),
       },
       lastName: {
         required,
-        minLength: minLength(3)
+        minLength: minLength(3),
       },
       university: {
         required,
-        minLength: minLength(3)
+        minLength: minLength(3),
       },
       email: {
         required,
-        minLength: minLength(3)
-      }
+        minLength: minLength(3),
+      },
     },
     companyForm: {
       name: {
         required,
-        minLength: minLength(3)
+        minLength: minLength(3),
       },
       email: {
         required,
-        minLength: minLength(3)
-      }
-    }
+        minLength: minLength(3),
+      },
+    },
   },
   mounted() {
     console.log("CreateProfile Mounted");
@@ -293,8 +252,7 @@ export default {
       console.log("user button clicked");
       if (this.canCreateUser) {
         console.log("Create User method");
-        let submitBlob =
-          this.accountType == "academic" ? this.academicForm : this.companyForm;
+        let submitBlob = this.accountType == "academic" ? this.academicForm : this.companyForm;
         submitBlob["timestamp"] = new Date();
         submitBlob["accountType"] = this.accountType;
         console.log("user create blob");
@@ -305,15 +263,13 @@ export default {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
       var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
         results = regex.exec(route);
-      return results === null
-        ? ""
-        : decodeURIComponent(results[1].replace(/\+/g, " "));
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     },
     getAcademicValidationClass(fieldName) {
       const field = this.$v.academicForm[fieldName];
       if (field) {
         return {
-          "md-invalid": field.$invalid && field.$dirty
+          "md-invalid": field.$invalid && field.$dirty,
         };
       }
     },
@@ -321,7 +277,7 @@ export default {
       const field = this.$v.companyForm[fieldName];
       if (field) {
         return {
-          "md-invalid": field.$invalid && field.$dirty
+          "md-invalid": field.$invalid && field.$dirty,
         };
       }
     },
@@ -333,7 +289,7 @@ export default {
       this.academicForm.email = "";
       this.companyForm.name = "";
       this.companyForm.email = "";
-    }
+    },
   },
   computed: {
     canCreateUser() {
@@ -356,8 +312,8 @@ export default {
       }
       console.log("values not added correctly");
       return false;
-    }
-  }
+    },
+  },
 };
 </script>
 
