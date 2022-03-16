@@ -1,21 +1,26 @@
-pragma solidity ^0.5.12;
+//SPDX-License-Identifier: MIT
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "./patches/ERC2771ContextUpgradeable.sol";
+import "./interfaces/IVault.sol";
 
-contract Vault is Initializable {
-    ERC20 token;
+contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
+    ERC20Upgradeable token;
 
     address registry;
 
     modifier onlyRegistry() {
-        require(msg.sender == registry, "Can only be called by registry");
+        require(_msgSender() == registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _tokenAddress, address _unicoinRegistry) public initializer {
-        token = ERC20(_tokenAddress);
+    function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder) public initializer {
+        __ERC2771Context_init(_trustedForwarder);
+
+        token = ERC20Upgradeable(_tokenAddress);
         registry = _unicoinRegistry;
     }
 

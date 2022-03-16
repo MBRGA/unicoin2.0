@@ -1,10 +1,14 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 interface IPublicationManager {
-    function initialize(address _unicoinRegistry) external;
+    enum PricingStrategy { PrivateAuction, FixedRate, PrivateAuctionHarberger }
+
+    enum PublicationStatus { Published, Replaced, Withdrawn, Licensed }
 
     function _createPublication(
-        uint8 _pricing_stratergy,
+        PricingStrategy _pricing_stratergy,
         string calldata _publication_uri,
         uint256 _author_Id,
         uint256 _fixed_sell_price,

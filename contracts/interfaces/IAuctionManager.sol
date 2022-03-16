@@ -1,9 +1,12 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 interface IAuctionManager {
     enum AuctionStatus {Pending, Commit, Reveal, Finalized}
 
-    function initialize(address _unicoinRegistry) external;
+    //function initialize(address _unicoinRegistry, address _trustedForwarder) external;
+    
     function _createAuction(
         uint256 _publication_Id,
         uint256 _auctionFloor,

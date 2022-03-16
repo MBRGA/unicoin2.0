@@ -1,12 +1,22 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+pragma solidity ^0.8.12;
 
-contract UserManager is Initializable {
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "./patches/ERC2771ContextUpgradeable.sol";
+import "./interfaces/IUserManager.sol";
+
+contract UserManager is Initializable, IUserManager, ERC2771ContextUpgradeable {
+    using Counters for Counters.Counter;
+
+    Counters.Counter _userIds;
+
     struct User {
         address owned_address;
         string profile_uri;
     }
+
     //Array of registered users
     User[] public users;
 
@@ -16,22 +26,30 @@ contract UserManager is Initializable {
     address registry;
 
     modifier onlyRegistry() {
-        require(msg.sender == registry, "Can only be called by registry");
+        require(_msgSender() == registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _unicoinRegistry) public initializer {
+    function initialize(address _unicoinRegistry, address _trustedForwarder) public initializer {
+
+        __ERC2771Context_init(_trustedForwarder);
+
         //set the zeroth user to null.
         users.push(User(address(0), ""));
 
         registry = _unicoinRegistry;
     }
 
-    function _registerUser(string memory _profile_uri, address _userAddress) public onlyRegistry returns (uint256) {
-        require(bytes(_profile_uri).length > 0, "Profile URI should not be empty.");
+    function _registerUser(string calldata _profileUri, address _userAddress) public onlyRegistry returns (uint256) {
+        require(bytes(_profileUri).length > 0, "Profile URI should not be empty.");
         require(userAddresses[_userAddress] == 0, "User already registered.");
-        uint256 id = users.push(User(_userAddress, _profile_uri));
+
+        users.push(User(_userAddress, _profileUri));
+        _userIds.increment();
+        uint256 id = _userIds.current();
+
         userAddresses[_userAddress] = id - 1;
+
         return id;
     }
 

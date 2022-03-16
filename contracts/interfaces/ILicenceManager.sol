@@ -1,11 +1,15 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
 
-interface ILicenceManager {
-    function initialize(
+pragma solidity ^0.8.12;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+
+interface ILicenceManager is IERC721Upgradeable {
+    /*function initialize(
         string calldata _name,
         string calldata _symbol,
         address _unicoinRegistry
-    ) external;
+    ) external;*/
 
     function registerNewLicence(
         address _ownerAddress,
@@ -47,5 +51,5 @@ interface ILicenceManager {
         view
         returns (uint256);
 
-    function ownerOf(uint256 _licence_Id) external view returns (address);
+    //function ownerOf(uint256 _licence_Id) external view returns (address);
 }

@@ -1,7 +1,9 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 interface IUserManager {
-    function initialize(address _unicoinRegistry) external;
+    //function initialize(address _unicoinRegistry) external;
 
     function _registerUser(string calldata _profile_uri, address _userAddress)
         external

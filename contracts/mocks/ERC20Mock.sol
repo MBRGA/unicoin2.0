@@ -1,9 +1,16 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+pragma solidity ^0.8.12;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ERC20Mock is ERC20 {
-    function mint(address _recepient, uint256 _supply) public {
-        _mint(_recepient, _supply);
+
+    constructor(uint256 initialSupply) ERC20("Gold", "GLD") {
+        _mint(msg.sender, initialSupply);
+    }
+
+    function _mint(address _recipient, uint256 _supply) internal override {
+        _mint(_recipient, _supply);
     }
 }
