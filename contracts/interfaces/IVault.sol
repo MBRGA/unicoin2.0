@@ -1,8 +1,10 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 interface IVault {
-    function initialize(address _tokenAddress, address _unicoinRegistry)
-        external;
+    //function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder)
+    //    external;
 
     function canAddressPay(address _address, uint256 _amount)
         external

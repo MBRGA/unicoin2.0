@@ -1,0 +1,372 @@
+
+{
+  "header": {
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "trigger": "FatalError",
+    "filename": "report.20220314.184822.23042.0.001.json",
+    "dumpEventTime": "2022-03-14T18:48:22Z",
+    "dumpEventTimeStamp": "1647283702003",
+    "processId": 23042,
+    "cwd": "/home/azureuser/unicoin/unicoin2.0",
+    "commandLine": [
+      "/home/azureuser/.nvm/versions/node/v11.15.0/bin/node",
+      "/home/azureuser/unicoin/unicoin2.0/node_modules/.bin/vue-cli-service",
+      "build"
+    ],
+    "nodejsVersion": "v11.15.0",
+    "glibcVersionRuntime": "2.31",
+    "glibcVersionCompiler": "2.12",
+    "wordSize": 64,
+    "arch": "x64",
+    "platform": "linux",
+    "componentVersions": {
+      "node": "11.15.0",
+      "v8": "7.0.276.38-node.19",
+      "uv": "1.27.0",
+      "zlib": "1.2.11",
+      "brotli": "1.0.7",
+      "ares": "1.15.0",
+      "modules": "67",
+      "nghttp2": "1.37.0",
+      "napi": "4",
+      "llhttp": "1.1.1",
+      "http_parser": "2.8.0",
+      "openssl": "1.1.1b",
+      "cldr": "34.0",
+      "icu": "63.1",
+      "tz": "2018e",
+      "unicode": "11.0"
+    },
+    "release": {
+      "name": "node",
+      "headersUrl": "https://nodejs.org/download/release/v11.15.0/node-v11.15.0-headers.tar.gz",
+      "sourceUrl": "https://nodejs.org/download/release/v11.15.0/node-v11.15.0.tar.gz"
+    },
+    "osName": "Linux",
+    "osRelease": "5.13.0-1017-azure",
+    "osVersion": "#19~20.04.1-Ubuntu SMP Mon Mar 7 11:34:26 UTC 2022",
+    "osMachine": "x86_64",
+    "host": "masters-test"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ]
+  },
+  "nativeStack": [
+    {
+      "pc": "0x0000000000a702fd",
+      "symbol": "report::TriggerNodeReport(v8::Isolate*, node::Environment*, char const*, char const*, std::string const&, v8::Local<v8::String>) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x000000000095ccb3",
+      "symbol": "node::OnFatalError(char const*, char const*) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000b3dbde",
+      "symbol": "v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, bool) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000b3de14",
+      "symbol": "v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, bool) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f3ce52",
+      "symbol": " [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f3cf58",
+      "symbol": "v8::internal::Heap::CheckIneffectiveMarkCompact(unsigned long, double) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f49678",
+      "symbol": "v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::GCCallbackFlags) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f4a18b",
+      "symbol": "v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f4cec1",
+      "symbol": "v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f170f4",
+      "symbol": "v8::internal::Factory::NewFillerObject(int, bool, v8::internal::AllocationSpace) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x00000000011cd3fe",
+      "symbol": "v8::internal::Runtime_AllocateInNewSpace(int, v8::internal::Object**, v8::internal::Isolate*) [/home/azureuser/.nvm/versions/node/v11.15.0/bin/node]"
+    },
+    {
+      "pc": "0x0000163158fcfc5d",
+      "symbol": ""
+    }
+  ],
+  "javascriptHeap": {
+    "totalMemory": 1493979136,
+    "totalCommittedMemory": 1492048920,
+    "usedMemory": 1366583056,
+    "availableMemory": 37645800,
+    "memoryLimit": 1526909922,
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": 524288,
+        "committedMemory": 42224,
+        "capacity": 515584,
+        "used": 33520,
+        "available": 482064
+      },
+      "new_space": {
+        "memorySize": 2097152,
+        "committedMemory": 1165104,
+        "capacity": 1031168,
+        "used": 99256,
+        "available": 931912
+      },
+      "old_space": {
+        "memorySize": 1385893888,
+        "committedMemory": 1385533624,
+        "capacity": 1275949376,
+        "used": 1272456368,
+        "available": 3493008
+      },
+      "code_space": {
+        "memorySize": 6815744,
+        "committedMemory": 6661632,
+        "capacity": 5911712,
+        "used": 5911712,
+        "available": 0
+      },
+      "map_space": {
+        "memorySize": 13643776,
+        "committedMemory": 13642048,
+        "capacity": 4687120,
+        "used": 4687120,
+        "available": 0
+      },
+      "large_object_space": {
+        "memorySize": 85004288,
+        "committedMemory": 85004288,
+        "capacity": 116133896,
+        "used": 83395080,
+        "available": 32738816
+      },
+      "new_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      }
+    }
+  },
+  "resourceUsage": {
+    "userCpuSeconds": 117.825,
+    "kernelCpuSeconds": 2.17709,
+    "cpuConsumptionPercent": 151.901,
+    "maxRss": 1610608640,
+    "pageFaults": {
+      "IORequired": 0,
+      "IONotRequired": 710828
+    },
+    "fsActivity": {
+      "reads": 0,
+      "writes": 9016
+    }
+  },
+  "uvthreadResourceUsage": {
+    "userCpuSeconds": 62.6437,
+    "kernelCpuSeconds": 1.21396,
+    "cpuConsumptionPercent": 80.8324,
+    "fsActivity": {
+      "reads": 0,
+      "writes": 0
+    }
+  },
+  "libuv": [
+  ],
+  "environmentVariables": {
+    "LESSOPEN": "| /usr/bin/lesspipe %s",
+    "npm_package_dependencies_register_service_worker": "^1.6.2",
+    "npm_package_dependencies_decimal_js": "^10.2.0",
+    "USER": "azureuser",
+    "SSH_CLIENT": "78.215.172.112 51149 22",
+    "npm_package_devDependencies__vue_cli_service": "^3.8.0",
+    "npm_package_dependencies_pdfvuer": "^1.3.0",
+    "npm_config_version_commit_hooks": "true",
+    "npm_config_user_agent": "yarn/1.22.17 npm/? node/v11.15.0 linux x64",
+    "npm_package_dependencies_vue_js_modal": "^1.3.31",
+    "npm_package_dependencies_vue_apexcharts": "^1.4.0",
+    "npm_package_dependencies_vue": "^2.6.10",
+    "npm_package_dependencies_ipfs_api": "^26.1.2",
+    "npm_config_bin_links": "true",
+    "XDG_SESSION_TYPE": "tty",
+    "GIT_ASKPASS": "/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/extensions/git/dist/askpass.sh",
+    "npm_node_execpath": "/home/azureuser/.nvm/versions/node/v11.15.0/bin/node",
+    "npm_config_init_version": "1.0.0",
+    "SHLVL": "1",
+    "BROWSER": "/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/helpers/browser.sh",
+    "npm_package_dependencies_truffle_hdwallet_provider": "1.0.14",
+    "npm_package_dependencies_truffle_flattener": "1.4.0",
+    "MOTD_SHOWN": "pam",
+    "HOME": "/home/azureuser",
+    "OLDPWD": "/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1",
+    "npm_package_devDependencies_sass": "^1.18.0",
+    "npm_package_devDependencies__openzeppelin_cli": "2.5.3",
+    "npm_package_dependencies_vuex": "^3.0.1",
+    "npm_package_dependencies_vuelidate": "^0.7.4",
+    "TERM_PROGRAM_VERSION": "1.65.2",
+    "NVM_BIN": "/home/azureuser/.nvm/versions/node/v11.15.0/bin",
+    "VSCODE_IPC_HOOK_CLI": "/run/user/1000/vscode-ipc-a571ca54-7a32-437e-887c-25efce6ffe4e.sock",
+    "npm_package_devDependencies__openzeppelin_upgrades": "2.5.3",
+    "NVM_INC": "/home/azureuser/.nvm/versions/node/v11.15.0/include/node",
+    "npm_config_init_license": "MIT",
+    "VSCODE_GIT_ASKPASS_MAIN": "/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/extensions/git/dist/askpass-main.js",
+    "YARN_WRAP_OUTPUT": "false",
+    "npm_package_dependencies_vue_material": "^1.0.0-beta-11",
+    "npm_config_version_tag_prefix": "v",
+    "VSCODE_GIT_ASKPASS_NODE": "/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/node",
+    "npm_package_scripts_serve": "vue-cli-service serve",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+    "npm_package_dependencies_moment": "^2.24.0",
+    "COLORTERM": "truecolor",
+    "npm_package_description": "[![Netlify Status](https://api.netlify.com/api/v1/badges/63c88402-22eb-4298-9a5b-0f661833414b/deploy-status)](https://app.netlify.com/sites/unicoin-dapp/deploys)",
+    "NVM_DIR": "/home/azureuser/.nvm",
+    "npm_package_readmeFilename": "README.md",
+    "npm_package_devDependencies_prettier": "^1.18.2",
+    "npm_package_devDependencies__openzeppelin_gsn_helpers": "0.1.9",
+    "LOGNAME": "azureuser",
+    "npm_package_devDependencies_vue_template_compiler": "^2.6.10",
+    "npm_package_devDependencies__vue_cli_plugin_pwa": "^3.8.0",
+    "npm_package_dependencies_chai_as_promised": "^7.1.1",
+    "_": "/home/azureuser/.nvm/versions/node/v11.15.0/bin/yarn",
+    "npm_package_private": "true",
+    "XDG_SESSION_CLASS": "user",
+    "npm_package_devDependencies__openzeppelin_test_helpers": "0.5.4",
+    "npm_package_scripts_lint": "yarn run prettier",
+    "npm_config_registry": "https://registry.yarnpkg.com",
+    "TERM": "xterm-256color",
+    "XDG_SESSION_ID": "16",
+    "npm_package_dependencies_core_js": "^2.6.5",
+    "npm_package_dependencies__statnett_vue_plotly": "^0.3.2",
+    "npm_package_devDependencies_solidity_coverage": "^0.6.3",
+    "npm_package_dependencies_truffle_contract": "4.0.21",
+    "npm_package_dependencies_global": "^4.4.0",
+    "npm_package_dependencies_ethjs_abi": "^0.2.1",
+    "npm_config_ignore_scripts": "",
+    "npm_package_dependencies_axios": "^0.19.0",
+    "PATH": "/tmp/yarn--1647283622111-0.690471555921635:/home/azureuser/unicoin/unicoin2.0/node_modules/.bin:/home/azureuser/.config/yarn/link/node_modules/.bin:/home/azureuser/.yarn/bin:/home/azureuser/.nvm/versions/node/v11.15.0/libexec/lib/node_modules/npm/bin/node-gyp-bin:/home/azureuser/.nvm/versions/node/v11.15.0/lib/node_modules/npm/bin/node-gyp-bin:/home/azureuser/.nvm/versions/node/v11.15.0/bin/node_modules/npm/bin/node-gyp-bin:/home/azureuser/.nvm/versions/node/v11.15.0/bin:/home/azureuser/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "NODE": "/home/azureuser/.nvm/versions/node/v11.15.0/bin/node",
+    "npm_package_dependencies_vue_slider_component": "^3.0.32",
+    "npm_package_name": "UniCoin",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "npm_package_devDependencies__openzeppelin_contracts_ethereum_package": "2.4.0",
+    "npm_package_dependencies_vue_pdf": "^4.0.7",
+    "npm_package_dependencies_ipfs": "^0.36.4",
+    "LANG": "C.UTF-8",
+    "npm_package_devDependencies_prettier_plugin_solidity": "^1.0.0-alpha.34",
+    "LS_COLORS": "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:",
+    "VSCODE_GIT_IPC_HANDLE": "/run/user/1000/vscode-git-c23055a672.sock",
+    "TERM_PROGRAM": "vscode",
+    "npm_lifecycle_script": "vue-cli-service build",
+    "npm_package_dependencies_vue2_animate": "^2.1.0",
+    "npm_package_dependencies_vuex_persistedstate": "^2.5.4",
+    "npm_package_scripts_test": "truffle test --network test",
+    "npm_config_version_git_message": "v%s",
+    "SHELL": "/bin/bash",
+    "npm_lifecycle_event": "build",
+    "npm_package_version": "2.0.0",
+    "npm_config_argv": "{\"remain\":[],\"cooked\":[\"run\",\"build\"],\"original\":[\"run\"]}",
+    "npm_package_scripts_prettier": "prettier --write **/*.sol",
+    "npm_package_scripts_build": "vue-cli-service build",
+    "LESSCLOSE": "/usr/bin/lesspipe %s %s",
+    "npm_package_devDependencies_sass_loader": "^7.1.0",
+    "npm_package_dependencies_vue_router": "^3.0.3",
+    "npm_package_dependencies_cryptocompare": "^1.0.0",
+    "npm_package_dependencies_chai_bignumber": "^3.0.0",
+    "npm_config_version_git_tag": "true",
+    "npm_config_version_git_sign": "",
+    "npm_package_license": "MIT",
+    "npm_package_dependencies_yarn": "^1.22.17",
+    "npm_config_strict_ssl": "true",
+    "VSCODE_GIT_ASKPASS_EXTRA_ARGS": "",
+    "npm_package_dependencies_jazzicon": "^1.5.0",
+    "PWD": "/home/azureuser/unicoin/unicoin2.0",
+    "npm_execpath": "/home/azureuser/.nvm/versions/node/v11.15.0/lib/node_modules/yarn/bin/yarn.js",
+    "npm_package_devDependencies__vue_cli_plugin_babel": "^3.8.0",
+    "npm_package_dependencies_typeface_space_mono": "^0.0.71",
+    "npm_package_dependencies_chai": "^4.2.0",
+    "SSH_CONNECTION": "78.215.172.112 51149 10.0.0.4 22",
+    "NVM_CD_FLAGS": "",
+    "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+    "npm_package_dependencies_vue_jazzicon": "^0.1.3",
+    "npm_package_dependencies_plotly_js": "^1.48.3",
+    "npm_config_save_prefix": "^",
+    "npm_config_ignore_optional": "",
+    "SGX_AESM_ADDR": "1",
+    "npm_package_dependencies_web3": "1.0.0-beta.33",
+    "npm_package_dependencies_nyc": "^14.1.1",
+    "npm_package_dependencies_jsonwebtoken": "^8.5.1",
+    "npm_package_dependencies_truffle": "5.0.37",
+    "INIT_CWD": "/home/azureuser/unicoin/unicoin2.0",
+    "NODE_ENV": "production",
+    "BABEL_ENV": "production",
+    "VUE_CLI_BUILD_TARGET": "app",
+    "VUE_CLI_ENTRY_FILES": "[\"/home/azureuser/unicoin/unicoin2.0/src/main.js\"]"
+  },
+  "userLimits": {
+    "core_file_size_blocks": {
+      "soft": 0,
+      "hard": "unlimited"
+    },
+    "data_seg_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_locked_memory_bytes": {
+      "soft": 67108864,
+      "hard": 67108864
+    },
+    "max_memory_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "open_files": {
+      "soft": 1048576,
+      "hard": 1048576
+    },
+    "stack_size_bytes": {
+      "soft": 8388608,
+      "hard": "unlimited"
+    },
+    "cpu_time_seconds": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_user_processes": {
+      "soft": 31787,
+      "hard": 31787
+    },
+    "virtual_memory_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    }
+  },
+  "sharedObjects": [
+    "linux-vdso.so.1",
+    "/lib/x86_64-linux-gnu/libdl.so.2",
+    "/lib/x86_64-linux-gnu/librt.so.1",
+    "/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "/lib/x86_64-linux-gnu/libm.so.6",
+    "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "/lib/x86_64-linux-gnu/libpthread.so.0",
+    "/lib/x86_64-linux-gnu/libc.so.6",
+    "/lib64/ld-linux-x86-64.so.2"
+  ]
+}

@@ -1,61 +1,38 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
+import "./patches/ERC2771ContextUpgradeable.sol";
+import "./interfaces/IAuctionManager.sol";
 // import "./UnicoinRegistry.sol";
 
-contract AuctionManager is Initializable {
-    enum BidStatus { Committed, Revealed, Winner }
+contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgradeable {
 
-    enum AuctionStatus { Pending, Commit, Reveal, Finalized }
+    address registry;
 
-    struct Auction {
-        uint256 publication_Id;
-        uint256 auctionFloor;
-        uint256 starting_time;
-        uint256 duration;
-        uint256[] auction_bid_ids;
-        uint256 winning_bid_Id;
-        AuctionStatus status;
+    modifier onlyRegistry() {
+        require(_msgSender() == registry, "Can only be called by registry");
+        _;
     }
 
     Auction[] public auctions;
-
-    struct Bid {
-        bytes32 commitBid;
-        uint256 revealedBid;
-        uint256 revealedSalt;
-        BidStatus status;
-        uint256 publication_Id;
-        uint256 auction_Id;
-        uint256 bidder_Id; // owner of the bid
-    }
 
     Bid[] bids;
 
     // Maps all bidders' IDs to their bids
     mapping(uint256 => uint256[]) public bidOwners;
 
-    address registry;
+    function initialize(address _unicoinRegistry, address _trustedForwarder) public initializer {
+        __ERC2771Context_init(_trustedForwarder);
 
-    // UnicoinRegistry unicoinRegistry;
-
-    modifier onlyRegistry() {
-        require(msg.sender == registry, "Can only be called by registry");
-        _;
-    }
-
-    function initialize(address _unicoinRegistry) public initializer {
         registry = _unicoinRegistry;
         // unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
     }
 
     function _createAuction(
-        uint256 _publication_Id,
+        uint256 _publicationId,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration
@@ -63,157 +40,183 @@ contract AuctionManager is Initializable {
         require(_auctionStartTime >= block.timestamp, "AuctionManager::Invalid auction start time");
         require(_auctionDuration > 0, "AuctionManager::Invalid auction duration");
 
-        uint256[] memory auction_bid_ids;
+        uint256[] memory auctionBidIds;
         Auction memory auction = Auction(
-            _publication_Id,
+            _publicationId,
             _auctionFloor,
             _auctionStartTime,
             _auctionDuration,
-            auction_bid_ids,
+            auctionBidIds,
             0, //No winning bid in the begining
             AuctionStatus.Pending
         );
 
         auctions.push(auction);
-        uint256 auctionId = auctions.length - 1;
-        return auctionId;
+
+        return auctions.length - 1; // new auction Id
     }
 
-    function _commitSealedBid(bytes32 _bidHash, uint256 _auction_Id, uint256 _bidder_Id)
+    function _commitSealedBid(bytes32 _bidHash, uint256 _auctionId, uint256 _bidderId)
         public
         onlyRegistry
         returns (uint256)
     {
-        Auction memory auction = auctions[_auction_Id];
-        require(getAuctionStatus(_auction_Id) == AuctionStatus.Commit, "Can only commit during the commit phase");
-        Bid memory bid = Bid(_bidHash, 0, 0, BidStatus.Committed, auction.publication_Id, _auction_Id, _bidder_Id);
+        Auction memory auction = auctions[_auctionId];
+
+        require(getAuctionStatus(_auctionId) == AuctionStatus.Commit, "Can only commit during the commit phase");
+
+        Bid memory bid = Bid(_bidHash, 0, 0, BidStatus.Committed, auction.publicationId, _auctionId, _bidderId);
 
         bids.push(bid);
-
         uint256 bidId = bids.length - 1;
-        auctions[_auction_Id].auction_bid_ids.push(bidId);
-        bidOwners[_bidder_Id].push(bidId);
+
+        auctions[_auctionId].auctionBidIds.push(bidId);
+
+        bidOwners[_bidderId].push(bidId);
 
         return bidId;
     }
 
-    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _auction_Id, uint256 _bid_Id, uint256 _bidder_Id)
+    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _auctionId, uint256 _bidId, uint256 _bidderId)
         public
         onlyRegistry
     {
-        Bid memory bid = bids[_bid_Id];
-        require(getAuctionStatus(_auction_Id) == AuctionStatus.Reveal, "Can only commit during the reveal phase");
-        require(bid.bidder_Id == _bidder_Id, "Only the bidder can reveal their bid");
+        Bid memory bid = bids[_bidId];
+
+        require(getAuctionStatus(_auctionId) == AuctionStatus.Reveal, "Can only commit during the reveal phase");
+        require(bid.bidderId == _bidderId, "Only the bidder can reveal their bid");
         require(bid.status == BidStatus.Committed, "Can only reveal a committed bid");
 
         bytes32 revealedBidHash = keccak256(abi.encode(_bid, _salt));
 
         require(bid.commitBid == revealedBidHash, "Committed bid does not match the revealed bid");
 
-        bids[_bid_Id].revealedBid = _bid;
-        bids[_bid_Id].revealedSalt = _salt;
-        bids[_bid_Id].status = BidStatus.Revealed;
+        bids[_bidId].revealedBid = _bid;
+        bids[_bidId].revealedSalt = _salt;
+        bids[_bidId].status = BidStatus.Revealed;
     }
 
-    function finalizeAuction(uint256 _auction_Id) public onlyRegistry returns (uint256, uint256, uint256) {
+    /** @notice After reveal, this determines which bid won the auction
+        @param _auctionId Specifies which auction to finalise
+        @return 
+        @return bidderId
+        @return publicationId
+     */
+
+    function finalizeAuction(uint256 _auctionId) 
+        public 
+        onlyRegistry 
+        returns (uint256 leadingBidAmount, uint256 bidderId, uint256 publicationId) {
         require(
-            getAuctionStatus(_auction_Id) == AuctionStatus.Reveal,
+            getAuctionStatus(_auctionId) == AuctionStatus.Reveal,
             "Can only finalize an auction in the reveal stage"
         );
 
-        Auction memory auction = auctions[_auction_Id];
+        Auction memory auction = auctions[_auctionId];
 
-        uint256 numOfBids = auction.auction_bid_ids.length;
+        uint256 numOfBids = auction.auctionBidIds.length;
 
         uint256 leadingBid = 0;
         uint256 leadingBidAmount = 0;
 
         for (uint256 i = 0; i < numOfBids; i++) {
-            uint256 bidAmount = bids[auction.auction_bid_ids[i]].revealedBid;
+            uint256 bidAmount = bids[auction.auctionBidIds[i]].revealedBid;
             if (bidAmount > leadingBidAmount) {
                 //need to check that the bidder has enough balance and enough allowance to be able to
-                // win the auction. Ask the vault via the registrey for this information.
+                // win the auction. Ask the vault via the registry for this information.
                 // if (
                 //     // unicoinRegistry.canAddressPay(
                 //         bids[auction.auction_bid_ids[i]].bidder_Id,
                 //         bidAmount
                 //     )
                 // ) {
-                leadingBid = auction.auction_bid_ids[i];
+                leadingBid = auction.auctionBidIds[i];
                 leadingBidAmount = bidAmount;
                 // }
             }
         }
 
         if (leadingBid > 0) {
-            auctions[_auction_Id].status = AuctionStatus.Finalized;
-            auctions[_auction_Id].winning_bid_Id = leadingBid;
+            auctions[_auctionId].status = AuctionStatus.Finalized;
+            auctions[_auctionId].winningBidId = leadingBid;
             bids[leadingBid].status = BidStatus.Winner;
         }
 
-        return (leadingBidAmount, bids[leadingBid].bidder_Id, auction.publication_Id);
+        return (leadingBidAmount, bids[leadingBid].bidderId, auction.publicationId);
     }
 
-    function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
-        Auction memory auction = auctions[_auction_Id];
-
-        if (block.timestamp < auction.starting_time) {
-            auctions[_auction_Id].status = AuctionStatus.Pending;
+    function getAuctionStatus(uint256 _auctionId) public returns (AuctionStatus) {
+        Auction memory auction = auctions[_auctionId];
+        if (block.timestamp < auction.startingTime) {
+            auctions[_auctionId].status = AuctionStatus.Pending;
             return AuctionStatus.Pending;
-        }
-        else if (block.timestamp < (auction.starting_time + auction.duration)) {
-            auctions[_auction_Id].status = AuctionStatus.Commit;
+        } else if (
+            block.timestamp >= auction.startingTime && block.timestamp < (auction.startingTime + auction.duration)
+        ) {
+            auctions[_auctionId].status = AuctionStatus.Commit;
             return AuctionStatus.Commit;
-        }
-        else {
-            auctions[_auction_Id].status = AuctionStatus.Reveal;
+        } else {
+            auctions[_auctionId].status = AuctionStatus.Reveal;
             return AuctionStatus.Reveal;
         }
     }
 
-    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
-        return bidOwners[_bidder_Id];
+    function getBidderBids(uint256 _bidderId) public view returns (uint256[] memory) {
+        return bidOwners[_bidderId];
     }
 
-    function updateAuctionStartTime(uint256 _auction_Id, uint256 _newStartTime) public onlyRegistry {
-        auctions[_auction_Id].starting_time = _newStartTime;
+    function updateAuctionStartTime(uint256 _auctionId, uint256 _newStartTime) public onlyRegistry {
+        auctions[_auctionId].startingTime = _newStartTime;
     }
 
-    function getAuctionBids(uint256 _auction_Id) public view returns (uint256[] memory) {
-        return auctions[_auction_Id].auction_bid_ids;
+    function getAuctionBids(uint256 _auctionId) public view returns (uint256[] memory) {
+        return auctions[_auctionId].auctionBidIds;
     }
 
-    function getBid(uint256 _bid_Id) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
-        Bid memory bid = bids[_bid_Id];
+    function getBid(uint256 _bidId) 
+        public 
+        view 
+        //returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256)
+        returns (Bid memory)
+        {
+        return bids[_bidId];    
+
+        /*Bid memory bid = bids[_bidId];
         return (
             bid.commitBid,
             bid.revealedBid,
             bid.revealedSalt,
             uint8(bid.status),
-            bid.publication_Id,
-            bid.auction_Id,
-            bid.bidder_Id
-        );
+            bid.publicationId,
+            bid.auctionId,
+            bid.bidderId
+        );*/
     }
 
-    function getNumberOfBidsInAuction(uint256 _auction_Id) public view returns (uint256) {
-        return auctions[_auction_Id].auction_bid_ids.length;
+    function getNumberOfBidsInAuction(uint256 _auctionId) public view returns (uint256) {
+        return auctions[_auctionId].auctionBidIds.length;
     }
 
-    function getAuction(uint256 _auction_Id)
+    function getAuction(uint256 _auctionId)
         public
         view
-        returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
+        //returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
+        returns (Auction memory)
     {
-        Auction memory auction = auctions[_auction_Id];
-        return (
-            auction.publication_Id,
+        //Auction memory _auction = auctions[_auctionId];
+
+        //return _auction;
+
+        return auctions[_auctionId];
+        //Auction memory auction = auctions[_auctionId];
+        /*return (
+            auction.publicationId,
             auction.auctionFloor,
-            auction.starting_time,
+            auction.startingTime,
             auction.duration,
-            auction.auction_bid_ids,
-            auction.winning_bid_Id,
+            auction.auctionBidIds,
+            auction.winningBidId,
             uint8(auction.status)
-        );
+        );*/
     }
 }

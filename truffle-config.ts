@@ -5,12 +5,12 @@ let mnemonic = require('./mnemonic');
 module.exports = {
   networks: {
     development: {
-      host: "localhost",
-      port: 9545,
+      host: "127.0.0.1",
+      port: 7545,
       network_id: "*", // Any network (default: none)
     },
     test: {
-      host: "localhost",
+      host: "127.0.0.1",
       port: 8545,
       network_id: "*", // Any network (default: none)
       gas: 7000000000,
@@ -41,7 +41,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.5.12",
+      version: "0.8",
       settings: {
         optimizer: {
           enabled: true,

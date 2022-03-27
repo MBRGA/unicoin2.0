@@ -1,21 +1,24 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 /// @title UniCoin smart contract
 /// @author Chris Maree
 
 import "@opengsn/contracts/src/BaseRelayRecipient.sol";
-//import "@openzeppelin/contracts/GSN/GSNRecipient.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "./interfaces/iAuctionManager.sol";
-import "./interfaces/iLicenceManager.sol";
-import "./interfaces/iPublicationManager.sol";
-import "./interfaces/iUserManager.sol";
-import "./interfaces/iVault.sol";
-import "./interfaces/iHarbergerTaxManager.sol";
+import "./interfaces/IAuctionManager.sol";
+import "./interfaces/ILicenceManager.sol";
+import "./interfaces/IPublicationManager.sol";
+import "./interfaces/IUserManager.sol";
+import "./interfaces/IVault.sol";
+import "./interfaces/IHarbergerTaxManager.sol";
 
-contract UnicoinRegistry is Initializable, BaseRelayRecipient {
-    address owner;
+contract UnicoinRegistry is BaseRelayRecipient, Initializable {
+    function versionRecipient() public pure override returns (string memory) {
+        return "3.0.0-alpha0+unicoin";
+    }
 
     IAuctionManager private auctionManager;
     ILicenceManager private licenceManager;
@@ -24,7 +27,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     IHarbergerTaxManager private harbergerTaxManager;
     IVault private vault;
 
-    enum PricingStrategy { PrivateAuction, FixedRate, PrivateAuctionHarberger }
+    address owner;
 
     string public override versionRecipient = "2.2.6+opengsn.unicoinregistry";
 
@@ -35,11 +38,13 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
         address _userManager,
         address _harbergerTaxManager,
         address _vault,
-        address _forwarder        
+        address _forwarder
     ) public initializer {
         owner = _msgSender();
 
-        BaseRelayRecipient.initialize();
+        _setTrustedForwarder(_forwarder);
+
+        //GSNRecipient.initialize();
 
         auctionManager = IAuctionManager(_auctionManager);
         licenceManager = ILicenceManager(_licenceManager);
@@ -52,7 +57,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     }
 
     // accept all requests
-    function acceptRelayedCall(
+    /*function acceptRelayedCall(
         address,
         address,
         bytes calldata,
@@ -64,7 +69,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
         uint256
     ) external view returns (uint256, bytes memory) {
         return _approveRelayedCall();
-    }
+    }*/
 
     function _preRelayedCall(bytes memory context) internal returns (bytes32) {
         // solhint-disable-previous-line no-empty-blocks
@@ -79,23 +84,26 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
         owner = _owner;
     }
 
-    function registerUser(string memory _profile_uri) public returns (uint256) {
-        uint256 userId = userManager._registerUser(_profile_uri, msg.sender);
+    function registerUser(string memory _profileUri) public returns (uint256) {
+        uint256 userId = userManager._registerUser(_profileUri, _msgSender());
         return userId;
     }
+
     function createPublication(
-        uint8 _pricingStrategy,
-        string memory _publicationUri,
+        IPublicationManager.PricingStrategy _pricingStrategy,
+        string calldata _publicationUri,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
         uint256 _fixedSellPrice,
         uint256 _maxNumberOfLicences,
-        uint256[] memory _contributors,
-        uint256[] memory _contributorsWeightings
+        uint256[] calldata _contributors,
+        uint256[] calldata _contributorsWeightings
     ) public {
-        require(isCallerRegistered(), "Cant create a publication if you are not registered");
+        require(isCallerRegistered(), "Can't create a publication if you are not registered");
+
         uint256 authorId = getCallerId();
+
         uint256 publicationId = publicationManager._createPublication(
             _pricingStrategy,
             _publicationUri,
@@ -106,7 +114,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
             _contributorsWeightings
         );
 
-        if (PricingStrategy(_pricingStrategy) != PricingStrategy.FixedRate) {
+        if (_pricingStrategy != IPublicationManager.PricingStrategy.FixedRate) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
                 _auctionFloor,
@@ -133,19 +141,19 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     }
 
     function finalizeAuction(uint256 _auctionId) public returns (uint256) {
-        (uint256 winningBidAmount, uint256 winningBiderId, uint256 publicationId) = auctionManager.finalizeAuction(
+        (uint256 winningBidAmount, uint256 winningBidderId, uint256 publicationId) = auctionManager.finalizeAuction(
             _auctionId
         );
 
         if (winningBidAmount == 0) {
             return 0; //no one won the auction
         }
-        require(winningBiderId > 0, "Invalid winning bid Id");
+        require(winningBidderId > 0, "Invalid winning bid Id");
         require(publicationId > 0, "Invalid publication Id");
 
         uint256 authorId = publicationManager.getAuthorId(publicationId);
         address authorAddress = userManager.getUserAddress(authorId);
-        address winningBidderAddress = userManager.getUserAddress(winningBiderId);
+        address winningBidderAddress = userManager.getUserAddress(winningBidderId);
 
         (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager._getContributers(
             publicationId
@@ -168,13 +176,13 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
 
         uint256 licenceId = licenceManager.registerNewLicence(
             winningBidderAddress,
-            winningBiderId,
+            winningBidderId,
             publicationId,
             publicationLicenceNo
         );
         if (
             publicationManager.GetPublicationPricingStrategy(publicationId) ==
-            uint8(PricingStrategy.PrivateAuctionHarberger)
+            uint8(IPublicationManager.PricingStrategy.PrivateAuctionHarberger)
         ) {
             harbergerTaxManager.createTaxObject(licenceId, winningBidAmount);
         }
@@ -197,6 +205,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
             (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
                 ._getContributers(_publicationId);
             address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
+
             require(
                 vault.settleBulkPayment(
                     licenceOwner,
@@ -222,7 +231,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
             uint256 auctionId = auctionManager._createAuction(
                 _publicationId,
                 0, //auction floor
-                now, //auction start time
+                block.timestamp, //auction start time
                 60 * 60 * 24 * 30 // one month duration for the auction
             );
             publicationManager._addAuctionToPublication(_publicationId, auctionId);
@@ -253,17 +262,17 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
             uint256 licenceId = harbergerTaxManager.getBuyOutLicenceId(_buyOutId);
             uint256 buyOutOwnerId = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
 
-            address buyOutOwner_address = userManager.getUserAddress(buyOutOwnerId);
+            address buyOutOwnerAddress = userManager.getUserAddress(buyOutOwnerId);
 
             uint256 previousOwnerId = licenceManager.getLicenceOwnerId(licenceId);
 
-            address previousOwner_address = userManager.getUserAddress(previousOwnerId);
+            address previousOwnerAddress = userManager.getUserAddress(previousOwnerId);
 
             licenceManager.allocateLicenceToNewOwner(
                 licenceId,
                 buyOutOwnerId,
-                previousOwner_address,
-                buyOutOwner_address
+                previousOwnerAddress,
+                buyOutOwnerAddress
             );
         }
     }
@@ -354,17 +363,17 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
         address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
 
         require(
-            vault.settleBulkPayment(msg.sender, authorAddress, contributorAddresses, contributorWeightings, _value),
+            vault.settleBulkPayment(_msgSender(), authorAddress, contributorAddresses, contributorWeightings, _value),
             "Bulk auction settlement failed"
         );
     }
 
     function isCallerRegistered() public view returns (bool) {
-        return userManager.isAddressRegistered(msg.sender);
+        return userManager.isAddressRegistered(_msgSender());
     }
 
     function getCallerId() public view returns (uint256) {
-        uint256 callerId = userManager.getUserId(msg.sender);
+        uint256 callerId = userManager.getUserId(_msgSender());
         require(callerId != 0, "Caller is not registered!");
         return callerId;
     }
@@ -383,7 +392,7 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     }
 
     function getBlockTime() public view returns (uint256) {
-        return now;
+        return block.timestamp;
     }
 
     function getAuctionStatus(uint256 _auctionId) public returns (uint256) {
@@ -432,7 +441,13 @@ contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     function getLicenceBuyOuts(uint256 _licenceId)
         public
         view
-        returns (uint256[] memory, uint256[] memory, uint256[] memory, uint256[] memory, uint8[] memory)
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            IHarbergerTaxManager.BuyOutStatus[] memory
+        )
     {
         return (harbergerTaxManager.getLicenceBuyOuts(_licenceId));
     }

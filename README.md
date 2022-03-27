@@ -26,11 +26,21 @@ Front end application can be run as outlined below:
 yarn install
 ```
 
+On Windows need to have MSBuild set up properly given the older module versions in this repo. In particular building sha3@1.2.3 caused problems. The tools built into node didn't work for me - due to VS2019 being installed they couldn't find the correct MSBuild location. I had to make sure I added the VS2015 C++ build tools and the Windows 8.1 SDK to the Visual Studio install (by choosing Modify --> Individual components on the 2019 C++ Build Tools).
+
 May need to set environment variable because node 17+ causes issues with webpack's hashing setup:
 
 In Windows `set NODE_OPTIONS=--openssl-legacy-provider`, and in Linux `export NODE_OPTIONS=--openssl-legacy-provider`.
 
-On Windows need to have MSBuild set up properly. I used 2019 Build Tools (and I have VS2019 installed)
+Then:
+```
+npm config set msvs_version 2015 -global
+npm config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" -global
+```
+
+Note that the msvs_version = 2015 part makes sure a location hardcoded in node-gyp doesn't get used.
+
+On different PC I used 2019 Build Tools:
 
 Then:
 ```

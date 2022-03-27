@@ -1,28 +1,33 @@
-pragma solidity ^0.8.0;
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "./patches/ERC2771ContextUpgradeable.sol";
+import "./interfaces/IVault.sol";
 
-contract Vault is Initializable {
+contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
     ERC20Upgradeable token;
 
     address registry;
 
     modifier onlyRegistry() {
-        require(msg.sender == registry, "Can only be called by registry");
+        require(_msgSender() == registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _tokenAddress, address _unicoinRegistry) public initializer {
-        token = ERC20(_tokenAddress);
+    function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder) public initializer {
+        __ERC2771Context_init(_trustedForwarder);
+
+        token = ERC20Upgradeable(_tokenAddress);
         registry = _unicoinRegistry;
     }
 
     function canAddressPay(address _address, uint256 _amount) public view returns (bool) {
         uint256 userBalance = token.balanceOf(_address);
-        uint256 userContractAproval = token.allowance(_address, address(this));
-        return (userBalance >= _amount) && (userContractAproval >= _amount);
+        uint256 userContractApproval = token.allowance(_address, address(this));
+        return (userBalance >= _amount) && (userContractApproval >= _amount);
     }
 
     function settlePayment(address _sender, address _reciver, uint256 _amount) public onlyRegistry returns (uint256) {
