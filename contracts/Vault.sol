@@ -1,11 +1,11 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 contract Vault is Initializable {
-    ERC20 token;
+    ERC20Upgradeable token;
 
     address registry;
 

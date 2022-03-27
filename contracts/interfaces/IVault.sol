@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.8.0;
 
 interface IVault {
     function initialize(address _tokenAddress, address _unicoinRegistry)

@@ -1,8 +1,10 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 // import "./UnicoinRegistry.sol";
 
@@ -58,7 +60,7 @@ contract AuctionManager is Initializable {
         uint256 _auctionStartTime,
         uint256 _auctionDuration
     ) public onlyRegistry returns (uint256) {
-        require(_auctionStartTime >= now, "AuctionManager::Invalid auction start time");
+        require(_auctionStartTime >= block.timestamp, "AuctionManager::Invalid auction start time");
         require(_auctionDuration > 0, "AuctionManager::Invalid auction duration");
 
         uint256[] memory auction_bid_ids;
@@ -72,7 +74,8 @@ contract AuctionManager is Initializable {
             AuctionStatus.Pending
         );
 
-        uint256 auctionId = auctions.push(auction) - 1;
+        auctions.push(auction);
+        uint256 auctionId = auctions.length - 1;
         return auctionId;
     }
 
@@ -84,7 +87,10 @@ contract AuctionManager is Initializable {
         Auction memory auction = auctions[_auction_Id];
         require(getAuctionStatus(_auction_Id) == AuctionStatus.Commit, "Can only commit during the commit phase");
         Bid memory bid = Bid(_bidHash, 0, 0, BidStatus.Committed, auction.publication_Id, _auction_Id, _bidder_Id);
-        uint256 bidId = bids.push(bid) - 1;
+
+        bids.push(bid);
+
+        uint256 bidId = bids.length - 1;
         auctions[_auction_Id].auction_bid_ids.push(bidId);
         bidOwners[_bidder_Id].push(bidId);
 
@@ -150,17 +156,16 @@ contract AuctionManager is Initializable {
 
     function getAuctionStatus(uint256 _auction_Id) public returns (AuctionStatus) {
         Auction memory auction = auctions[_auction_Id];
-        if (now < auction.starting_time) {
+
+        if (block.timestamp < auction.starting_time) {
             auctions[_auction_Id].status = AuctionStatus.Pending;
             return AuctionStatus.Pending;
         }
-
-        if (now > auction.starting_time && now < (auction.starting_time + auction.duration)) {
+        else if (block.timestamp < (auction.starting_time + auction.duration)) {
             auctions[_auction_Id].status = AuctionStatus.Commit;
             return AuctionStatus.Commit;
         }
-
-        if (now > (auction.starting_time + auction.duration)) {
+        else {
             auctions[_auction_Id].status = AuctionStatus.Reveal;
             return AuctionStatus.Reveal;
         }

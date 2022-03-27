@@ -1,6 +1,6 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract UserManager is Initializable {
     struct User {

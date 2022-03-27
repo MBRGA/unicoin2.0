@@ -26,6 +26,17 @@ Front end application can be run as outlined below:
 yarn install
 ```
 
+May need to set environment variable because node 17+ causes issues with webpack's hashing setup:
+
+In Windows `set NODE_OPTIONS=--openssl-legacy-provider`, and in Linux `export NODE_OPTIONS=--openssl-legacy-provider`.
+
+On Windows need to have MSBuild set up properly. I used 2019 Build Tools (and I have VS2019 installed)
+
+Then:
+```
+npm config set msvs_version 2019 -global
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn run serve
@@ -36,12 +47,16 @@ yarn run serve
 yarn run build
 ```
 
+May have to do global install of truffle
+
+Would've liked to have used pure PnP yarn, but solc can't find imports if I do
+
 ## Smart contracts
 This repo also contains smart contracts to facilitate auction listing, licence minting and account management. 
 
 ### compile contracts
 ```
-truffle compile
+yarn truffle compile
 ```
 
 ### compile contracts
@@ -66,6 +81,8 @@ zos push
 ```
 
 For more details on using ZOS and all associated functionality please see [here](https://github.com/OpenZeppelin/openzeppelin-sdk).
+
+
 
 <img src="./src/assets/unicorn_running.gif">
 

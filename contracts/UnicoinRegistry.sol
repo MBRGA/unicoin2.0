@@ -1,10 +1,11 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.8.0;
 
 /// @title UniCoin smart contract
 /// @author Chris Maree
 
-import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@opengsn/contracts/src/BaseRelayRecipient.sol";
+//import "@openzeppelin/contracts/GSN/GSNRecipient.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "./interfaces/iAuctionManager.sol";
 import "./interfaces/iLicenceManager.sol";
@@ -13,7 +14,7 @@ import "./interfaces/iUserManager.sol";
 import "./interfaces/iVault.sol";
 import "./interfaces/iHarbergerTaxManager.sol";
 
-contract UnicoinRegistry is Initializable, GSNRecipient {
+contract UnicoinRegistry is Initializable, BaseRelayRecipient {
     address owner;
 
     IAuctionManager private auctionManager;
@@ -25,17 +26,20 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
     enum PricingStrategy { PrivateAuction, FixedRate, PrivateAuctionHarberger }
 
+    string public override versionRecipient = "2.2.6+opengsn.unicoinregistry";
+
     function initialize(
         address _auctionManager,
         address _licenceManager,
         address _publicationManager,
         address _userManager,
         address _harbergerTaxManager,
-        address _vault
+        address _vault,
+        address _forwarder        
     ) public initializer {
-        owner = msg.sender;
+        owner = _msgSender();
 
-        GSNRecipient.initialize();
+        BaseRelayRecipient.initialize();
 
         auctionManager = IAuctionManager(_auctionManager);
         licenceManager = ILicenceManager(_licenceManager);
@@ -43,6 +47,8 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         userManager = IUserManager(_userManager);
         harbergerTaxManager = IHarbergerTaxManager(_harbergerTaxManager);
         vault = IVault(_vault);
+
+        trustedForwarder = _forwarder;
     }
 
     // accept all requests
@@ -69,38 +75,38 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
     }
 
     function setOwner(address _owner) public {
-        require(owner == msg.sender, "Only owner can change the owner address");
+        require(owner == _msgSender(), "Only owner can change the owner address");
         owner = _owner;
     }
 
     function registerUser(string memory _profile_uri) public returns (uint256) {
-        uint256 user_Id = userManager._registerUser(_profile_uri, msg.sender);
-        return user_Id;
+        uint256 userId = userManager._registerUser(_profile_uri, msg.sender);
+        return userId;
     }
     function createPublication(
-        uint8 _pricing_Strategy,
-        string memory _publication_uri,
+        uint8 _pricingStrategy,
+        string memory _publicationUri,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
-        uint256 _fixed_sell_price,
+        uint256 _fixedSellPrice,
         uint256 _maxNumberOfLicences,
         uint256[] memory _contributors,
-        uint256[] memory _contributors_weightings
+        uint256[] memory _contributorsWeightings
     ) public {
         require(isCallerRegistered(), "Cant create a publication if you are not registered");
-        uint256 author_id = getCallerId();
+        uint256 authorId = getCallerId();
         uint256 publicationId = publicationManager._createPublication(
-            _pricing_Strategy,
-            _publication_uri,
-            author_id,
-            _fixed_sell_price,
+            _pricingStrategy,
+            _publicationUri,
+            authorId,
+            _fixedSellPrice,
             _maxNumberOfLicences,
             _contributors,
-            _contributors_weightings
+            _contributorsWeightings
         );
 
-        if (PricingStrategy(_pricing_Strategy) != PricingStrategy.FixedRate) {
+        if (PricingStrategy(_pricingStrategy) != PricingStrategy.FixedRate) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
                 _auctionFloor,
@@ -111,24 +117,24 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         }
     }
 
-    function commitSealedBid(bytes32 _bidHash, uint256 _publication_Id) public {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
-        uint256 bidder_Id = getCallerId();
-        auctionManager._commitSealedBid(_bidHash, auction_Id, bidder_Id);
+    function commitSealedBid(bytes32 _bidHash, uint256 _publicationId) public {
+        uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+        uint256 bidderId = getCallerId();
+        auctionManager._commitSealedBid(_bidHash, auctionId, bidderId);
     }
 
-    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publication_Id, uint256 _bid_Id)
+    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publicationId, uint256 _bidId)
         public
         returns (uint256)
     {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
-        uint256 bidder_Id = getCallerId();
-        auctionManager.revealSealedBid(_bid, _salt, auction_Id, _bid_Id, bidder_Id);
+        uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+        uint256 bidderId = getCallerId();
+        auctionManager.revealSealedBid(_bid, _salt, auctionId, _bidId, bidderId);
     }
 
-    function finalizeAuction(uint256 _auction_Id) public returns (uint256) {
+    function finalizeAuction(uint256 _auctionId) public returns (uint256) {
         (uint256 winningBidAmount, uint256 winningBiderId, uint256 publicationId) = auctionManager.finalizeAuction(
-            _auction_Id
+            _auctionId
         );
 
         if (winningBidAmount == 0) {
@@ -160,7 +166,7 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
 
         uint256 publicationLicenceNo = publicationManager.addNewLicenceToPublication(publicationId);
 
-        uint256 licence_Id = licenceManager.registerNewLicence(
+        uint256 licenceId = licenceManager.registerNewLicence(
             winningBidderAddress,
             winningBiderId,
             publicationId,
@@ -170,26 +176,26 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             publicationManager.GetPublicationPricingStrategy(publicationId) ==
             uint8(PricingStrategy.PrivateAuctionHarberger)
         ) {
-            harbergerTaxManager.createTaxObject(licence_Id, winningBidAmount);
+            harbergerTaxManager.createTaxObject(licenceId, winningBidAmount);
         }
         return winningBidAmount;
     }
 
     function buyLicenceFixedRate() public {}
 
-    function claimHarbergerTax(uint256 _publication_Id) public returns (uint256) {
-        uint256 licence_Id = licenceManager.getMostRecentPublicationLicence(_publication_Id);
-        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(licence_Id);
-        uint256 outstandingTax = harbergerTaxManager.calculateOutstandingTax(taxObject_Id);
-        address licenceOwner = licenceManager.ownerOf(licence_Id);
+    function claimHarbergerTax(uint256 _publicationId) public returns (uint256) {
+        uint256 licenceId = licenceManager.getMostRecentPublicationLicence(_publicationId);
+        uint256 taxObjectId = harbergerTaxManager.getLicenceTaxObjectId(licenceId);
+        uint256 outstandingTax = harbergerTaxManager.calculateOutstandingTax(taxObjectId);
+        address licenceOwner = licenceManager.ownerOf(licenceId);
         bool licenceOwnerSolvent = vault.canAddressPay(licenceOwner, outstandingTax);
 
         if (licenceOwnerSolvent) {
             //the licence owner can pay the tax and all contributers are paid
-            uint256 authorId = publicationManager.getAuthorId(_publication_Id);
+            uint256 authorId = publicationManager.getAuthorId(_publicationId);
             address authorAddress = userManager.getUserAddress(authorId);
             (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
-                ._getContributers(_publication_Id);
+                ._getContributers(_publicationId);
             address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
             require(
                 vault.settleBulkPayment(
@@ -202,95 +208,95 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
                 "Bulk harberger settlement failed"
             );
 
-            harbergerTaxManager._updateTaxObjectLastPayment(taxObject_Id);
+            harbergerTaxManager._updateTaxObjectLastPayment(taxObjectId);
 
             return outstandingTax; //returns the total tax sent
         }
         // the licence owner cant pay the tax. they loose their licence which is placed for auction again
         if (!licenceOwnerSolvent) {
-            licenceManager.revokeLicence(licence_Id);
-            publicationManager.revokeLicence(_publication_Id);
-            harbergerTaxManager.revokeTaxObject(taxObject_Id);
+            licenceManager.revokeLicence(licenceId);
+            publicationManager.revokeLicence(_publicationId);
+            harbergerTaxManager.revokeTaxObject(taxObjectId);
 
             //create a new auction
             uint256 auctionId = auctionManager._createAuction(
-                _publication_Id,
+                _publicationId,
                 0, //auction floor
                 now, //auction start time
                 60 * 60 * 24 * 30 // one month duration for the auction
             );
-            publicationManager._addAuctionToPublication(_publication_Id, auctionId);
+            publicationManager._addAuctionToPublication(_publicationId, auctionId);
             return 0;
         }
     }
 
-    function updateLicenceHarbergerValuation(uint256 _licence_Id, uint256 _newValuation) public returns (uint256) {
-        uint256 licenceOwner_Id = licenceManager.getLicenceOwnerId(_licence_Id);
-        require(licenceOwner_Id == getCallerId(), "Only the current licence owner can update the  valuation");
+    function updateLicenceHarbergerValuation(uint256 _licenceId, uint256 _newValuation) public returns (uint256) {
+        uint256 licenceOwnerId = licenceManager.getLicenceOwnerId(_licenceId);
+        require(licenceOwnerId == getCallerId(), "Only the current licence owner can update the  valuation");
 
-        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(_licence_Id);
+        uint256 taxObjectId = harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
 
-        harbergerTaxManager._updateTaxObjectValuation(taxObject_Id, _newValuation);
+        harbergerTaxManager._updateTaxObjectValuation(taxObjectId, _newValuation);
     }
 
-    function createHarbergerBuyOut(uint256 _licence_Id, uint256 _buyOutAmount) public returns (uint256) {
-        uint256 taxObject_Id = harbergerTaxManager.getLicenceTaxObjectId(_licence_Id);
-        uint256 buyOutOwner_Id = getCallerId();
+    function createHarbergerBuyOut(uint256 _licenceId, uint256 _buyOutAmount) public returns (uint256) {
+        uint256 taxObjectId = harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
+        uint256 buyOutOwnerId = getCallerId();
 
-        uint256 buyOut_Id = harbergerTaxManager.submitBuyOut(taxObject_Id, _buyOutAmount, buyOutOwner_Id);
-        return buyOut_Id;
+        uint256 buyOutId = harbergerTaxManager.submitBuyOut(taxObjectId, _buyOutAmount, buyOutOwnerId);
+        return buyOutId;
     }
 
-    function finalizeBuyoutOffer(uint256 _buyOut_Id) public returns (bool) {
-        bool offerSucceeded = harbergerTaxManager.finalizeBuyOutOffer(_buyOut_Id);
+    function finalizeBuyoutOffer(uint256 _buyOutId) public returns (bool) {
+        bool offerSucceeded = harbergerTaxManager.finalizeBuyOutOffer(_buyOutId);
         if (offerSucceeded) {
-            uint256 licence_Id = harbergerTaxManager.getBuyOutLicenceId(_buyOut_Id);
-            uint256 buyOutOwner_Id = harbergerTaxManager.getBuyOutOwnerId(_buyOut_Id);
+            uint256 licenceId = harbergerTaxManager.getBuyOutLicenceId(_buyOutId);
+            uint256 buyOutOwnerId = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
 
-            address buyOutOwner_address = userManager.getUserAddress(buyOutOwner_Id);
+            address buyOutOwner_address = userManager.getUserAddress(buyOutOwnerId);
 
-            uint256 previousOwner_Id = licenceManager.getLicenceOwnerId(licence_Id);
+            uint256 previousOwnerId = licenceManager.getLicenceOwnerId(licenceId);
 
-            address previousOwner_address = userManager.getUserAddress(previousOwner_Id);
+            address previousOwner_address = userManager.getUserAddress(previousOwnerId);
 
             licenceManager.allocateLicenceToNewOwner(
-                licence_Id,
-                buyOutOwner_Id,
+                licenceId,
+                buyOutOwnerId,
                 previousOwner_address,
                 buyOutOwner_address
             );
         }
     }
 
-    function getTaxObject(uint256 _taxObject_Id)
+    function getTaxObject(uint256 _taxObjectId)
         public
         view
         returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory, uint8)
     {
-        return (harbergerTaxManager.getTaxObject(_taxObject_Id));
+        return (harbergerTaxManager.getTaxObject(_taxObjectId));
     }
 
-    function getBuyOut(uint256 _buyOut_Id) public view returns (uint256, uint256, uint256, uint256, uint8) {
-        return (harbergerTaxManager.getBuyOut(_buyOut_Id));
+    function getBuyOut(uint256 _buyOutId) public view returns (uint256, uint256, uint256, uint256, uint8) {
+        return (harbergerTaxManager.getBuyOut(_buyOutId));
     }
 
     function getTaxObjectLength() public view returns (uint256) {
         return harbergerTaxManager.getTaxObjectLength();
     }
 
-    function getMinBuyOutAmount(uint256 _publication_Id) public view returns (uint256) {}
+    function getMinBuyOutAmount(uint256 _publicationId) public view returns (uint256) {}
 
     function getPublicationsAuthorAddress(address _address) public view returns (uint256[] memory) {
-        uint256 author_Id = userManager.getUserId(_address);
-        return publicationManager.getAuthorPublications(author_Id);
+        uint256 authorId = userManager.getUserId(_address);
+        return publicationManager.getAuthorPublications(authorId);
     }
 
-    function getPublicationsAuthorId(uint256 _author_Id) public view returns (uint256[] memory) {
-        return publicationManager.getAuthorPublications(_author_Id);
+    function getPublicationsAuthorId(uint256 _authorId) public view returns (uint256[] memory) {
+        return publicationManager.getAuthorPublications(_authorId);
     }
 
-    function getPublicationLicences(uint256 _publication_Id) public view returns (uint256[] memory) {
-        return licenceManager.getPublicationLicences(_publication_Id);
+    function getPublicationLicences(uint256 _publicationId) public view returns (uint256[] memory) {
+        return licenceManager.getPublicationLicences(_publicationId);
     }
 
     function getBids(address _address) public view returns (uint256[] memory) {
@@ -298,15 +304,15 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return auctionManager.getBidderBids(userAddress);
     }
 
-    function getPublicationAuctions(uint256 _publication_Id) public view returns (uint256[] memory) {
-        return publicationManager.getPublicationAuctions(_publication_Id);
+    function getPublicationAuctions(uint256 _publicationId) public view returns (uint256[] memory) {
+        return publicationManager.getPublicationAuctions(_publicationId);
     }
 
     function getPublicationLength() public view returns (uint256) {
         return publicationManager.getPublicationLength();
     }
 
-    function getPublication(uint256 _publication_Id)
+    function getPublication(uint256 _publicationId)
         public
         view
         returns (
@@ -321,28 +327,28 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
             uint256[] memory
         )
     {
-        return (publicationManager.getPublication(_publication_Id));
+        return (publicationManager.getPublication(_publicationId));
     }
 
     function getLicenceForAddress(address _address) public view returns (uint256[] memory) {
-        uint256 user_Id = userManager.getUserId(_address);
-        return getLicenceForUserId(user_Id);
+        uint256 userId = userManager.getUserId(_address);
+        return getLicenceForUserId(userId);
     }
 
-    function getLicenceForUserId(uint256 _user_Id) public view returns (uint256[] memory) {
-        return licenceManager.getLicenceForUser(_user_Id);
+    function getLicenceForUserId(uint256 _userId) public view returns (uint256[] memory) {
+        return licenceManager.getLicenceForUser(_userId);
     }
 
-    function getLicence(uint256 _licence_Id) public view returns (uint256, uint256, uint256, uint8) {
-        return (licenceManager.getLicence(_licence_Id));
+    function getLicence(uint256 _licenceId) public view returns (uint256, uint256, uint256, uint8) {
+        return (licenceManager.getLicence(_licenceId));
     }
 
-    function donate(uint256 _publication_Id, uint256 _value) public {
-        uint256 authorId = publicationManager.getAuthorId(_publication_Id);
+    function donate(uint256 _publicationId, uint256 _value) public {
+        uint256 authorId = publicationManager.getAuthorId(_publicationId);
         address authorAddress = userManager.getUserAddress(authorId);
 
         (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager._getContributers(
-            _publication_Id
+            _publicationId
         );
 
         address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
@@ -363,83 +369,83 @@ contract UnicoinRegistry is Initializable, GSNRecipient {
         return callerId;
     }
 
-    function getUserAddress(uint256 _user_Id) public view returns (address) {
-        return userManager.getUserAddress(_user_Id);
+    function getUserAddress(uint256 _userId) public view returns (address) {
+        return userManager.getUserAddress(_userId);
     }
 
-    function canAddressPay(uint256 _user_Id, uint256 _amount) public view returns (bool) {
-        address userAddress = getUserAddress(_user_Id);
+    function canAddressPay(uint256 _userId, uint256 _amount) public view returns (bool) {
+        address userAddress = getUserAddress(_userId);
         return vault.canAddressPay(userAddress, _amount);
     }
 
-    function getBidderBids(uint256 _bidder_Id) public view returns (uint256[] memory) {
-        return auctionManager.getBidderBids(_bidder_Id);
+    function getBidderBids(uint256 _bidderId) public view returns (uint256[] memory) {
+        return auctionManager.getBidderBids(_bidderId);
     }
 
     function getBlockTime() public view returns (uint256) {
         return now;
     }
 
-    function getAuctionStatus(uint256 _auction_Id) public returns (uint256) {
-        return uint256(auctionManager.getAuctionStatus(_auction_Id));
+    function getAuctionStatus(uint256 _auctionId) public returns (uint256) {
+        return uint256(auctionManager.getAuctionStatus(_auctionId));
     }
 
-    function updateAuctionStartTime(uint256 _publication_Id, uint256 _newStartTime) public {
-        uint256 caller_Id = getCallerId();
+    function updateAuctionStartTime(uint256 _publicationId, uint256 _newStartTime) public {
+        uint256 callerId = getCallerId();
         require(
-            caller_Id == publicationManager.getAuthorId(_publication_Id),
+            callerId == publicationManager.getAuthorId(_publicationId),
             "Only the publisher can modify the start time"
         );
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
-        auctionManager.updateAuctionStartTime(auction_Id, _newStartTime);
+        uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+        auctionManager.updateAuctionStartTime(auctionId, _newStartTime);
     }
 
-    function getPublicationBids(uint256 _publication_Id) public view returns (uint256[] memory) {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
-        return (auctionManager.getAuctionBids(auction_Id));
+    function getPublicationBids(uint256 _publicationId) public view returns (uint256[] memory) {
+        uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+        return (auctionManager.getAuctionBids(auctionId));
     }
 
-    function getBid(uint256 _bid_Id) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
-        return (auctionManager.getBid(_bid_Id));
+    function getBid(uint256 _bidId) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
+        return (auctionManager.getBid(_bidId));
     }
 
-    function getPublicationAuctionBidLength(uint256 _publication_Id) public view returns (uint256) {
-        uint256 auction_Id = publicationManager.getLatestAuctionId(_publication_Id);
-        return auctionManager.getNumberOfBidsInAuction(auction_Id);
+    function getPublicationAuctionBidLength(uint256 _publicationId) public view returns (uint256) {
+        uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+        return auctionManager.getNumberOfBidsInAuction(auctionId);
     }
     function ownerOf(uint256 tokenId) public view returns (address) {
         return licenceManager.ownerOf(tokenId);
     }
 
-    function getOutstandingTax(uint256 _taxObject_Id) public view returns (uint256) {
-        return harbergerTaxManager.calculateOutstandingTax(_taxObject_Id);
+    function getOutstandingTax(uint256 _taxObjectId) public view returns (uint256) {
+        return harbergerTaxManager.calculateOutstandingTax(_taxObjectId);
     }
 
-    function getMinBuyOutPrice(uint256 _taxObject_Id) public view returns (uint256) {
-        return harbergerTaxManager.calculateMinBuyOutPrice(_taxObject_Id);
+    function getMinBuyOutPrice(uint256 _taxObjectId) public view returns (uint256) {
+        return harbergerTaxManager.calculateMinBuyOutPrice(_taxObjectId);
     }
 
-    function getLicenceTaxObjectId(uint256 _licence_Id) public view returns (uint256) {
-        return harbergerTaxManager.getLicenceTaxObjectId(_licence_Id);
+    function getLicenceTaxObjectId(uint256 _licenceId) public view returns (uint256) {
+        return harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
     }
 
-    function getLicenceBuyOuts(uint256 _licence_Id)
+    function getLicenceBuyOuts(uint256 _licenceId)
         public
         view
         returns (uint256[] memory, uint256[] memory, uint256[] memory, uint256[] memory, uint8[] memory)
     {
-        return (harbergerTaxManager.getLicenceBuyOuts(_licence_Id));
+        return (harbergerTaxManager.getLicenceBuyOuts(_licenceId));
     }
 
-    function getMostRecentPublicationLicence(uint256 _publication_Id) public view returns (uint256) {
-        return licenceManager.getMostRecentPublicationLicence(_publication_Id);
+    function getMostRecentPublicationLicence(uint256 _publicationId) public view returns (uint256) {
+        return licenceManager.getMostRecentPublicationLicence(_publicationId);
     }
 
-    function getAuction(uint256 _auction_Id)
+    function getAuction(uint256 _auctionId)
         public
         view
         returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
     {
-        return (auctionManager.getAuction(_auction_Id));
+        return (auctionManager.getAuction(_auctionId));
     }
 }
