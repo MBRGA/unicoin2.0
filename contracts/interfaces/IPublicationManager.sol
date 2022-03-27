@@ -3,9 +3,28 @@
 pragma solidity ^0.8.12;
 
 interface IPublicationManager {
-    enum PricingStrategy { PrivateAuction, FixedRate, PrivateAuctionHarberger }
+    enum PricingStrategy { PrivateAuction, FixedRate, PrivateAuctionHarberger, None }
 
     enum PublicationStatus { Published, Replaced, Withdrawn, Licensed }
+
+    struct Contribution {
+        address contributor;
+        uint16 weighting;
+    }
+
+    struct Publication {
+        PricingStrategy pricingStrategy;
+        string publicationUri; //IPFS blob address of the publication
+        PublicationStatus publicationStatus;
+        address publisherAddress; //id of the auther
+        uint256 sellPrice;
+        uint8 maxNumberOfLicences;
+        uint256 licencesIssued;
+        uint256 previousVersion;
+        uint256[] auctionIds; //ids of bids on the publication
+        Contribution[] contributors;
+        uint256[] donations;
+    }
 
     function _createPublication(
         PricingStrategy _pricing_stratergy,
@@ -28,12 +47,12 @@ interface IPublicationManager {
 
     function revokeLicence(uint256 _publication_Id) external returns (uint256);
 
-    function getAuthorId(uint256 _publication_Id)
+    /*function getAuthorId(uint256 _publication_Id)
         external
         view
-        returns (uint256);
+        returns (uint256);*/
 
-    function _getContributers(uint256 _publication_Id)
+    function _getContributors(uint256 _publication_Id)
         external
         view
         returns (uint256[] memory, uint256[] memory);
@@ -43,7 +62,7 @@ interface IPublicationManager {
         view
         returns (uint256);
 
-    function getPublication(uint256 _publication_Id)
+    /*function getPublication(uint256 _publication_Id)
         external
         view
         returns (
@@ -56,7 +75,12 @@ interface IPublicationManager {
             uint256[] memory,
             uint256[] memory,
             uint256[] memory
-        );
+        );*/
+
+    function getPublication(uint256 _publicationId) 
+        external
+        view
+        returns (Publication memory);
 
     function getPublicationLength() external view returns (uint256);
 
@@ -70,7 +94,7 @@ interface IPublicationManager {
         view
         returns (uint8);
 
-    function getAuthorPublications(uint256 _author_Id)
+    function getAllPublications(address _author_Id)
         external
         view
         returns (uint256[] memory);

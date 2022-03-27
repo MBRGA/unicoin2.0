@@ -13,15 +13,17 @@ contract UserManager is Initializable, IUserManager, ERC2771ContextUpgradeable {
     Counters.Counter _userIds;
 
     struct User {
-        address owned_address;
-        string profile_uri;
+        bool valid;
+        uint256 userId;
+        //address owned_address;
+        string profileUri;
     }
 
     //Array of registered users
-    User[] public users;
+    //User[] public users;
 
     //all users' addresses to their userID
-    mapping(address => uint256) public userAddresses;
+    mapping(address => User) public userAddresses;
 
     address registry;
 
@@ -35,41 +37,42 @@ contract UserManager is Initializable, IUserManager, ERC2771ContextUpgradeable {
         __ERC2771Context_init(_trustedForwarder);
 
         //set the zeroth user to null.
-        users.push(User(address(0), ""));
+        //users.push(User(address(0), ""));
 
         registry = _unicoinRegistry;
     }
 
     function _registerUser(string calldata _profileUri, address _userAddress) public onlyRegistry returns (uint256) {
         require(bytes(_profileUri).length > 0, "Profile URI should not be empty.");
-        require(userAddresses[_userAddress] == 0, "User already registered.");
+        require(!userAddresses[_userAddress].valid, "A user is already registered to this address.");
 
-        users.push(User(_userAddress, _profileUri));
-        _userIds.increment();
+        //users.push(User(_userAddress, _profileUri));
+
         uint256 id = _userIds.current();
+        _userIds.increment();
 
-        userAddresses[_userAddress] = id - 1;
+        userAddresses[_userAddress] = User(true, id, _profileUri);
 
         return id;
     }
 
     function isAddressRegistered(address _userAddress) public view returns (bool) {
-        return userAddresses[_userAddress] != 0;
+        return userAddresses[_userAddress].valid;
     }
 
     function getUserId(address _userAddress) public view returns (uint256) {
-        return userAddresses[_userAddress];
+        return userAddresses[_userAddress].userId;
     }
 
-    function getUserAddress(uint256 _user_Id) public view returns (address) {
+    /*function getUserAddress(uint256 _user_Id) public view returns (address) {
         return users[_user_Id].owned_address;
-    }
+    }*/
 
-    function getAddressArray(uint256[] memory _user_Ids) public view returns (address[] memory returnedAddresses_) {
+    /*function getAddressArray(uint256[] memory _user_Ids) public view returns (address[] memory returnedAddresses_) {
         returnedAddresses_ = new address[](_user_Ids.length);
         for (uint256 i = 0; i < _user_Ids.length; i++) {
             returnedAddresses_[i] = getUserAddress(_user_Ids[i]);
         }
         return returnedAddresses_;
-    }
+    }*/
 }

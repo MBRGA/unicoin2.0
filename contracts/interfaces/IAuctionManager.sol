@@ -5,6 +5,28 @@ pragma solidity ^0.8.12;
 interface IAuctionManager {
     enum AuctionStatus {Pending, Commit, Reveal, Finalized}
 
+    enum BidStatus { Committed, Revealed, Winner }
+
+    struct Auction {
+        uint256 publicationId;
+        uint256 auctionFloor;
+        uint256 startingTime;
+        uint256 duration;
+        uint256[] auctionBidIds;
+        uint256 winningBidId;
+        AuctionStatus status;
+    }
+
+    struct Bid {
+        bytes32 commitBid;
+        uint256 revealedBid;
+        uint256 revealedSalt;
+        BidStatus status;
+        uint256 publicationId;
+        uint256 auctionId;
+        uint256 bidderId; // owner of the bid
+    }
+
     //function initialize(address _unicoinRegistry, address _trustedForwarder) external;
     
     function _createAuction(
@@ -49,17 +71,21 @@ interface IAuctionManager {
         view
         returns (uint256[] memory);
 
-    function getBid(uint256 _bid_Id)
+    /*function getBid(uint256 _bid_Id)
         external
         view
-        returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256);
+        returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256);*/
+    function getBid(uint256 _bidId)
+        external
+        view
+        returns (Bid memory);
 
     function getNumberOfBidsInAuction(uint256 _auction_Id)
         external
         view
         returns (uint256);
 
-    function getAuction(uint256 _auction_Id)
+    /*function getAuction(uint256 _auction_Id)
         external
         view
         returns (
@@ -70,5 +96,10 @@ interface IAuctionManager {
             uint256[] memory,
             uint256,
             uint8
-        );
+        );*/
+
+    function getAuction(uint256 _auctionId)
+        external
+        view 
+        returns (Auction memory);
 }

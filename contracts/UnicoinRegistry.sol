@@ -87,16 +87,16 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
     function createPublication(
         IPublicationManager.PricingStrategy _pricingStrategy,
-        string memory _publicationUri,
+        string calldata _publicationUri,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
         uint256 _fixedSellPrice,
         uint256 _maxNumberOfLicences,
-        uint256[] memory _contributors,
-        uint256[] memory _contributorsWeightings
+        uint256[] calldata _contributors,
+        uint256[] calldata _contributorsWeightings
     ) public {
-        require(isCallerRegistered(), "Cant create a publication if you are not registered");
+        require(isCallerRegistered(), "Can't create a publication if you are not registered");
 
         uint256 authorId = getCallerId();
 

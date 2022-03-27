@@ -16,10 +16,10 @@ interface IUserManager {
 
     function getUserId(address _userAddress) external view returns (uint256);
 
-    function getUserAddress(uint256 _user_Id) external view returns (address);
+    /*function getUserAddress(uint256 _user_Id) external view returns (address);
 
     function getAddressArray(uint256[] calldata _user_Ids)
         external
         view
-        returns (address[] memory returnedAddresses_);
+        returns (address[] memory returnedAddresses_);*/
 }

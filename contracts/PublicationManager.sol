@@ -22,26 +22,11 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         _;
     }
 
-    struct Publication {
-        PricingStrategy pricingStrategy;
-        string publicationUri; //IPFS blob address of the publication
-        uint256 authorId; //id of the auther
-        uint256 sellPrice;
-        uint256 maxNumberOfLicences;
-        uint256 licencesIssued;
-        uint256 nextVersion;
-        uint256 previousVersion;
-        uint256[] auctionIds; //ids of bids on the publication
-        uint256[] contributors;
-        uint256[] contributorsWeightings; //scaled by 1e2 to repres entat
-        uint256[] donations;
-    }
-
     Publication[] public publications;
 
-    mapping(uint256 => uint256[]) public publicationOwners;
+    mapping(address => uint256[]) public publicationOwners;
 
-    event NewPublication(uint256 indexed _authorId, string _publicationUri, PricingStrategy _pricingStrategy);
+    event NewPublication(address indexed _publisherAddress, string _publicationUri, PricingStrategy _pricingStrategy);
 
     event PublicationUpdated(uint256 indexed _authorId, string _oldUri, string _newUri);
 
@@ -54,15 +39,14 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
     function _createPublication(
         PricingStrategy _pricingStrategy,
         string calldata _publicationUri,
-        uint256 _authorId,
+        address _publisherAddress,
         uint256 _fixedSellPrice,
-        uint256 _maxNumberOfLicences,
-        uint256[] calldata _contributors,
-        uint256[] calldata _contributorsWeightings
+        uint8 _maxNumberOfLicences,
+        Contribution[] calldata _contributors
     ) public onlyRegistry returns (uint256) {
         require(bytes(_publicationUri).length > 0, "Publication URI should not be empty.");
 
-        if (PricingStrategy(_pricingStrategy) == PricingStrategy.FixedRate) {
+        if (_pricingStrategy == PricingStrategy.FixedRate) {
             require(_fixedSellPrice > 0, "Fixed sell price cant be zero");
         } else {
             require(_fixedSellPrice == 0, "Fixed sell price must be zero for auction");
@@ -73,16 +57,15 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
 
         Publication memory publication = Publication(
             _pricingStrategy,
-            _publicationUri,
-            _authorId,
+            _publicationUri, //IPFS blob address of the publication
+            PublicationStatus.Published,
+            _publisherAddress, // Address of publisher of this version
             _fixedSellPrice,
             _maxNumberOfLicences,
-            ID_NONE, // New publication has no next or prior versions
-            ID_NONE,
-            0, //start with no licences issued
-            auctionIds,
+            0, // number of licenses issued starts as 0
+            ID_NONE, // No previous version
+            auctionIds, //ids of bids on the publication
             _contributors,
-            _contributorsWeightings,
             donations
         );
 
@@ -90,10 +73,14 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         _pubIds.increment();
         uint256 publicationId = _pubIds.current();
 
-        publicationOwners[_authorId].push(publicationId);
+        publicationOwners[_publisherAddress].push(publicationId);
 
         // Referencing pub properties due to stack depth
-        emit NewPublication(publication.authorId, publication.publicationUri, publication.pricingStrategy);
+        emit NewPublication(
+            publication.publisherAddress, 
+            publication.publicationUri, 
+            publication.pricingStrategy
+        );
 
         return publicationId;
     }
@@ -123,12 +110,12 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         return licenceNo;
     }
 
-    function getAuthorId(uint256 _publicationId) public view returns (uint256) {
-        return publications[_publicationId].authorId;
+    function getPublisherAddress(uint256 _publicationId) public view returns (address) {
+        return publications[_publicationId].publisherAddress;
     }
 
-    function _getContributers(uint256 _publicationId) public view returns (uint256[] memory, uint256[] memory) {
-        return (publications[_publicationId].contributors, publications[_publicationId].contributorsWeightings);
+    function _getContributors(uint256 _publicationId) public view returns (Contribution[] memory) {
+        return publications[_publicationId].contributors;
     }
 
     function getLatestAuctionId(uint256 _publicationId) public view returns (uint256) {
@@ -138,7 +125,8 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
     function getPublication(uint256 _publicationId)
         public
         view
-        returns (
+        returns (Publication memory)
+        /*returns (
             uint8,
             string memory,
             uint256,
@@ -148,9 +136,11 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             uint256[] memory,
             uint256[] memory,
             uint256[] memory
-        )
+        )*/
     {
-        Publication memory publication = publications[_publicationId];
+        return publications[_publicationId];
+
+        /*Publication memory publication = publications[_publicationId];
         return (
             uint8(publication.pricingStrategy),
             publication.publicationUri,
@@ -161,7 +151,7 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             publication.auctionIds,
             publication.contributors,
             publication.contributorsWeightings
-        );
+        );*/
     }
 
     function getPublicationLength() public view returns (uint256) {
@@ -176,8 +166,8 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         return uint8(publications[_publicationId].pricingStrategy);
     }
 
-    function getAuthorPublications(uint256 _authorId) public view returns (uint256[] memory) {
-        return publicationOwners[_authorId];
+    function getAllPublications(address _publisherAddress) public view returns (uint256[] memory) {
+        return publicationOwners[_publisherAddress];
     }
 
     function recordDonation(uint256 _publicationId, uint256 _donationAmount) public onlyRegistry {

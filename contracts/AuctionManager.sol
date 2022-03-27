@@ -9,17 +9,6 @@ import "./interfaces/IAuctionManager.sol";
 // import "./UnicoinRegistry.sol";
 
 contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgradeable {
-    enum BidStatus { Committed, Revealed, Winner }
-
-    struct Auction {
-        uint256 publicationId;
-        uint256 auctionFloor;
-        uint256 startingTime;
-        uint256 duration;
-        uint256[] auctionBidIds;
-        uint256 winningBidId;
-        AuctionStatus status;
-    }
 
     address registry;
 
@@ -29,16 +18,6 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
     }
 
     Auction[] public auctions;
-
-    struct Bid {
-        bytes32 commitBid;
-        uint256 revealedBid;
-        uint256 revealedSalt;
-        BidStatus status;
-        uint256 publicationId;
-        uint256 auctionId;
-        uint256 bidderId; // owner of the bid
-    }
 
     Bid[] bids;
 
@@ -117,7 +96,17 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         bids[_bidId].status = BidStatus.Revealed;
     }
 
-    function finalizeAuction(uint256 _auctionId) public onlyRegistry returns (uint256, uint256, uint256) {
+    /** @notice After reveal, this determines which bid won the auction
+        @param _auctionId Specifies which auction to finalise
+        @return 
+        @return bidderId
+        @return publicationId
+     */
+
+    function finalizeAuction(uint256 _auctionId) 
+        public 
+        onlyRegistry 
+        returns (uint256 leadingBidAmount, uint256 bidderId, uint256 publicationId) {
         require(
             getAuctionStatus(_auctionId) == AuctionStatus.Reveal,
             "Can only finalize an auction in the reveal stage"
@@ -184,8 +173,15 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         return auctions[_auctionId].auctionBidIds;
     }
 
-    function getBid(uint256 _bidId) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
-        Bid memory bid = bids[_bidId];
+    function getBid(uint256 _bidId) 
+        public 
+        view 
+        //returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256)
+        returns (Bid memory)
+        {
+        return bids[_bidId];    
+
+        /*Bid memory bid = bids[_bidId];
         return (
             bid.commitBid,
             bid.revealedBid,
@@ -194,7 +190,7 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
             bid.publicationId,
             bid.auctionId,
             bid.bidderId
-        );
+        );*/
     }
 
     function getNumberOfBidsInAuction(uint256 _auctionId) public view returns (uint256) {
@@ -204,10 +200,16 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
     function getAuction(uint256 _auctionId)
         public
         view
-        returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
+        //returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
+        returns (Auction memory)
     {
-        Auction memory auction = auctions[_auctionId];
-        return (
+        //Auction memory _auction = auctions[_auctionId];
+
+        //return _auction;
+
+        return auctions[_auctionId];
+        //Auction memory auction = auctions[_auctionId];
+        /*return (
             auction.publicationId,
             auction.auctionFloor,
             auction.startingTime,
@@ -215,6 +217,6 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
             auction.auctionBidIds,
             auction.winningBidId,
             uint8(auction.status)
-        );
+        );*/
     }
 }

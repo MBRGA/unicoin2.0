@@ -26,8 +26,8 @@ contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
 
     function canAddressPay(address _address, uint256 _amount) public view returns (bool) {
         uint256 userBalance = token.balanceOf(_address);
-        uint256 userContractAproval = token.allowance(_address, address(this));
-        return (userBalance >= _amount) && (userContractAproval >= _amount);
+        uint256 userContractApproval = token.allowance(_address, address(this));
+        return (userBalance >= _amount) && (userContractApproval >= _amount);
     }
 
     function settlePayment(address _sender, address _reciver, uint256 _amount) public onlyRegistry returns (uint256) {
