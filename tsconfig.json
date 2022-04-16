@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -24,16 +25,20 @@
       "dom.iterable",
       "scripthost"
     ],
-    "types": ["vuetify", "webpack-env"],
+    "types": ["vuetify", "@types/node", "@types/chai", "@types/mocha"],
+    "resolveJsonModule": true,
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
+    "tests/**/*.tsx",
+    "src/**/*.d.ts",
+    "migrations/**/*.ts"  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "artifacts"
   ]
 }

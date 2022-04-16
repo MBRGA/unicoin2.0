@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.12;
 
+import './IPublicationManager.sol';
+
 interface IVault {
     //function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder)
     //    external;
@@ -17,9 +19,8 @@ interface IVault {
 
     function settleBulkPayment(
         address _sender,
-        address _authorAddress,
-        address[] calldata _contributorAddresses,
-        uint256[] calldata _contributorWeightings,
-        uint256 _paymentAmount
+        address ownerAddress,
+        IPublicationManager.Contribution[] calldata contributors,
+        uint256 paymentAmount
     ) external returns (bool);
 }

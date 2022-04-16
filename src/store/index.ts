@@ -1,7 +1,9 @@
 import Web3 from "web3";
 import Vuex from "vuex";
 import Vue from "vue";
-import createPersistedState from "vuex-persistedstate";
+
+import VuexPersistence from 'vuex-persist';
+
 import moment from "moment";
 
 import { getEtherscanAddress, getNetIdString } from "@/utils/lookupTools";
@@ -12,34 +14,46 @@ import { uploadFile, viewFile } from "@/utils/ipfsUploader";
 
 import * as actions from "./actions";
 import * as mutations from "./mutation-types";
+import TruffleContract from "@truffle/contract";
 
-import truffleContract from "truffle-contract";
+const contract = require("@truffle/contract");
 
 import UnicoinRegistryABI from "../../build/contracts/UnicoinRegistry.json";
 
-const Registry = truffleContract(UnicoinRegistryABI);
+const Registry: TruffleContract.Contract = contract(UnicoinRegistryABI);
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-  state: {
-    web3: null,
-    account: null,
-    currentNetwork: null,
-    etherscanBase: null,
-    registry: null,
-    userNumber: 0,
-    numberOfPublications: 0,
-    listedPublications: [],
-    contractAddress: null,
-    userProfile: {},
-    userBids: [],
-    userLicences: [],
-    miningTransactionObject: {
-      status: null,
-      txHash: "",
-    },
-  },
+class UserBid {
+  id = 0;
+  offer = 0;
+  bidStatus = "";
+  publication_Id = 0;
+  publicationTitle = "";
+  pdfFile = "";
+}
+
+class State {
+  web3?: Web3;
+  account?: string;
+  currentNetwork?: string;
+  etherscanBase?: string;
+  registry?: string;
+  userNumber = 0;
+  numberOfPublications = 0;
+  listedPublications: Array<string> = [];
+  contractAddress?: string;
+  userProfile: Object = null;
+  userBids: Array<UserBid> = [];
+  userLicences: Array<string> = [];
+  miningTransactionObject: {
+    status?: string;
+    txHash: string;
+  } = { txHash: "" };
+}
+
+export default new Vuex.Store<State>({
+  state: new State(),
   mutations: {
     //WEB3 Stuff
     [mutations.SET_ACCOUNT](state, account) {
@@ -66,7 +80,7 @@ export default new Vuex.Store({
     [mutations.SET_CONTRACT_ADDRESS](state, contractAddress) {
       state.contractAddress = contractAddress;
     },
-    [mutations.SET_WEB3]: async function (state, { web3, contract }) {
+    [mutations.SET_WEB3]: async function (state, { web3, contract } ) {
       state.web3 = web3;
       state.registry = contract;
     },
@@ -95,7 +109,7 @@ export default new Vuex.Store({
       });
     },
 
-    [actions.INIT_APP]: async function ({ commit, dispatch, state }, web3) {
+    [actions.INIT_APP]: async function ({ commit, dispatch, state }, web3: Web3) {
       Registry.setProvider(web3.currentProvider);
 
       dispatch(actions.GET_CURRENT_NETWORK);

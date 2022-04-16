@@ -17,6 +17,12 @@ interface IAuctionManager {
         AuctionStatus status;
     }
 
+    struct AuctionResult {
+        uint256 winningAmount;
+        address winnerAddress;
+        uint256 publicationId;
+    }
+
     struct Bid {
         bytes32 commitBid;
         uint256 revealedBid;
@@ -24,13 +30,13 @@ interface IAuctionManager {
         BidStatus status;
         uint256 publicationId;
         uint256 auctionId;
-        uint256 bidderId; // owner of the bid
+        address bidderAddress; // owner of the bid
     }
 
     //function initialize(address _unicoinRegistry, address _trustedForwarder) external;
     
     function _createAuction(
-        uint256 _publication_Id,
+        uint256 _publicationId,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration
@@ -38,35 +44,35 @@ interface IAuctionManager {
 
     function _commitSealedBid(
         bytes32 _bidHash,
-        uint256 _auction_Id,
-        uint256 _bidder_Id
+        uint256 _auctionId,
+        address _bidderAddress
     ) external returns (uint256);
 
     function revealSealedBid(
         uint256 _bid,
         uint256 _salt,
-        uint256 _auction_Id,
-        uint256 _bid_Id,
-        uint256 _bidder_Id
+        uint256 _auctionId,
+        uint256 _bidId,
+        address _bidderAddress
     ) external;
 
-    function finalizeAuction(uint256 _auction_Id)
+    function finalizeAuction(uint256 _auctionId)
         external
-        returns (uint256, uint256, uint256);
+        returns (AuctionResult memory);
 
-    function getAuctionStatus(uint256 _auction_Id)
+    function getAuctionStatus(uint256 _auctionId)
         external
         returns (AuctionStatus);
 
-    function getBidderBids(uint256 _bidder_Id)
+    function getBidderBids(address _bidderAddress)
         external
         view
         returns (uint256[] memory);
 
-    function updateAuctionStartTime(uint256 _auction_Id, uint256 _newStartTime)
+    function updateAuctionStartTime(uint256 _auctionId, uint256 _newStartTime)
         external;
 
-    function getAuctionBids(uint256 _auction_Id)
+    function getAuctionBids(uint256 _auctionId)
         external
         view
         returns (uint256[] memory);
@@ -80,7 +86,7 @@ interface IAuctionManager {
         view
         returns (Bid memory);
 
-    function getNumberOfBidsInAuction(uint256 _auction_Id)
+    function getNumberOfBidsInAuction(uint256 _auctionId)
         external
         view
         returns (uint256);

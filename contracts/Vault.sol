@@ -36,20 +36,27 @@ contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
 
     function settleBulkPayment(
         address _sender,
-        address _authorAddress,
-        address[] memory _contributorAddresses,
-        uint256[] memory _contributorWeightings,
+        address _ownerAddress,
+        IPublicationManager.Contribution[] calldata contributors,
         uint256 _paymentAmount
     ) public returns (bool) {
         uint256 totalPaidToContributors = 0;
-        for (uint256 i = 0; i < _contributorAddresses.length; i++) {
+
+        for (uint256 i = 0; i < contributors.length; i++) {
+            uint256 amountToPay = (_paymentAmount * contributors[i].weighting) / 1e2;
+            totalPaidToContributors += contributors[i].weighting;
+            token.transferFrom(_sender, contributors[i].contributorAddress, amountToPay);
+        }
+
+
+        /*for (uint256 i = 0; i < _contributorAddresses.length; i++) {
             uint256 amountToPay = (_paymentAmount * _contributorWeightings[i]) / 1e2;
             totalPaidToContributors += _contributorWeightings[i];
             token.transferFrom(_sender, _contributorAddresses[i], amountToPay);
-        }
+        }*/
 
-        uint256 authorAmount = ((1e2 - totalPaidToContributors) * _paymentAmount) / 1e2;
-        token.transferFrom(_sender, _authorAddress, authorAmount);
+        //uint256 authorAmount = ((1e2 - totalPaidToContributors) * _paymentAmount) / 1e2;
+        //token.transferFrom(_sender, _authorAddress, authorAmount);
         return true;
     }
 }

@@ -11,36 +11,45 @@ interface ILicenceManager is IERC721Upgradeable {
         address _unicoinRegistry
     ) external;*/
 
+    enum LicenceStatus { Active, Revoked }
+
+    struct Licence {
+        address ownerAddress;
+        uint256 publicationId;
+        uint256 publicationLicenceNo;
+        LicenceStatus status;
+    }
+
     function registerNewLicence(
         address _ownerAddress,
-        uint256 _ownerId,
+        //uint256 _ownerId,
         uint256 _publicationId,
         uint256 _publicationLicenceNo
     ) external returns (uint256);
 
     function revokeLicence(uint256 _licenceId) external;
 
-    function getLicenceForUser(uint256 _userId)
+    function getLicenceForUser(address _userAddress)
         external
         view
         returns (uint256[] memory);
 
     function allocateLicenceToNewOwner(
         uint256 _licenceId,
-        uint256 _newOwnerId,
-        address _oldNFTOwner_address,
-        address _newNFTOwner_address
+        address _oldOwnerAddress,
+        address _newOwner_address
     ) external;
 
     function getLicence(uint256 _licenceId)
         external
         view
-        returns (uint256, uint256, uint256, uint8);
+        returns (Licence memory);
 
-    function getLicenceOwnerId(uint256 _licenceId)
+    function getLicenceOwnerAddress(uint256 _licenceId)
         external
         view
-        returns (uint256);
+        returns (address);
+
     function getPublicationLicences(uint256 _publicationId)
         external
         view

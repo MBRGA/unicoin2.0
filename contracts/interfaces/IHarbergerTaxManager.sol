@@ -6,6 +6,26 @@ interface IHarbergerTaxManager {
 
     enum BuyOutStatus { Pending, Successful, OutBid }
 
+    enum TaxObjectStatus { Active, Revoked }
+
+    struct BuyOut {
+        uint256 taxObjectId;
+        address buyOutOwnerAddress;
+        uint256 buyOutAmount;
+        uint256 buyOutExpiration;
+        BuyOutStatus status;
+    }
+
+    struct TaxObject {
+        uint256 licenceId;
+        uint256 ratePerBlock;
+        uint256 lastPayment;
+        uint256 numberOfOutBids;
+        uint256 currentAssignedValue;
+        BuyOut[] buyOuts;
+        TaxObjectStatus status;
+    }
+
     function createTaxObject(
         uint256 _licence_Id,
         // uint256 _ratePerBlock,
@@ -25,15 +45,16 @@ interface IHarbergerTaxManager {
     function _updateTaxObjectLastPayment(uint256 _taxObjectId) external;
 
     function _updateTaxObjectValuation(
-        uint256 _taxObject_Id,
+        uint256 _taxObjectId,
         uint256 _assignedValue
     ) external;
 
     function submitBuyOut(
         uint256 _taxObject,
         uint256 _offer,
-        uint256 _buyOutOwner_Id
-    ) external returns (uint256);
+        address _buyOutOwnerAddress
+    ) external ;
+    //returns (uint256);
 
     function finalizeBuyOutOffer(uint256 _buyOutId) external returns (bool);
 
@@ -47,43 +68,29 @@ interface IHarbergerTaxManager {
     function getTaxObject(uint256 _taxObjectId)
         external
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256[] memory,
-            uint8
-        );
+        returns (TaxObject memory);
 
-    function getBuyOut(uint256 _buyOutId)
+    /*function getBuyOut(uint256 _buyOutId)
         external
         view
-        returns (uint256, uint256, uint256, uint256, uint8);
+        returns (uint256, uint256, uint256, uint256, uint8);*/
 
-    function getBuyOutLicenceId(uint256 _buyOutId)
+    /*function getBuyOutLicenceId(uint256 _buyOutId)
         external
         view
-        returns (uint256);
+        returns (uint256);*/
 
-    function getBuyOutOwnerId(uint256 _buyOutId)
+    function getBuyOutOwnerAddress(uint256 _taxObjectId, uint256 _buyOutId)
         external
         view
-        returns (uint256);
+        returns (address);
 
     function getTaxObjectLength() external view returns (uint256);
 
-    function getLicenceBuyOuts(uint256 _licenceId)
+    /*function getLicenceBuyOuts(uint256 _licenceId)
         external
         view
-        returns (
-            uint256[] memory taxObjectId_,
-            uint256[] memory buyOutOwnerId_,
-            uint256[] memory buyOutAmount_,
-            uint256[] memory buyOutExpiration_,
-            BuyOutStatus[] memory status_
-        );
+        returns (BuyOut[] memory);*/
 
     function optimalExp(uint256 x) external pure returns (uint256);
 

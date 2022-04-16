@@ -1,35 +1,47 @@
-import Vue from 'vue';
+import Vue from "vue";
+import vuetify from "@/plugins/vuetify";
 
-import { createApp } from 'vue';
+import App from "./App.vue";
+import router from "@/router";
+import store from "./store";
+import "./registerServiceWorker";
+import VueRouter from "vue-router";
 
-import App from './App.vue';
-import router from '@/router';
-import store from './store';
-import './registerServiceWorker';
+import Web3 from "web3";
 
-import Vuetify from 'vuetify/lib';
-import colors from 'vuetify/lib/util/colors';
+//import colors from "vuetify/lib/util/colors";
 
-import VueMaterial from 'vue-material';
-import VModal from 'vue-js-modal';
-import Jazzicon from 'vue-jazzicon';
+//import pdf from "vue-pdf";
 
+import VueMaterial from "vue-material";
 
+//const VueMaterial = require("vue-material");
 
-import VueSlider from 'vue-slider-component'
+import VModal from "vue-js-modal";
+//import Jazzicon from "vue-jazzicon";
 
-import 'vue-slider-component/theme/default.css'
-import 'vue-material/dist/vue-material.min.css'
+import Jazzicon from "@metamask/jazzicon";
+
+import VueSlider from "vue-slider-component";
+
+import "vue-slider-component/theme/default.css";
+import "vue-material/dist/vue-material.min.css";
 import "typeface-space-mono";
+import { Verify } from "crypto";
 
-require('vue2-animate/dist/vue2-animate.min.css')
+require("vue2-animate/dist/vue2-animate.min.css");
 
-createApp(App)
-  .use(router)
-  .use(VueMaterial)
-  .use(VModal)
-  .use(Vuetify)
-  .component('jazzicon', Jazzicon)
-  .component('VueSlider', VueSlider)
-  .mount("#app")
+Vue.component("jazzicon", Jazzicon);
+Vue.component("VueSlider", VueSlider);
 
+Vue.use(VueMaterial);
+Vue.use(VModal);
+Vue.use(VueRouter);
+
+
+new Vue({
+  router,
+  store,
+  vuetify,
+  render: (h) => h(App),
+}).$mount("#app");

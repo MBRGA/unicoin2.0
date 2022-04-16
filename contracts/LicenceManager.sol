@@ -13,19 +13,10 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
 
     Counters.Counter private _licenceIds;
 
-    enum LicenceStatus { Active, Revoked }
-
-    struct Licence {
-        uint256 ownerId;
-        uint256 publicationId;
-        uint256 publicationLicenceNo;
-        LicenceStatus status;
-    }
-
     Licence[] public licences;
     // user Id to their array of licences
-    mapping(uint256 => uint256[]) public licenceOwners;
-    // publication Id to array of licnces IDs
+    mapping(address => uint256[]) public licenceOwners;
+    // publication Id to array of licence IDs
     mapping(uint256 => uint256[]) public publicationLicences;
 
     modifier onlyRegistry() {
@@ -71,11 +62,11 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
 
     function registerNewLicence(
         address _ownerAddress,
-        uint256 _ownerId,
+        //uint256 _ownerId,
         uint256 _publicationId,
         uint256 _publicationLicenceNo
     ) public onlyRegistry returns (uint256) {
-        Licence memory licence = Licence(_ownerId, _publicationId, _publicationLicenceNo, LicenceStatus.Active);
+        Licence memory licence = Licence(_ownerAddress, _publicationId, _publicationLicenceNo, LicenceStatus.Active);
 
         licences.push(licence);
         _licenceIds.increment();
@@ -83,7 +74,7 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
 
         //uint256 licenceId = licences.push(licence) - 1;
 
-        licenceOwners[_ownerId].push(licenceId);
+        licenceOwners[_ownerAddress].push(licenceId);
 
         publicationLicences[_publicationId].push(licenceId);
 
@@ -100,27 +91,28 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
         licences[_licenceId].publicationLicenceNo -= 1;
     }
 
-    function getLicenceForUser(uint256 _userId) public view returns (uint256[] memory) {
-        return licenceOwners[_userId];
+    function getLicenceForUser(address _userAddress) public view returns (uint256[] memory) {
+        return licenceOwners[_userAddress];
     }
 
     function allocateLicenceToNewOwner(
         uint256 _licenceId,
-        uint256 _newOwnerId,
+        //uint256 _newOwnerId,
         address _oldOwnerAddress,
         address _newOwnerAddress
     ) public onlyRegistry {
-        licences[_licenceId].ownerId = _newOwnerId;
+        licences[_licenceId].ownerAddress = _newOwnerAddress;
         transferFrom(_oldOwnerAddress, _newOwnerAddress, _licenceId);
     }
 
-    function getLicence(uint256 _licenceId) public view returns (uint256, uint256, uint256, uint8) {
-        Licence memory _licence = licences[_licenceId];
-        return (_licence.ownerId, _licence.publicationId, _licence.publicationLicenceNo, uint8(_licence.status));
+    function getLicence(uint256 _licenceId) public view returns (Licence memory) {
+        //Licence memory _licence = licences[_licenceId];
+        //return (_licence.ownerAddress, _licence.publicationId, _licence.publicationLicenceNo, uint8(_licence.status));
+        return licences[_licenceId];
     }
 
-    function getLicenceOwnerId(uint256 _licenceId) public view returns (uint256) {
-        return licences[_licenceId].ownerId;
+    function getLicenceOwnerAddress(uint256 _licenceId) public view returns (address) {
+        return licences[_licenceId].ownerAddress;
     }
 
     function getPublicationLicences(uint256 _publicationId) public view returns (uint256[] memory) {

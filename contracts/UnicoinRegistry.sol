@@ -29,7 +29,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
     address owner;
 
-    string public override versionRecipient = "2.2.6+opengsn.unicoinregistry";
+    //string public override versionRecipient = "2.2.6+opengsn.unicoinregistry";
 
     function initialize(
         address _auctionManager,
@@ -53,7 +53,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         harbergerTaxManager = IHarbergerTaxManager(_harbergerTaxManager);
         vault = IVault(_vault);
 
-        trustedForwarder = _forwarder;
+        //trustedForwarder = _forwarder;
     }
 
     // accept all requests
@@ -96,22 +96,22 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
         uint256 _fixedSellPrice,
-        uint256 _maxNumberOfLicences,
-        uint256[] calldata _contributors,
-        uint256[] calldata _contributorsWeightings
+        uint8 _maxNumberOfLicences,
+        IPublicationManager.Contribution[] calldata _contributors,
+        IPublicationManager.Citation[] calldata _citations
     ) public {
         require(isCallerRegistered(), "Can't create a publication if you are not registered");
 
-        uint256 authorId = getCallerId();
+        //uint256 authorId = getCallerId();
 
         uint256 publicationId = publicationManager._createPublication(
             _pricingStrategy,
             _publicationUri,
-            authorId,
+            _msgSender(),
             _fixedSellPrice,
             _maxNumberOfLicences,
             _contributors,
-            _contributorsWeightings
+            _citations
         );
 
         if (_pricingStrategy != IPublicationManager.PricingStrategy.FixedRate) {
@@ -126,9 +126,11 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function commitSealedBid(bytes32 _bidHash, uint256 _publicationId) public {
+
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
-        uint256 bidderId = getCallerId();
-        auctionManager._commitSealedBid(_bidHash, auctionId, bidderId);
+        address bidderAddress = _msgSender();
+
+        auctionManager._commitSealedBid(_bidHash, auctionId, bidderAddress);
     }
 
     function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publicationId, uint256 _bidId)
@@ -136,57 +138,61 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         returns (uint256)
     {
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
-        uint256 bidderId = getCallerId();
-        auctionManager.revealSealedBid(_bid, _salt, auctionId, _bidId, bidderId);
+        address bidderAddress = _msgSender();
+
+        auctionManager.revealSealedBid(_bid, _salt, auctionId, _bidId, bidderAddress);
     }
 
     function finalizeAuction(uint256 _auctionId) public returns (uint256) {
-        (uint256 winningBidAmount, uint256 winningBidderId, uint256 publicationId) = auctionManager.finalizeAuction(
-            _auctionId
-        );
+        //(uint256 winningBidAmount, address winningBidderAddress, uint256 publicationId) = auctionManager.finalizeAuction(
+        //    _auctionId
+        //);
 
-        if (winningBidAmount == 0) {
+        IAuctionManager.AuctionResult memory auctionRes = auctionManager.finalizeAuction(_auctionId);
+
+        if (auctionRes.winningAmount == 0) {
             return 0; //no one won the auction
         }
-        require(winningBidderId > 0, "Invalid winning bid Id");
-        require(publicationId > 0, "Invalid publication Id");
+        require(auctionRes.winnerAddress != address(0), "Invalid winning bid Id");
+        require(auctionRes.publicationId > 0, "Invalid publication Id");
 
-        uint256 authorId = publicationManager.getAuthorId(publicationId);
-        address authorAddress = userManager.getUserAddress(authorId);
-        address winningBidderAddress = userManager.getUserAddress(winningBidderId);
+        address ownerAddress = publicationManager.getOwnerAddress(auctionRes.publicationId);
+        //address authorAddress = userManager.getUserAddress(authorId);
+        //address winningBidderAddress = userManager.getUserAddress(winningBidderId);
 
-        (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager._getContributers(
-            publicationId
-        );
+        // (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager._getContributers(
+        //    publicationId
+        //);
 
-        address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
+        IPublicationManager.Contribution[] memory contributors = publicationManager._getContributors(auctionRes.publicationId);
+
+        //address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
 
         require(
             vault.settleBulkPayment(
-                winningBidderAddress,
-                authorAddress,
-                contributorAddresses,
-                contributorWeightings,
-                winningBidAmount
+                auctionRes.winnerAddress,
+                ownerAddress,
+                contributors,
+                auctionRes.winningAmount
             ),
             "Bulk auction settlement failed"
         );
 
-        uint256 publicationLicenceNo = publicationManager.addNewLicenceToPublication(publicationId);
+        uint256 publicationLicenceNo = publicationManager.addNewLicenceToPublication(auctionRes.publicationId);
 
         uint256 licenceId = licenceManager.registerNewLicence(
-            winningBidderAddress,
-            winningBidderId,
-            publicationId,
+            auctionRes.winnerAddress,
+            //winningBidderId,
+            auctionRes.publicationId,
             publicationLicenceNo
         );
         if (
-            publicationManager.GetPublicationPricingStrategy(publicationId) ==
+            publicationManager.GetPublicationPricingStrategy(auctionRes.publicationId) ==
             uint8(IPublicationManager.PricingStrategy.PrivateAuctionHarberger)
         ) {
-            harbergerTaxManager.createTaxObject(licenceId, winningBidAmount);
+            harbergerTaxManager.createTaxObject(licenceId, auctionRes.winningAmount);
         }
-        return winningBidAmount;
+        return auctionRes.winningAmount;
     }
 
     function buyLicenceFixedRate() public {}
@@ -200,18 +206,23 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
         if (licenceOwnerSolvent) {
             //the licence owner can pay the tax and all contributers are paid
-            uint256 authorId = publicationManager.getAuthorId(_publicationId);
-            address authorAddress = userManager.getUserAddress(authorId);
-            (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
-                ._getContributers(_publicationId);
-            address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
+            address authorAddress = publicationManager.getOwnerAddress(_publicationId);
+            //address authorAddress = userManager.getUserAddress(authorId);
+
+            //(uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
+            //    ._getContributers(_publicationId);
+
+            IPublicationManager.Contribution[] memory contributors = publicationManager._getContributors(_publicationId);
+
+            //address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
 
             require(
                 vault.settleBulkPayment(
                     licenceOwner,
                     authorAddress,
-                    contributorAddresses,
-                    contributorWeightings,
+                    contributors,
+                    //contributorAddresses,
+                    //contributorWeightings,
                     outstandingTax
                 ),
                 "Bulk harberger settlement failed"
@@ -240,8 +251,10 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function updateLicenceHarbergerValuation(uint256 _licenceId, uint256 _newValuation) public returns (uint256) {
-        uint256 licenceOwnerId = licenceManager.getLicenceOwnerId(_licenceId);
-        require(licenceOwnerId == getCallerId(), "Only the current licence owner can update the  valuation");
+
+        address licenceOwnerAddress = licenceManager.getLicenceOwnerAddress(_licenceId);
+
+        require(licenceOwnerAddress == _msgSender(), "Only the current licence owner can update the  valuation");
 
         uint256 taxObjectId = harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
 
@@ -250,7 +263,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
     function createHarbergerBuyOut(uint256 _licenceId, uint256 _buyOutAmount) public returns (uint256) {
         uint256 taxObjectId = harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
-        uint256 buyOutOwnerId = getCallerId();
+        address buyOutOwnerId = _msgSender();
 
         uint256 buyOutId = harbergerTaxManager.submitBuyOut(taxObjectId, _buyOutAmount, buyOutOwnerId);
         return buyOutId;
@@ -258,11 +271,15 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
     function finalizeBuyoutOffer(uint256 _buyOutId) public returns (bool) {
         bool offerSucceeded = harbergerTaxManager.finalizeBuyOutOffer(_buyOutId);
+
         if (offerSucceeded) {
             uint256 licenceId = harbergerTaxManager.getBuyOutLicenceId(_buyOutId);
-            uint256 buyOutOwnerId = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
 
-            address buyOutOwnerAddress = userManager.getUserAddress(buyOutOwnerId);
+            //uint256 buyOutOwnerId = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
+
+            //address buyOutOwnerAddress = userManager.getUserAddress(buyOutOwnerId);
+
+            address buyoutOwnerAddress = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
 
             uint256 previousOwnerId = licenceManager.getLicenceOwnerId(licenceId);
 
@@ -285,9 +302,9 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return (harbergerTaxManager.getTaxObject(_taxObjectId));
     }
 
-    function getBuyOut(uint256 _buyOutId) public view returns (uint256, uint256, uint256, uint256, uint8) {
+    /*function getBuyOut(uint256 _buyOutId) public view returns (uint256, uint256, uint256, uint256, uint8) {
         return (harbergerTaxManager.getBuyOut(_buyOutId));
-    }
+    }*/
 
     function getTaxObjectLength() public view returns (uint256) {
         return harbergerTaxManager.getTaxObjectLength();
@@ -372,11 +389,11 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return userManager.isAddressRegistered(_msgSender());
     }
 
-    function getCallerId() public view returns (uint256) {
+    /*function getCallerId() public view returns (uint256) {
         uint256 callerId = userManager.getUserId(_msgSender());
         require(callerId != 0, "Caller is not registered!");
         return callerId;
-    }
+    }*/
 
     function getUserAddress(uint256 _userId) public view returns (address) {
         return userManager.getUserAddress(_userId);
@@ -400,12 +417,16 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function updateAuctionStartTime(uint256 _publicationId, uint256 _newStartTime) public {
-        uint256 callerId = getCallerId();
+
+        //address callerAddress = _msgSender();
+
         require(
-            callerId == publicationManager.getAuthorId(_publicationId),
+            _msgSender() == publicationManager.getOwnerAddress(_publicationId),
             "Only the publisher can modify the start time"
         );
+
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
+
         auctionManager.updateAuctionStartTime(auctionId, _newStartTime);
     }
 
@@ -438,7 +459,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return harbergerTaxManager.getLicenceTaxObjectId(_licenceId);
     }
 
-    function getLicenceBuyOuts(uint256 _licenceId)
+    /*function getLicenceBuyOuts(uint256 _licenceId)
         public
         view
         returns (
@@ -450,7 +471,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         )
     {
         return (harbergerTaxManager.getLicenceBuyOuts(_licenceId));
-    }
+    }*/
 
     function getMostRecentPublicationLicence(uint256 _publicationId) public view returns (uint256) {
         return licenceManager.getMostRecentPublicationLicence(_publicationId);

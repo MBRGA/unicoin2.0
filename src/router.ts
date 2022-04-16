@@ -1,8 +1,8 @@
 import Vue from "vue";
-import VueRouter from "vue-router";
+import VueRouter, { RouteConfig } from "vue-router";
 
-import { createWebHistory, createRouter } from "vue-router";
-import { RouteRecordRaw } from "vue-router";
+//import { createWebHistory, createRouter } from "vue-router";
+//import { RouteRecordRaw } from "vue-router";
 
 import store from "./store/index";
 
@@ -18,7 +18,7 @@ import MyLicenses from "./views/MyLicenses.vue";
 import TermsOfService from "./views/TermsOfService.vue";
 import ContactUs from "./views/ContactUs.vue";
 
-const routes: Array<RouteRecordRaw> = [
+const routes: Array<RouteConfig> = [
   {
     path: "/",
     name: "UniCoin - Home",
@@ -101,11 +101,12 @@ const routes: Array<RouteRecordRaw> = [
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
+const router = new VueRouter({ mode: "history", routes });
 
+//const router = createRouter({
+//  history: createWebHistory(),
+//  routes,
+//});
 
 // router.beforeEach((to, from, next) => {
 //   console.log("router")

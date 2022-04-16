@@ -1,192 +1,122 @@
 <template>
-  <md-app id="app" md-mode="reveal" style="min-height: 100vh">
-    <md-app-toolbar class="md-primary">
-      <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
-        <md-icon>menu</md-icon>
-      </md-button>
-      <span class="md-title">{{ $route.name }}</span>
+  <v-app>
+    <v-app-bar color="primary">
+      <v-app-bar-nav-icon @click.stop="menuVisible = !menuVisible"></v-app-bar-nav-icon>
 
-      <!-- <logo style="margin-left:600px"/> -->
+      <v-toolbar-title>{{ $route.name }}</v-toolbar-title>
 
-      <div class="md-toolbar-section-end">
-        <div class="md-layout md-gutter md-alignment-center-right" style="text-align: right; width: 500px">
-          <div class="md-layout-item">
-            <div class="md-subheading">{{ userProfile.firstName }} {{ userProfile.lastName }}</div>
-          </div>
-          <div class="md-layout-item">
-            <div class="md-subheading">
-              <clickable-address :light="true" :eth-address="account" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </md-app-toolbar>
+      <v-spacer></v-spacer>
 
-    <md-app-drawer v-model:md-active="menuVisible">
-      <md-list>
-        <md-list-item>
-          <md-icon>home</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/">Home</router-link>
-          </span>
-        </md-list-item>
-        <md-list-item>
-          <md-icon>account_box</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/Profile">Profile</router-link>
-          </span>
-        </md-list-item>
+      <v-toolbar-title class="text-subtitle-2">{{
+        "${userProfile.firstName} ${userProfile.lastName}"
+      }}</v-toolbar-title>
+    </v-app-bar>
 
-        <md-list-item>
-          <md-icon>person_add</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/CreateProfile">Create New User</router-link>
-          </span>
-        </md-list-item>
+    <v-navigation-drawer v-model="menuVisible" absolute temporary>
+      <v-list nav dense>
+        <v-list-item v-for="item in menuItems" :key="item.label" link>
+          <v-list-item-icon>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-icon>
 
-        <md-list-item>
-          <md-icon>search</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/BrowsePublications">Browse Publications</router-link>
-          </span>
-        </md-list-item>
-
-        <md-divider></md-divider>
-        <md-list-item>
-          <md-icon>create</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/ListPublication">List New Publication</router-link>
-          </span>
-        </md-list-item>
-
-        <md-list-item>
-          <md-icon>format_list_bulleted</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/ManagePublications">Manage Publications</router-link>
-          </span>
-        </md-list-item>
-
-        <md-divider></md-divider>
-
-        <md-list-item>
-          <md-icon>attach_money</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/MyBids">My Bids</router-link>
-          </span>
-        </md-list-item>
-
-        <md-list-item>
-          <md-icon>vpn_key</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/MyLicenses">My Licences</router-link>
-          </span>
-        </md-list-item>
-        <md-divider></md-divider>
-
-        <md-list-item>
-          <md-icon>code</md-icon>
-          <span class="md-list-item-text">
-            <a href="https://github.com/unicoinlicences/unicoindapp" target="__blank">Github</a>
-          </span>
-        </md-list-item>
-
-        <md-list-item>
-          <md-icon>chat</md-icon>
-          <span class="md-list-item-text">
-            <a
-              href="https://github.com/unicoinlicences/unicoindapp/tree/master/Documentation/TechnicalArchitecture.md"
-              target="__blank"
-              >Documentation</a
+          <v-list-item-content>
+            <v-list-item-title
+              ><router-link :to="item.path">{{ item.label }}</router-link></v-list-item-title
             >
-          </span>
-        </md-list-item>
-
-        <md-divider></md-divider>
-
-        <md-list-item>
-          <md-icon>chat</md-icon>
-          <span class="md-list-item-text">
-            <router-link to="/ContactUs">Contact</router-link>
-          </span>
-        </md-list-item>
-        <md-divider></md-divider>
-      </md-list>
-    </md-app-drawer>
-
-    <md-app-content style="background-color: #f5f9f9; padding-left: 0px; padding-right: 0px">
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-main>
       <mining-transaction />
       <router-view />
-      <div style="padding-top: 20px; padding-left: 20px; padding-right: 20px">
-        <span class="md-subheading">
-          <a href="/TermsOfService">Terms Of Service</a>
-        </span>
-        <span class="md-caption" style="float: right">
-          {{ currentNetwork }}
-          <clickable-address :light="false" :icon="false" :eth-address="contractAddress" />
-        </span>
-      </div>
-    </md-app-content>
-  </md-app>
+    </v-main>
+    <v-row>
+      <v-col class="text-subtitle"><a href="/TermsOfService">Terms of service</a> </v-col>
+      <v-col class="text-caption">
+        {{ currentNetwork }}<clickable-address :light="false" :icon="false" :eth-address="contractAddress"
+      /></v-col>
+    </v-row>
+  </v-app>
 </template>
 
-<script>
+<script lang="ts">
 /* global web3:true */
 import Web3 from "web3";
 import * as actions from "@/store/actions";
 import * as mutations from "@/store/mutation-types";
-import ClickableAddress from "@/components/widgets/ClickableAddress";
-import MiningTransaction from "@/components/widgets/MiningTransaction";
 import { mapActions, mapState } from "vuex";
 import router from "@/router";
+import MiningTransaction from "./components/widgets/MiningTransaction.vue";
+import ClickableAddress from "./components/widgets/ClickableAddress.vue";
+import detectEthereumProvider from "@metamask/detect-provider";
+import provider from "web3";
+
+interface MenuItem {
+  label: string;
+  path: string;
+  icon: string;
+}
+
+interface AppData {
+  web3Detected: boolean;
+  menuVisible: boolean;
+  menuItems: MenuItem[];
+}
+
 export default {
   name: "app",
   components: { ClickableAddress, MiningTransaction },
-  data() {
+  data(): AppData {
     return {
       web3Detected: true,
       menuVisible: false,
+      menuItems: [
+        { label: "Home", path: "/", icon: "mdi-home" },
+        { label: "Profile", path: "/Profile", icon: "mdi-account-box" },
+        { label: "Create New User", path: "/CreateProfile", icon: "mdi-account-plus" },
+      ],
     };
   },
   methods: {
     ...mapActions(["INIT_APP"]),
-    redirect(_path) {
+    redirect(_path: string) {
       router.push({ name: _path });
     },
   },
 
-// Make sure ESLint knows about ethereum global variable
-/* global ethereum */
+  // Make sure ESLint knows about ethereum global variable
+  /* global ethereum */
 
   async mounted() {
-    if (window.ethereum) {
-      window.web3 = new Web3(ethereum);
+    const eth = await detectEthereumProvider();
+
+    if (eth) {
+      Vue.prototype.$web3 = new Web3(eth as any);
+
       console.log("web3 provider detected!");
-      console.log(window.web3);
-      // Request account access if needed
-      ethereum
-        .enable()
-        .then((value) => {
-          console.log("Bootstrapping web app - provider acknowedgled", value);
-          this.INIT_APP(window.web3);
+      (eth as any)
+        .request({ method: "eth_requestAccounts" })
+        .then((value: any) => {
+          console.log("Bootstrapping web app - provider acknowledged", value);
         })
-        .catch((error) => {
-          console.log("User denied access, boostrapping application using infura", error);
-          window.web3 = new Web3(
+        .catch((error: any) => {
+          console.log("User denied access, bootstrapping application using infura", error);
+          Vue.prototype.$web3 = new Web3(
             new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
           );
-          this.INIT_APP(window.web3);
         });
-    } else if (window.web3) {
+    } else if (Vue.prototype.$web3) {
       console.log("Running legacy web3 provider");
-      window.web3 = new Web3(web3.currentProvider);
-      this.INIT_APP(window.web3);
+      Vue.prototype.$web3 = new Web3(Vue.prototype.$web3.currentProvider);
     } else {
-      window.web3 = new Web3(
+      Vue.prototype.$web3 = new Web3(
         new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
       );
       console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
-      this.INIT_APP(window.web3);
     }
+
+    this.INIT_APP(Vue.prototype.$web3);
   },
   computed: {
     ...mapState(["currentNetwork", "account", "contractAddress", "userProfile"]),
@@ -202,7 +132,7 @@ export default {
   (
     primary: #828ec6,
     // The primary color of your brand
-    accent: #dd688c // The secondary color of your brand,,,,,,,,,,
+    accent: #dd688c // The secondary color of your brand,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
   )
 );
 @import "~vue-material/dist/theme/all"; // Apply the theme

@@ -1,5 +1,5 @@
-const getNetIdString = () => {
-  return window.web3.eth.net.getId().then((id) => {
+export const getNetIdString = () => {
+  return Vue.prototype.$web3.eth.net.getId().then((id) => {
     switch (id) {
       case 1:
         return "Main Ethereum Network";
@@ -9,7 +9,7 @@ const getNetIdString = () => {
         return "Rinkeby Ethereum Test Network";
       case 42:
         return "Kovan Ethereum Test Network";
-      case "loading":
+      case -1:
         return "loading..";
       // Will be some random number when connected locally
       default:
@@ -18,8 +18,8 @@ const getNetIdString = () => {
   });
 };
 
-const getEtherscanAddress = () => {
-  return window.web3.eth.net
+export const getEtherscanAddress = () => {
+  return Vue.prototype.$web3.eth.net
     .getId()
     .then((id) => {
       switch (id) {
@@ -40,6 +40,7 @@ const getEtherscanAddress = () => {
       return etherScanAddress;
     });
 };
+
 
 module.exports = {
   getEtherscanAddress,
