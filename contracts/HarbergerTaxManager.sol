@@ -26,33 +26,16 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     }
 
     CountersUpgradeable.Counter _taxObjectIds;
-    CountersUpgradeable.Counter _buyoutIds;
-
-    enum TaxObjectStatus { Active, Revoked }
-
-    struct TaxObject {
-        uint256 licenceId;
-        uint256 ratePerBlock;
-        uint256 lastPayment;
-        uint256 numberOfOutBids;
-        uint256 currentAssignedValue;
-        uint256[] buyOutIds;
-        TaxObjectStatus status;
-    }
+    //CountersUpgradeable.Counter _buyoutIds;
 
     TaxObject[] taxObjects;
 
-    struct BuyOut {
-        uint256 taxObjectId;
-        uint256 buyOutOwnerId;
-        uint256 buyOutAmount;
-        uint256 buyOutExpiration;
-        BuyOutStatus status;
-    }
+    //BuyOut[] buyOuts;
 
-    BuyOut[] buyOuts;
+    mapping(uint256 => uint256) public buyOuts;
 
-    mapping(uint256 => uint256[]) public buyOutOwners;
+    //mapping(uint256 => uint256[]) public buyOutOwners;
+
     mapping(uint256 => uint256[]) public licenceTaxObjects;
 
     function initialize(address _registry, address _trustedForwarder) public initializer {
@@ -82,7 +65,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
             );
         }
 
-        uint256[] memory buyOutIds;
+        BuyOut[] memory _buyOuts;
 
         TaxObject memory taxObject = TaxObject(
             _licenceId,
@@ -90,7 +73,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
             block.timestamp,
             0,
             _currentAssignedValue,
-            buyOutIds,
+            _buyOuts,
             TaxObjectStatus.Active
         );
 
@@ -139,13 +122,13 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
 
     /** @notice Issue a bid to buy out a licence under Harberger Tax rules
         @param _offer The buyout amount - must be greater the minimum buyout amount based on current valuation
-        @param _buyOutOwnerId The ID of the entity making the buyout offer.
-        @return buyOutId The ID of the newly created buyout offer
+        @param _buyOutOwnerAddress The ID of the entity making the buyout offer.
+        @dev buyOutId The ID of the newly created buyout offer
      */
-    function submitBuyOut(uint256 _taxObjectId, uint256 _offer, uint256 _buyOutOwnerId)
+    function submitBuyOut(uint256 _taxObjectId, uint256 _offer, address _buyOutOwnerAddress)
         public
         onlyRegistry
-        returns (uint256)
+        //returns (uint256)
     {
         require(_offer >= calculateMinBuyOutPrice(_taxObjectId), "Value sent is less than the minimum buyOut price");
 
@@ -156,19 +139,23 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
 
         BuyOut memory buyOut = BuyOut(
             _taxObjectId,
-            _buyOutOwnerId,
+            _buyOutOwnerAddress,
             _offer,
             block.timestamp + BUYOUT_TIMEOUT,
             BuyOutStatus.Pending
         );
 
-        buyOuts.push(buyOut);
-        _buyoutIds.increment();
-        uint256 buyOutId = _buyoutIds.current();
+        uint256 licenceId = taxObjects[_taxObjectId].licenceId;
 
-        taxObjects[_taxObjectId].buyOutIds.push(buyOutId);
+        //buyOuts[licenceId].push(buyOut);
 
-        return buyOutId;
+        //buyOuts.push(buyOut);
+        //_buyoutIds.increment();
+        //uint256 buyOutId = _buyoutIds.current();
+
+        taxObjects[_taxObjectId].buyOuts.push(buyOut);
+
+        //return buyOutId;
     }
 
     /** @notice Called by the Unicoin registry to perform the finalisation steps of a buy out
@@ -176,8 +163,10 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         @return success Returns true if the buyout was successful
         @dev Only valid for Pending buyouts, and where the buyout outbidding window has closed.
      */
-    function finalizeBuyOutOffer(uint256 _buyOutId) public onlyRegistry returns (bool) {
-        BuyOut memory buyOut = buyOuts[_buyOutId];
+    function finalizeBuyOutOffer(uint256 _taxObjectId, uint256 _buyOutId) public onlyRegistry returns (bool) {
+
+        BuyOut storage buyOut = taxObjects[_taxObjectId].buyOuts[_buyOutId];
+
         require(buyOut.status == BuyOutStatus.Pending, "Can only finalize buyOut if buyOut is pending");
         require(
             buyOut.buyOutExpiration < block.timestamp,
@@ -185,12 +174,12 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         );
 
         if (buyOut.buyOutAmount < calculateMinBuyOutPrice(buyOut.taxObjectId)) {
-            buyOuts[_buyOutId].status = BuyOutStatus.OutBid;
+            buyOut.status = BuyOutStatus.OutBid;
 
             return false; //the buyOut was not enough and so failed
         }
 
-        buyOuts[_buyOutId].status = BuyOutStatus.Successful;
+        buyOut.status = BuyOutStatus.Successful;
         taxObjects[buyOut.taxObjectId].currentAssignedValue = buyOut.buyOutAmount;
         taxObjects[buyOut.taxObjectId].numberOfOutBids += 1;
         taxObjects[buyOut.taxObjectId].lastPayment = block.timestamp;
@@ -211,9 +200,9 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     function getTaxObject(uint256 _taxObjectId)
         public
         view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory, uint8)
+        returns (TaxObject memory)
     {
-        TaxObject memory taxObject = taxObjects[_taxObjectId];
+        /*TaxObject memory taxObject = taxObjects[_taxObjectId];
 
         return (
             taxObject.licenceId,
@@ -223,7 +212,9 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
             taxObject.currentAssignedValue,
             taxObject.buyOutIds,
             uint8(taxObject.status)
-        );
+        );*/
+
+        return taxObjects[_taxObjectId];
     }
 
     // taxObject_Id;
@@ -232,7 +223,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     //     uint256 buyOutExpiration;
     //     BuyOutStatus status;
 
-    function getBuyOut(uint256 _buyOutId) public view returns (uint256, uint256, uint256, uint256, uint8) {
+    /*function getBuyOut(uint256 _buyOutId) public view returns (uint256, uint256, uint256, uint256, uint8) {
         BuyOut memory buyOut = buyOuts[_buyOutId];
         return (
             buyOut.taxObjectId,
@@ -241,43 +232,46 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
             buyOut.buyOutExpiration,
             uint8(buyOut.status)
         );
-    }
+    }*/
 
-    function getBuyOutLicenceId(uint256 _buyOutId) public view returns (uint256) {
+    /*function getBuyOutLicenceId(uint256 _buyOutId) public view returns (uint256) {
         uint256 taxObject_Id = buyOuts[_buyOutId].taxObjectId;
         return taxObjects[taxObject_Id].licenceId;
-    }
+    }*/
 
-    function getBuyOutOwnerId(uint256 _buyOutId) public view returns (uint256) {
-        return buyOuts[_buyOutId].buyOutOwnerId;
+    function getBuyOutOwnerAddress(uint256 _taxObjectId, uint256 _buyOutId) public view returns (address) {
+
+        return taxObjects[_taxObjectId].buyOuts[_buyOutId].buyOutOwnerAddress;
+
+        //return buyOuts[_buyOutId].buyOutOwnerId;
     }
 
     function getTaxObjectLength() public view returns (uint256) {
         return taxObjects.length;
     }
 
-    /** @notice Provides details of all buyouts that have been made on this licence
-        @param _licenceId The ID of the license being queried
+
+    /* 
         @return taxObjectId_ Array of IDs of tax objects associated with each buyout
         @return buyOutOwnerId_ Array of IDs of issuers of each buyout
         @return buyOutAmount_ The amount at which each buyout was bid
         @return buyOutExpiration_ The time at which each buyout became final
-        @return status_ The status of each buyout
+        @return status_ The status of each buyout*/
+
+    /* @notice Provides details of all buyouts that have been made on this licence
+        @param _licenceId The ID of the license being queried
+        @return buyOuts Array of buyout objects associated with this licence
     */
-    function getLicenceBuyOuts(uint256 _licenceId)
+    /*function getLicenceBuyOuts(uint256 _licenceId)
         public
         view
-        returns (
-            uint256[] memory taxObjectId_,
-            uint256[] memory buyOutOwnerId_,
-            uint256[] memory buyOutAmount_,
-            uint256[] memory buyOutExpiration_,
-            BuyOutStatus[] memory status_
-        )
+        returns (BuyOut[] memory)
     {
         uint256 numberOfBuyOuts = licenceTaxObjects[_licenceId].length;
 
-        taxObjectId_ = new uint256[](numberOfBuyOuts);
+        return buyOuts[_licenceId];
+
+        /*taxObjectId_ = new uint256[](numberOfBuyOuts);
         buyOutOwnerId_ = new uint256[](numberOfBuyOuts);
         buyOutAmount_ = new uint256[](numberOfBuyOuts);
         buyOutExpiration_ = new uint256[](numberOfBuyOuts);
@@ -293,7 +287,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         }
 
         return (taxObjectId_, buyOutOwnerId_, buyOutAmount_, buyOutExpiration_, status_);
-    }
+    }*/
 
     /**
       * @dev computes e ^ (x / FIXED_1) * FIXED_1
