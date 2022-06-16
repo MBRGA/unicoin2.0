@@ -4,21 +4,14 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
+import "../library/SharedStructures.sol";
+
 interface ILicenceManager is IERC721Upgradeable {
     /*function initialize(
         string calldata _name,
         string calldata _symbol,
         address _unicoinRegistry
     ) external;*/
-
-    enum LicenceStatus { Active, Revoked }
-
-    struct Licence {
-        address ownerAddress;
-        uint256 publicationId;
-        uint256 publicationLicenceNo;
-        LicenceStatus status;
-    }
 
     function registerNewLicence(
         address _ownerAddress,
@@ -43,7 +36,7 @@ interface ILicenceManager is IERC721Upgradeable {
     function getLicence(uint256 _licenceId)
         external
         view
-        returns (Licence memory);
+        returns (SharedStructures.Licence memory);
 
     function getLicenceOwnerAddress(uint256 _licenceId)
         external

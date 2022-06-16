@@ -3,45 +3,39 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "./patches/ERC2771ContextUpgradeable.sol";
+//import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
+//import "./patches/ERC2771ContextUpgradeable.sol";
 import "./interfaces/IHarbergerTaxManager.sol";
+import "./library/SharedStructures.sol";
 
 contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771ContextUpgradeable {
     uint256 private constant FIXED_1 = 0x080000000000000000000000000000000;
     //percentage increase over previous price that must be paid to buy Out the licence
     uint256 constant MIN_BUYOUT_PRICE_INCREASE = 5;
-    //a buyOut has an expiratory of 10 days for the owner to raize the price or loose the licence
+    //a buyOut has an expiratory of 10 days for the owner to raise the price or loose the licence
     uint256 constant BUYOUT_TIMEOUT = 60 * 60 * 24 * 10;
     // 4% compounding per block, scaled 1e18
     uint256 constant FIXED_INTEREST_RATE_PER_BLOCK = 19025875190;
 
-    using CountersUpgradeable for CountersUpgradeable.Counter;
+    //using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    address registry;
+    address immutable _registry;
 
     modifier onlyRegistry() {
-        require(_msgSender() == registry, "Can only be called by registry");
+        require(_msgSender() == _registry, "Can only be called by registry");
         _;
     }
 
-    CountersUpgradeable.Counter _taxObjectIds;
-    //CountersUpgradeable.Counter _buyoutIds;
+    SharedStructures.TaxObject[] taxObjects;
 
-    TaxObject[] taxObjects;
-
-    //BuyOut[] buyOuts;
-
-    mapping(uint256 => uint256) public buyOuts;
-
-    //mapping(uint256 => uint256[]) public buyOutOwners;
+    SharedStructures.BuyOut[] buyOuts;
 
     mapping(uint256 => uint256[]) public licenceTaxObjects;
 
-    function initialize(address _registry, address _trustedForwarder) public initializer {
-        __ERC2771Context_init(_trustedForwarder);
-
-        registry = _registry;
+    // This contract is upgradeable, but we can use constructor instead of initializer for optimisation benefits for immutables.
+    constructor(address registry, address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+        _registry = registry;
     }
 
     /** @notice Creates a new Harberger Tax associated with a given licence
@@ -60,26 +54,38 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         if (licenceTaxObjects[_licenceId].length > 0) {
             require(
                 taxObjects[licenceTaxObjects[_licenceId][licenceTaxObjects[_licenceId].length - 1]].status ==
-                    TaxObjectStatus.Revoked,
+                    SharedStructures.TaxObjectStatus.Revoked,
                 "Can only create tax object if previous revoked"
             );
         }
 
-        BuyOut[] memory _buyOuts;
+       // BuyOut[] storage _buyOuts;
 
-        TaxObject memory taxObject = TaxObject(
+        //TaxObject memory taxObject;
+
+        /*taxObject.licenceId = _licenceId;
+        taxObject.ratePerBlock = FIXED_INTEREST_RATE_PER_BLOCK;
+        taxObject.lastPayment = block.timestamp;
+        taxObject.numberOfOutBids = 0;
+        taxObject.currentAssignedValue = _currentAssignedValue;
+        taxObject.status = TaxObjectStatus.Active;        */
+
+        SharedStructures.TaxObject memory taxObject = SharedStructures.TaxObject(
             _licenceId,
             FIXED_INTEREST_RATE_PER_BLOCK,
             block.timestamp,
             0,
             _currentAssignedValue,
-            _buyOuts,
-            TaxObjectStatus.Active
+            new uint256[](0),//_buyOuts,
+            SharedStructures.TaxObjectStatus.Active
         );
 
         taxObjects.push(taxObject);
-        _taxObjectIds.increment();
-        uint256 taxObjectId = _taxObjectIds.current();
+
+        uint256 taxObjectId = taxObjects.length - 1;
+
+        //_taxObjectIds.increment();
+        //uint256 taxObjectId = _taxObjectIds.current();
 
         licenceTaxObjects[_licenceId].push(taxObjectId);
 
@@ -91,7 +97,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         @return interestOutstanding The tax amount due
      */
     function calculateOutstandingTax(uint256 _taxObjectId) public view returns (uint256) {
-        TaxObject storage taxObject = taxObjects[_taxObjectId]; /*memory*/
+        SharedStructures.TaxObject storage taxObject = taxObjects[_taxObjectId]; /*memory*/
 
         uint256 _futureValue = futureValue(
             taxObject.currentAssignedValue,
@@ -128,34 +134,37 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     function submitBuyOut(uint256 _taxObjectId, uint256 _offer, address _buyOutOwnerAddress)
         public
         onlyRegistry
-        //returns (uint256)
+        returns (uint256)
     {
         require(_offer >= calculateMinBuyOutPrice(_taxObjectId), "Value sent is less than the minimum buyOut price");
 
         require(
-            taxObjects[_taxObjectId].status == TaxObjectStatus.Active,
+            taxObjects[_taxObjectId].status == SharedStructures.TaxObjectStatus.Active,
             "Can only submit a buyOut to an active active tax object"
         );
 
-        BuyOut memory buyOut = BuyOut(
+        SharedStructures.BuyOut memory buyOut = SharedStructures.BuyOut(
             _taxObjectId,
             _buyOutOwnerAddress,
             _offer,
             block.timestamp + BUYOUT_TIMEOUT,
-            BuyOutStatus.Pending
+            SharedStructures.BuyOutStatus.Pending
         );
 
-        uint256 licenceId = taxObjects[_taxObjectId].licenceId;
+        //uint256 licenceId = taxObjects[_taxObjectId].licenceId;
 
         //buyOuts[licenceId].push(buyOut);
 
-        //buyOuts.push(buyOut);
+        buyOuts.push(buyOut);
+
+        uint256 buyOutId = buyOuts.length - 1;
+
         //_buyoutIds.increment();
         //uint256 buyOutId = _buyoutIds.current();
 
-        taxObjects[_taxObjectId].buyOuts.push(buyOut);
+        taxObjects[_taxObjectId].buyOuts.push(buyOutId);
 
-        //return buyOutId;
+        return buyOutId;
     }
 
     /** @notice Called by the Unicoin registry to perform the finalisation steps of a buy out
@@ -163,23 +172,23 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         @return success Returns true if the buyout was successful
         @dev Only valid for Pending buyouts, and where the buyout outbidding window has closed.
      */
-    function finalizeBuyOutOffer(uint256 _taxObjectId, uint256 _buyOutId) public onlyRegistry returns (bool) {
+    function finalizeBuyOutOffer(uint256 _buyOutId) public onlyRegistry returns (bool) {
 
-        BuyOut storage buyOut = taxObjects[_taxObjectId].buyOuts[_buyOutId];
+        SharedStructures.BuyOut storage buyOut = buyOuts[_buyOutId];
 
-        require(buyOut.status == BuyOutStatus.Pending, "Can only finalize buyOut if buyOut is pending");
+        require(buyOut.status == SharedStructures.BuyOutStatus.Pending, "Can only finalize buyOut if buyOut is pending");
         require(
             buyOut.buyOutExpiration < block.timestamp,
             "can only finalize buyOut if it is past the expiration time"
         );
 
         if (buyOut.buyOutAmount < calculateMinBuyOutPrice(buyOut.taxObjectId)) {
-            buyOut.status = BuyOutStatus.OutBid;
+            buyOut.status = SharedStructures.BuyOutStatus.OutBid;
 
             return false; //the buyOut was not enough and so failed
         }
 
-        buyOut.status = BuyOutStatus.Successful;
+        buyOut.status = SharedStructures.BuyOutStatus.Successful;
         taxObjects[buyOut.taxObjectId].currentAssignedValue = buyOut.buyOutAmount;
         taxObjects[buyOut.taxObjectId].numberOfOutBids += 1;
         taxObjects[buyOut.taxObjectId].lastPayment = block.timestamp;
@@ -188,7 +197,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     }
 
     function revokeTaxObject(uint256 _taxObjectId) public onlyRegistry {
-        taxObjects[_taxObjectId].status = TaxObjectStatus.Revoked;
+        taxObjects[_taxObjectId].status = SharedStructures.TaxObjectStatus.Revoked;
     }
 
     function getLicenceTaxObjectId(uint256 _licenceId) public view returns (uint256) {
@@ -200,7 +209,7 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
     function getTaxObject(uint256 _taxObjectId)
         public
         view
-        returns (TaxObject memory)
+        returns (SharedStructures.TaxObject memory)
     {
         /*TaxObject memory taxObject = taxObjects[_taxObjectId];
 
@@ -234,14 +243,16 @@ contract HarbergerTaxManager is Initializable, IHarbergerTaxManager, ERC2771Cont
         );
     }*/
 
-    /*function getBuyOutLicenceId(uint256 _buyOutId) public view returns (uint256) {
+    function getBuyOutLicenceId(uint256 _buyOutId) public view returns (uint256) {
         uint256 taxObject_Id = buyOuts[_buyOutId].taxObjectId;
         return taxObjects[taxObject_Id].licenceId;
-    }*/
+    }
 
-    function getBuyOutOwnerAddress(uint256 _taxObjectId, uint256 _buyOutId) public view returns (address) {
+    function getBuyOutOwnerAddress(uint256 _buyOutId) public view returns (address) {
 
-        return taxObjects[_taxObjectId].buyOuts[_buyOutId].buyOutOwnerAddress;
+        return buyOuts[_buyOutId].buyOutOwnerAddress;
+
+        //return taxObjects[_taxObjectId].buyOuts[_buyOutId].buyOutOwnerAddress;
 
         //return buyOuts[_buyOutId].buyOutOwnerId;
     }

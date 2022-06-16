@@ -4,40 +4,40 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "./patches/ERC2771ContextUpgradeable.sol";
+//import "./patches/ERC2771ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "./interfaces/ILicenceManager.sol";
+import "./library/SharedStructures.sol";
 
 contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ERC2771ContextUpgradeable {
-    using Counters for Counters.Counter;
 
-    Counters.Counter private _licenceIds;
-
-    Licence[] public licences;
+    SharedStructures.Licence[] public licences;
     // user Id to their array of licences
     mapping(address => uint256[]) public licenceOwners;
     // publication Id to array of licence IDs
     mapping(uint256 => uint256[]) public publicationLicences;
 
     modifier onlyRegistry() {
-        require(_msgSender() == registry, "Can only be called by registry");
+        require(_msgSender() == _registry, "Can only be called by registry");
         _;
     }
 
-    address registry;
+    address immutable _registry;
+    
+    // This contract is upgradeable, but we can use constructor instead of initializer for optimisation benefits for immutables.
+    constructor(address unicoinRegistry, address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+        _registry = unicoinRegistry;
+    }
 
-    function initialize(string memory _name, string memory _symbol, address _unicoinRegistry, address _trustedForwarder)
+    function initialize(string memory _name, string memory _symbol)
         public
         initializer
     {
         __ERC721_init(_name, _symbol);
-        __ERC2771Context_init(_trustedForwarder);
 
         //ERC721Enumerable.initialize();
         //ERC721Metadata.initialize(_name, _symbol);
         //ERC721Mintable.initialize(_unicoinRegistry);
-
-        registry = _unicoinRegistry;
     }
 
     function _msgSender()
@@ -66,11 +66,10 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
         uint256 _publicationId,
         uint256 _publicationLicenceNo
     ) public onlyRegistry returns (uint256) {
-        Licence memory licence = Licence(_ownerAddress, _publicationId, _publicationLicenceNo, LicenceStatus.Active);
+        SharedStructures.Licence memory licence = SharedStructures.Licence(_ownerAddress, _publicationId, _publicationLicenceNo, SharedStructures.LicenceStatus.Active);
 
         licences.push(licence);
-        _licenceIds.increment();
-        uint256 licenceId = _licenceIds.current();
+        uint256 licenceId = licences.length - 1;
 
         //uint256 licenceId = licences.push(licence) - 1;
 
@@ -79,7 +78,7 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
         publicationLicences[_publicationId].push(licenceId);
 
         _safeMint(_ownerAddress, licenceId);
-        approve(registry, licenceId);
+        approve(_registry, licenceId);
 
         //require(ERC721Mintable.mint(_ownerAddress, licenceId), "Licence minting failed");
 
@@ -87,7 +86,7 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
     }
 
     function revokeLicence(uint256 _licenceId) public onlyRegistry {
-        licences[_licenceId].status = LicenceStatus.Revoked;
+        licences[_licenceId].status = SharedStructures.LicenceStatus.Revoked;
         licences[_licenceId].publicationLicenceNo -= 1;
     }
 
@@ -105,7 +104,7 @@ contract LicenceManager is Initializable, ERC721Upgradeable, ILicenceManager, ER
         transferFrom(_oldOwnerAddress, _newOwnerAddress, _licenceId);
     }
 
-    function getLicence(uint256 _licenceId) public view returns (Licence memory) {
+    function getLicence(uint256 _licenceId) public view returns (SharedStructures.Licence memory) {
         //Licence memory _licence = licences[_licenceId];
         //return (_licence.ownerAddress, _licence.publicationId, _licence.publicationLicenceNo, uint8(_licence.status));
         return licences[_licenceId];

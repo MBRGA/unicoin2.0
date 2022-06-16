@@ -15,6 +15,8 @@ import "./interfaces/IUserManager.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IHarbergerTaxManager.sol";
 
+import "./library/SharedStructures.sol";
+
 contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     function versionRecipient() public pure override returns (string memory) {
         return "3.0.0-alpha0+unicoin";
@@ -75,7 +77,12 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal {
+    function _postRelayedCall(
+        bytes memory context,
+        bool,
+        uint256 actualCharge,
+        bytes32
+    ) internal {
         // solhint-disable-previous-line no-empty-blocks
     }
 
@@ -90,15 +97,15 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function createPublication(
-        IPublicationManager.PricingStrategy _pricingStrategy,
+        SharedStructures.PricingStrategy _pricingStrategy,
         string calldata _publicationUri,
         uint256 _auctionFloor,
         uint256 _auctionStartTime,
         uint256 _auctionDuration,
         uint256 _fixedSellPrice,
         uint8 _maxNumberOfLicences,
-        IPublicationManager.Contribution[] calldata _contributors,
-        IPublicationManager.Citation[] calldata _citations
+        SharedStructures.Contribution[] calldata _contributors,
+        SharedStructures.Citation[] calldata _citations
     ) public {
         require(isCallerRegistered(), "Can't create a publication if you are not registered");
 
@@ -114,7 +121,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
             _citations
         );
 
-        if (_pricingStrategy != IPublicationManager.PricingStrategy.FixedRate) {
+        if (_pricingStrategy != SharedStructures.PricingStrategy.FixedRate) {
             uint256 auctionId = auctionManager._createAuction(
                 publicationId,
                 _auctionFloor,
@@ -126,17 +133,18 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function commitSealedBid(bytes32 _bidHash, uint256 _publicationId) public {
-
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
         address bidderAddress = _msgSender();
 
         auctionManager._commitSealedBid(_bidHash, auctionId, bidderAddress);
     }
 
-    function revealSealedBid(uint256 _bid, uint256 _salt, uint256 _publicationId, uint256 _bidId)
-        public
-        returns (uint256)
-    {
+    function revealSealedBid(
+        uint256 _bid,
+        uint256 _salt,
+        uint256 _publicationId,
+        uint256 _bidId
+    ) public returns (uint256) {
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
         address bidderAddress = _msgSender();
 
@@ -148,7 +156,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         //    _auctionId
         //);
 
-        IAuctionManager.AuctionResult memory auctionRes = auctionManager.finalizeAuction(_auctionId);
+        SharedStructures.AuctionResult memory auctionRes = auctionManager.finalizeAuction(_auctionId);
 
         if (auctionRes.winningAmount == 0) {
             return 0; //no one won the auction
@@ -164,17 +172,14 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         //    publicationId
         //);
 
-        IPublicationManager.Contribution[] memory contributors = publicationManager._getContributors(auctionRes.publicationId);
+        SharedStructures.Contribution[] memory contributors = publicationManager._getContributors(
+            auctionRes.publicationId
+        );
 
         //address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
 
         require(
-            vault.settleBulkPayment(
-                auctionRes.winnerAddress,
-                ownerAddress,
-                contributors,
-                auctionRes.winningAmount
-            ),
+            vault.settleBulkPayment(auctionRes.winnerAddress, ownerAddress, contributors, auctionRes.winningAmount),
             "Bulk auction settlement failed"
         );
 
@@ -188,7 +193,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         );
         if (
             publicationManager.GetPublicationPricingStrategy(auctionRes.publicationId) ==
-            uint8(IPublicationManager.PricingStrategy.PrivateAuctionHarberger)
+            uint8(SharedStructures.PricingStrategy.PrivateAuctionHarberger)
         ) {
             harbergerTaxManager.createTaxObject(licenceId, auctionRes.winningAmount);
         }
@@ -212,7 +217,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
             //(uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager
             //    ._getContributers(_publicationId);
 
-            IPublicationManager.Contribution[] memory contributors = publicationManager._getContributors(_publicationId);
+            SharedStructures.Contribution[] memory contributors = publicationManager._getContributors(_publicationId);
 
             //address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
 
@@ -251,7 +256,6 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function updateLicenceHarbergerValuation(uint256 _licenceId, uint256 _newValuation) public returns (uint256) {
-
         address licenceOwnerAddress = licenceManager.getLicenceOwnerAddress(_licenceId);
 
         require(licenceOwnerAddress == _msgSender(), "Only the current licence owner can update the  valuation");
@@ -279,26 +283,20 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
             //address buyOutOwnerAddress = userManager.getUserAddress(buyOutOwnerId);
 
-            address buyoutOwnerAddress = harbergerTaxManager.getBuyOutOwnerId(_buyOutId);
+            address buyoutOwnerAddress = harbergerTaxManager.getBuyOutOwnerAddress(_buyOutId);
 
-            uint256 previousOwnerId = licenceManager.getLicenceOwnerId(licenceId);
-
-            address previousOwnerAddress = userManager.getUserAddress(previousOwnerId);
+            address previousOwnerAddress = licenceManager.getLicenceOwnerAddress(licenceId);
 
             licenceManager.allocateLicenceToNewOwner(
                 licenceId,
-                buyOutOwnerId,
+                // buyOutOwnerId,
                 previousOwnerAddress,
-                buyOutOwnerAddress
+                buyoutOwnerAddress
             );
         }
     }
 
-    function getTaxObject(uint256 _taxObjectId)
-        public
-        view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256[] memory, uint8)
-    {
+    function getTaxObject(uint256 _taxObjectId) public view returns (SharedStructures.TaxObject memory) {
         return (harbergerTaxManager.getTaxObject(_taxObjectId));
     }
 
@@ -313,21 +311,19 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     function getMinBuyOutAmount(uint256 _publicationId) public view returns (uint256) {}
 
     function getPublicationsAuthorAddress(address _address) public view returns (uint256[] memory) {
-        uint256 authorId = userManager.getUserId(_address);
-        return publicationManager.getAuthorPublications(authorId);
+        return publicationManager.getAllPublications(_address);
     }
 
-    function getPublicationsAuthorId(uint256 _authorId) public view returns (uint256[] memory) {
+    /*function getPublicationsAuthorId(uint256 _authorId) public view returns (uint256[] memory) {
         return publicationManager.getAuthorPublications(_authorId);
-    }
+    }*/
 
     function getPublicationLicences(uint256 _publicationId) public view returns (uint256[] memory) {
         return licenceManager.getPublicationLicences(_publicationId);
     }
 
     function getBids(address _address) public view returns (uint256[] memory) {
-        uint256 userAddress = userManager.getUserId(_address);
-        return auctionManager.getBidderBids(userAddress);
+        return auctionManager.getBidderBids(_address);
     }
 
     function getPublicationAuctions(uint256 _publicationId) public view returns (uint256[] memory) {
@@ -338,49 +334,29 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return publicationManager.getPublicationLength();
     }
 
-    function getPublication(uint256 _publicationId)
-        public
-        view
-        returns (
-            uint8,
-            string memory,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory
-        )
-    {
+    function getPublication(uint256 _publicationId) public view returns (SharedStructures.Publication memory) {
         return (publicationManager.getPublication(_publicationId));
     }
 
     function getLicenceForAddress(address _address) public view returns (uint256[] memory) {
-        uint256 userId = userManager.getUserId(_address);
-        return getLicenceForUserId(userId);
+        return licenceManager.getLicenceForUser(_address);
     }
 
-    function getLicenceForUserId(uint256 _userId) public view returns (uint256[] memory) {
+    /*function getLicenceForUserId(uint256 _userId) public view returns (uint256[] memory) {
         return licenceManager.getLicenceForUser(_userId);
-    }
+    }*/
 
-    function getLicence(uint256 _licenceId) public view returns (uint256, uint256, uint256, uint8) {
+    function getLicence(uint256 _licenceId) public view returns (SharedStructures.Licence memory) {
         return (licenceManager.getLicence(_licenceId));
     }
 
     function donate(uint256 _publicationId, uint256 _value) public {
-        uint256 authorId = publicationManager.getAuthorId(_publicationId);
-        address authorAddress = userManager.getUserAddress(authorId);
+        address authorAddress = publicationManager.getOwnerAddress(_publicationId);
 
-        (uint256[] memory contributorIds, uint256[] memory contributorWeightings) = publicationManager._getContributers(
-            _publicationId
-        );
-
-        address[] memory contributorAddresses = userManager.getAddressArray(contributorIds);
+        SharedStructures.Contribution[] memory contributors = publicationManager._getContributors(_publicationId);
 
         require(
-            vault.settleBulkPayment(_msgSender(), authorAddress, contributorAddresses, contributorWeightings, _value),
+            vault.settleBulkPayment(_msgSender(), authorAddress, contributors, _value),
             "Bulk auction settlement failed"
         );
     }
@@ -395,17 +371,16 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return callerId;
     }*/
 
-    function getUserAddress(uint256 _userId) public view returns (address) {
+    /*function getUserAddress(uint256 _userId) public view returns (address) {
         return userManager.getUserAddress(_userId);
-    }
+    }*/
 
-    function canAddressPay(uint256 _userId, uint256 _amount) public view returns (bool) {
-        address userAddress = getUserAddress(_userId);
+    function canAddressPay(address userAddress, uint256 _amount) public view returns (bool) {
         return vault.canAddressPay(userAddress, _amount);
     }
 
-    function getBidderBids(uint256 _bidderId) public view returns (uint256[] memory) {
-        return auctionManager.getBidderBids(_bidderId);
+    function getBidderBids(address bidderAddress) public view returns (uint256[] memory) {
+        return auctionManager.getBidderBids(bidderAddress);
     }
 
     function getBlockTime() public view returns (uint256) {
@@ -417,7 +392,6 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
     }
 
     function updateAuctionStartTime(uint256 _publicationId, uint256 _newStartTime) public {
-
         //address callerAddress = _msgSender();
 
         require(
@@ -435,7 +409,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return (auctionManager.getAuctionBids(auctionId));
     }
 
-    function getBid(uint256 _bidId) public view returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256) {
+    function getBid(uint256 _bidId) public view returns (SharedStructures.Bid memory) {
         return (auctionManager.getBid(_bidId));
     }
 
@@ -443,6 +417,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         uint256 auctionId = publicationManager.getLatestAuctionId(_publicationId);
         return auctionManager.getNumberOfBidsInAuction(auctionId);
     }
+
     function ownerOf(uint256 tokenId) public view returns (address) {
         return licenceManager.ownerOf(tokenId);
     }
@@ -477,11 +452,7 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
         return licenceManager.getMostRecentPublicationLicence(_publicationId);
     }
 
-    function getAuction(uint256 _auctionId)
-        public
-        view
-        returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
-    {
+    function getAuction(uint256 _auctionId) public view returns (SharedStructures.Auction memory) {
         return (auctionManager.getAuction(_auctionId));
     }
 }

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.12;
 
-import './IPublicationManager.sol';
+import '../library/SharedStructures.sol';
 
 interface IVault {
     //function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder)
@@ -20,7 +20,7 @@ interface IVault {
     function settleBulkPayment(
         address _sender,
         address ownerAddress,
-        IPublicationManager.Contribution[] calldata contributors,
+        SharedStructures.Contribution[] calldata contributors,
         uint256 paymentAmount
     ) external returns (bool);
 }

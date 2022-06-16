@@ -3,54 +3,54 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "./patches/ERC2771ContextUpgradeable.sol";
+//import "./patches/ERC2771ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "./interfaces/IPublicationManager.sol";
+import "./library/SharedStructures.sol";
 
 contract PublicationManager is IPublicationManager, Initializable, ERC2771ContextUpgradeable {
     // Need a flag for unset values where 0 is a valid option
     uint256 constant ID_NONE = type(uint256).max;
 
-    using CountersUpgradeable for CountersUpgradeable.Counter;
-
-    CountersUpgradeable.Counter _pubIds;
-
-    address registry;
+    address immutable _registry;
 
     modifier onlyRegistry() {
-        require(_msgSender() == registry, "Can only be called by registry");
+        require(_msgSender() == _registry, "Can only be called by registry");
         _;
     }
 
-    Publication[] public publications;
+    SharedStructures.Publication[] public publications;
+    SharedStructures.Contribution[][] public  _contributions;
+    SharedStructures.Citation[][] public _citations;
 
     mapping(address => uint256[]) public publicationOwners;
 
-    event NewPublication(address indexed _publisherAddress, string _publicationUri, PricingStrategy _pricingStrategy);
+    event NewPublication(address indexed _publisherAddress, string _publicationUri, SharedStructures.PricingStrategy _pricingStrategy);
 
     event PublicationUpdated(address indexed _ownerId, uint256 oldPubId, uint256 newPubId);
 
     event PublicationOwnerUpdated(address oldOwner, address newOwner, uint256 oldPubId, uint256 newPubId);
 
-    function initialize(address _unicoinRegistry, address _trustedForwarder) public initializer {
-        __ERC2771Context_init(_trustedForwarder);
 
-        registry = _unicoinRegistry;
+    // This contract is upgradeable, but we can use constructor instead of initializer for optimisation benefits for immutables.
+    constructor (address unicoinRegistry, address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+        _registry = unicoinRegistry;
     }
 
+
     function _createPublication(
-        PricingStrategy _pricingStrategy,
+        SharedStructures.PricingStrategy _pricingStrategy,
         string calldata _publicationUri,
         address _ownerAddress,
         uint256 _fixedSellPrice,
         uint8 _maxNumberOfLicences,
-        Contribution[] calldata _contributors,
-        Citation[] calldata _citations
+        SharedStructures.Contribution[] calldata contributors,
+        SharedStructures.Citation[] calldata citations
     ) public onlyRegistry returns (uint256 publicationId) {
         require(bytes(_publicationUri).length > 0, "Publication URI should not be empty.");
-        require(_pricingStrategy != PricingStrategy.NULL, "The NULL pricing strategy cannot be used to create a publication");
+        require(_pricingStrategy != SharedStructures.PricingStrategy.NULL, "The NULL pricing strategy cannot be used to create a publication");
 
-        if (_pricingStrategy == PricingStrategy.FixedRate) {
+        if (_pricingStrategy == SharedStructures.PricingStrategy.FixedRate) {
             require(_fixedSellPrice > 0, "Fixed sell price cant be zero");
         } else {
             require(_fixedSellPrice == 0, "Fixed sell price must be zero for auction");
@@ -59,25 +59,33 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         uint256[] memory auctionIds;
         uint256[] memory donations;
 
-        Publication memory publication = Publication(
+        //SharedStructures.Citation[] storage __citations = citations;
+
+        _citations.push(citations);
+        uint256 citationsId = _citations.length - 1;
+
+        _contributions.push(contributors);
+        uint256 contributionsId = _contributions.length - 1;
+        
+
+        SharedStructures.Publication memory publication = SharedStructures.Publication(
             _pricingStrategy,
             _publicationUri, //IPFS blob address of the publication
-            PublicationStatus.Published,
+            SharedStructures.PublicationStatus.Published,
             _ownerAddress, // Address of publisher of this version
             _fixedSellPrice,
             _maxNumberOfLicences,
             0, // number of licenses issued starts as 0
             ID_NONE, // No previous version
             auctionIds, //ids of bids on the publication
-            _contributors,
+            contributionsId,
             donations,
-            _citations,
+            citationsId,
             0 // No earnings to date
         );
 
         publications.push(publication);
-        _pubIds.increment();
-        publicationId = _pubIds.current();
+        publicationId = publications.length - 1;
 
         publicationOwners[_ownerAddress].push(publicationId);
 
@@ -93,21 +101,21 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
 
     function _replacePublication(
         uint256 publicationId,
-        PricingStrategy pricingStrategy,
+        SharedStructures.PricingStrategy pricingStrategy,
         string calldata publicationUri,
         uint256 fixedSellPrice,
         uint8 maxNumberOfLicences,
-        Contribution[] calldata contributors,
-        Citation[] calldata citations
+        SharedStructures.Contribution[] calldata contributors,
+        SharedStructures.Citation[] calldata citations
     ) public onlyRegistry returns (uint256 newPublicationId) {
 
-        Publication storage oldpub = publications[publicationId];
+        SharedStructures.Publication storage oldpub = publications[publicationId];
 
-        require(oldpub.publicationStatus != PublicationStatus.Unitialized &&
-            oldpub.publicationStatus != PublicationStatus.Replaced,
+        require(oldpub.publicationStatus != SharedStructures.PublicationStatus.Unitialized &&
+            oldpub.publicationStatus != SharedStructures.PublicationStatus.Replaced,
             "Contract is in an invalid state to be updated");
 
-        Publication memory newpub = Publication(
+        SharedStructures.Publication memory newpub = SharedStructures.Publication(
             oldpub.pricingStrategy,
             oldpub.publicationUri,
             oldpub.publicationStatus,
@@ -117,22 +125,27 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             oldpub.licencesIssued,
             publicationId,
             oldpub.auctionIds,
-            oldpub.contributors,
+            oldpub.contributionsId,
             oldpub.donations,
-            oldpub.citations,
+            oldpub.citationsId,
             oldpub.lifetimeEarnings
         );
 
-        if (pricingStrategy != PricingStrategy.NULL) newpub.pricingStrategy = pricingStrategy;
+        if (pricingStrategy != SharedStructures.PricingStrategy.NULL) newpub.pricingStrategy = pricingStrategy;
         if (bytes(publicationUri).length != 0) newpub.publicationUri = publicationUri;
         if (fixedSellPrice != ID_NONE) newpub.sellPrice = fixedSellPrice;
         if (maxNumberOfLicences != ID_NONE) newpub.maxNumberOfLicences = maxNumberOfLicences;
-        if (contributors.length != 0) newpub.contributors = contributors;
-        if (citations.length != 0) newpub.citations = citations;
+        if (contributors.length != 0) {
+            _contributions.push(contributors);
+            newpub.contributionsId = _contributions.length - 1;
+        }
+        if (citations.length != 0) {
+            _citations.push(citations);
+            newpub.citationsId = citations.length - 1;
+        }
 
         publications.push(newpub);
-        _pubIds.increment();
-        newPublicationId = _pubIds.current();
+        newPublicationId = publications.length - 1;
 
         emit PublicationUpdated(oldpub.ownerAddress, publicationId, newPublicationId);
 
@@ -144,15 +157,15 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         address newOwner
     ) public onlyRegistry returns (uint256 newPublicationId) {
 
-        Publication storage oldpub = publications[publicationId];
+        SharedStructures.Publication storage oldpub = publications[publicationId];
 
-        require(oldpub.publicationStatus != PublicationStatus.Unitialized &&
-            oldpub.publicationStatus != PublicationStatus.Replaced,
+        require(oldpub.publicationStatus != SharedStructures.PublicationStatus.Unitialized &&
+            oldpub.publicationStatus != SharedStructures.PublicationStatus.Replaced,
             "Contract is in an invalid state to be updated");
 
         require(newOwner != address(0), "New owner must be a valid address");
 
-        Publication memory newpub = Publication(
+        SharedStructures.Publication memory newpub = SharedStructures.Publication(
             oldpub.pricingStrategy,
             oldpub.publicationUri,
             oldpub.publicationStatus,
@@ -162,15 +175,14 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             oldpub.licencesIssued,
             publicationId,
             oldpub.auctionIds,
-            oldpub.contributors,
+            oldpub.contributionsId,
             oldpub.donations,
-            oldpub.citations,
+            oldpub.citationsId,
             oldpub.lifetimeEarnings
         );
 
         publications.push(newpub);
-        _pubIds.increment();
-        newPublicationId = _pubIds.current();
+        newPublicationId = publications.length - 1;
 
         publicationOwners[newOwner].push(newPublicationId);
 
@@ -208,8 +220,10 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         return publications[_publicationId].ownerAddress;
     }
 
-    function _getContributors(uint256 _publicationId) external view returns (Contribution[] memory) {
-        return publications[_publicationId].contributors;
+    function _getContributors(uint256 _publicationId) external view returns (SharedStructures.Contribution[] memory) {
+        uint256 contributionsId = publications[_publicationId].contributionsId;
+
+        return _contributions[contributionsId];
     }
 
     function getLatestAuctionId(uint256 _publicationId) public view returns (uint256) {
@@ -219,7 +233,7 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
     function getPublication(uint256 _publicationId)
         public
         view
-        returns (Publication memory)
+        returns (SharedStructures.Publication memory)
         /*returns (
             uint8,
             string memory,

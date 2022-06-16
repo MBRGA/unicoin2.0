@@ -4,31 +4,32 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "./patches/ERC2771ContextUpgradeable.sol";
+//import "./patches/ERC2771ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "./interfaces/IAuctionManager.sol";
+import "./library/SharedStructures.sol";
+
 // import "./UnicoinRegistry.sol";
 
 contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgradeable {
 
-    address registry;
+    address immutable _registry;
 
     modifier onlyRegistry() {
-        require(_msgSender() == registry, "Can only be called by registry");
+        require(_msgSender() == _registry, "Can only be called by registry");
         _;
     }
 
-    Auction[] public auctions;
+    SharedStructures.Auction[] public auctions;
 
-    Bid[] bids;
+    SharedStructures.Bid[] bids;
 
     // Maps all bidders' IDs to their bids
     mapping(address => uint256[]) public bidOwners;
 
-    function initialize(address _unicoinRegistry, address _trustedForwarder) public initializer {
-        __ERC2771Context_init(_trustedForwarder);
-
-        registry = _unicoinRegistry;
-        // unicoinRegistry = UnicoinRegistry(_unicoinRegistry);
+    // This contract is upgradeable, but we're not doing anything with mutables at initialization so we can use constructor instead for optimisation benefits.
+    constructor (address unicoinRegistry, address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+        _registry = unicoinRegistry;
     }
 
     function _createAuction(
@@ -41,14 +42,14 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         require(_auctionDuration > 0, "AuctionManager::Invalid auction duration");
 
         uint256[] memory auctionBidIds;
-        Auction memory auction = Auction(
+        SharedStructures.Auction memory auction = SharedStructures.Auction(
             _publicationId,
             _auctionFloor,
             _auctionStartTime,
             _auctionDuration,
             auctionBidIds,
             0, //No winning bid in the begining
-            AuctionStatus.Pending
+            SharedStructures.AuctionStatus.Pending
         );
 
         auctions.push(auction);
@@ -61,11 +62,11 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         onlyRegistry
         returns (uint256)
     {
-        Auction memory auction = auctions[_auctionId];
+        SharedStructures.Auction memory auction = auctions[_auctionId];
 
-        require(getAuctionStatus(_auctionId) == AuctionStatus.Commit, "Can only commit during the commit phase");
+        require(getAuctionStatus(_auctionId) == SharedStructures.AuctionStatus.Commit, "Can only commit during the commit phase");
 
-        Bid memory bid = Bid(_bidHash, 0, 0, BidStatus.Committed, auction.publicationId, _auctionId, _bidderAddress);
+        SharedStructures.Bid memory bid = SharedStructures.Bid(_bidHash, 0, 0, SharedStructures.BidStatus.Committed, auction.publicationId, _auctionId, _bidderAddress);
 
         bids.push(bid);
         uint256 bidId = bids.length - 1;
@@ -81,11 +82,11 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         public
         onlyRegistry
     {
-        Bid memory bid = bids[_bidId];
+        SharedStructures.Bid memory bid = bids[_bidId];
 
-        require(getAuctionStatus(_auctionId) == AuctionStatus.Reveal, "Can only commit during the reveal phase");
+        require(getAuctionStatus(_auctionId) == SharedStructures.AuctionStatus.Reveal, "Can only commit during the reveal phase");
         require(bid.bidderAddress == _bidderAddress, "Only the bidder can reveal their bid");
-        require(bid.status == BidStatus.Committed, "Can only reveal a committed bid");
+        require(bid.status == SharedStructures.BidStatus.Committed, "Can only reveal a committed bid");
 
         bytes32 revealedBidHash = keccak256(abi.encode(_bid, _salt));
 
@@ -93,7 +94,7 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
 
         bids[_bidId].revealedBid = _bid;
         bids[_bidId].revealedSalt = _salt;
-        bids[_bidId].status = BidStatus.Revealed;
+        bids[_bidId].status = SharedStructures.BidStatus.Revealed;
     }
 
     /** @notice After reveal, this determines which bid won the auction
@@ -104,13 +105,13 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
     function finalizeAuction(uint256 _auctionId) 
         public 
         onlyRegistry 
-        returns (AuctionResult memory result) {
+        returns (SharedStructures.AuctionResult memory result) {
         require(
-            getAuctionStatus(_auctionId) == AuctionStatus.Reveal,
+            getAuctionStatus(_auctionId) == SharedStructures.AuctionStatus.Reveal,
             "Can only finalize an auction in the reveal stage"
         );
 
-        Auction memory auction = auctions[_auctionId];
+        SharedStructures.Auction memory auction = auctions[_auctionId];
 
         uint256 numOfBids = auction.auctionBidIds.length;
 
@@ -135,25 +136,25 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         }
 
         if (leadingBid > 0) {
-            auctions[_auctionId].status = AuctionStatus.Finalized;
+            auctions[_auctionId].status = SharedStructures.AuctionStatus.Finalized;
             auctions[_auctionId].winningBidId = leadingBid;
-            bids[leadingBid].status = BidStatus.Winner;
+            bids[leadingBid].status = SharedStructures.BidStatus.Winner;
         }
     }
 
-    function getAuctionStatus(uint256 _auctionId) public returns (AuctionStatus) {
-        Auction memory auction = auctions[_auctionId];
+    function getAuctionStatus(uint256 _auctionId) public returns (SharedStructures.AuctionStatus) {
+        SharedStructures.Auction memory auction = auctions[_auctionId];
         if (block.timestamp < auction.startingTime) {
-            auctions[_auctionId].status = AuctionStatus.Pending;
-            return AuctionStatus.Pending;
+            auctions[_auctionId].status = SharedStructures.AuctionStatus.Pending;
+            return SharedStructures.AuctionStatus.Pending;
         } else if (
             block.timestamp >= auction.startingTime && block.timestamp < (auction.startingTime + auction.duration)
         ) {
-            auctions[_auctionId].status = AuctionStatus.Commit;
-            return AuctionStatus.Commit;
+            auctions[_auctionId].status = SharedStructures.AuctionStatus.Commit;
+            return SharedStructures.AuctionStatus.Commit;
         } else {
-            auctions[_auctionId].status = AuctionStatus.Reveal;
-            return AuctionStatus.Reveal;
+            auctions[_auctionId].status = SharedStructures.AuctionStatus.Reveal;
+            return SharedStructures.AuctionStatus.Reveal;
         }
     }
 
@@ -173,7 +174,7 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         public 
         view 
         //returns (bytes32, uint256, uint256, uint8, uint256, uint256, uint256)
-        returns (Bid memory)
+        returns (SharedStructures.Bid memory)
         {
         return bids[_bidId];    
 
@@ -197,7 +198,7 @@ contract AuctionManager is Initializable, IAuctionManager, ERC2771ContextUpgrade
         public
         view
         //returns (uint256, uint256, uint256, uint256, uint256[] memory, uint256, uint8)
-        returns (Auction memory)
+        returns (SharedStructures.Auction memory)
     {
         //Auction memory _auction = auctions[_auctionId];
 

@@ -58,8 +58,9 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "pragma",
+      version: "0.8.15",
       settings: {
+        viaIR: true,
         optimizer: {
           enabled: true,
           runs: 500,

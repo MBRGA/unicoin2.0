@@ -4,24 +4,28 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "./patches/ERC2771ContextUpgradeable.sol";
+//import "./patches/ERC2771ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "./interfaces/IVault.sol";
+import "./library/SharedStructures.sol";
 
 contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
     ERC20Upgradeable token;
 
-    address registry;
+    address immutable _registry;
 
     modifier onlyRegistry() {
-        require(_msgSender() == registry, "Can only be called by registry");
+        require(_msgSender() == _registry, "Can only be called by registry");
         _;
     }
 
-    function initialize(address _tokenAddress, address _unicoinRegistry, address _trustedForwarder) public initializer {
-        __ERC2771Context_init(_trustedForwarder);
+    // This contract is upgradeable, but we can use constructor instead of initializer for optimisation benefits for immutables.
+    constructor (address unicoinRegistry, address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+        _registry = unicoinRegistry;
+    }
 
+    function initialize(address _tokenAddress) public initializer {
         token = ERC20Upgradeable(_tokenAddress);
-        registry = _unicoinRegistry;
     }
 
     function canAddressPay(address _address, uint256 _amount) public view returns (bool) {
@@ -30,14 +34,14 @@ contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
         return (userBalance >= _amount) && (userContractApproval >= _amount);
     }
 
-    function settlePayment(address _sender, address _reciver, uint256 _amount) public onlyRegistry returns (uint256) {
-        token.transferFrom(_sender, _reciver, _amount);
+    function settlePayment(address _sender, address _receiver, uint256 _amount) public onlyRegistry returns (uint256) {
+        token.transferFrom(_sender, _receiver, _amount);
     }
 
     function settleBulkPayment(
         address _sender,
         address _ownerAddress,
-        IPublicationManager.Contribution[] calldata contributors,
+        SharedStructures.Contribution[] calldata contributors,
         uint256 _paymentAmount
     ) public returns (bool) {
         uint256 totalPaidToContributors = 0;

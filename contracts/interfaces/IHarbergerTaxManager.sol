@@ -2,29 +2,9 @@
 
 pragma solidity ^0.8.12;
 
+import "../library/SharedStructures.sol";
+
 interface IHarbergerTaxManager {
-
-    enum BuyOutStatus { Pending, Successful, OutBid }
-
-    enum TaxObjectStatus { Active, Revoked }
-
-    struct BuyOut {
-        uint256 taxObjectId;
-        address buyOutOwnerAddress;
-        uint256 buyOutAmount;
-        uint256 buyOutExpiration;
-        BuyOutStatus status;
-    }
-
-    struct TaxObject {
-        uint256 licenceId;
-        uint256 ratePerBlock;
-        uint256 lastPayment;
-        uint256 numberOfOutBids;
-        uint256 currentAssignedValue;
-        BuyOut[] buyOuts;
-        TaxObjectStatus status;
-    }
 
     function createTaxObject(
         uint256 _licence_Id,
@@ -53,8 +33,8 @@ interface IHarbergerTaxManager {
         uint256 _taxObject,
         uint256 _offer,
         address _buyOutOwnerAddress
-    ) external ;
-    //returns (uint256);
+    ) external 
+    returns (uint256);
 
     function finalizeBuyOutOffer(uint256 _buyOutId) external returns (bool);
 
@@ -68,19 +48,19 @@ interface IHarbergerTaxManager {
     function getTaxObject(uint256 _taxObjectId)
         external
         view
-        returns (TaxObject memory);
+        returns (SharedStructures.TaxObject memory);
 
     /*function getBuyOut(uint256 _buyOutId)
         external
         view
         returns (uint256, uint256, uint256, uint256, uint8);*/
 
-    /*function getBuyOutLicenceId(uint256 _buyOutId)
+    function getBuyOutLicenceId(uint256 _buyOutId)
         external
         view
-        returns (uint256);*/
+        returns (uint256);
 
-    function getBuyOutOwnerAddress(uint256 _taxObjectId, uint256 _buyOutId)
+    function getBuyOutOwnerAddress(uint256 _buyOutId)
         external
         view
         returns (address);
