@@ -8,17 +8,21 @@ import HDWalletProvider from "@truffle/hdwallet-provider";
 //const HDWalletProvider = require("truffle-hdwallet-provider");
 const infuraApikey = "9542ce9f96be4ae08225dcde36ff1638";
 
-i//mport { artifacts } from "truffle";
+//import { artifacts } from "truffle";
 
 import { scripts, ConfigManager } from "@openzeppelin/cli"
+import { PushParams } from "@openzeppelin/cli/lib/scripts/interfaces"
+import TruffleContract from "@truffle/contract";
+
+type Network = "test" | "kovan" | "live" | "development" | "kovan-fork" | "live-fork";
 
 //const { scripts, ConfigManager } = require("@openzeppelin/cli");
-const { add, push, create, call } = scripts;
+const { add, push, create } = scripts;
 
 const UnicoinRegistry = artifacts.require("UnicoinRegistry");
 const daiContractMock = artifacts.require("ERC20Mock");
 
-async function deploy(options, daiContractAddress) {
+async function deploy(options: PushParams, daiContractAddress: string) {
   // Register contract versions with openzeppelin
   add({
     contractsData: [
@@ -152,7 +156,7 @@ async function deploy(options, daiContractAddress) {
   );
 }
 
-module.exports = function (deployer, networkName, accounts) {
+module.exports = function (deployer: Truffle.Deployer, networkName: Network, accounts: string[]) {
   deployer.then(async () => {
     if (networkName === "test") {
       //we dont want to run migrations when running unit tests
@@ -183,7 +187,7 @@ module.exports = function (deployer, networkName, accounts) {
 
     if (networkName === "development" || networkName === "live-fork") {
       console.log("Running in development network! deploying mock Dai contract");
-      daiContract = await deployer.deploy(daiContractMock);
+      const daiContract = await deployer.deploy(daiContractMock);
       daiContractAddress = daiContract.address;
       daiContract.mint(account, "100000000000000000000000");
     }
