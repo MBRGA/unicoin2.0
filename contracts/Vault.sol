@@ -1,8 +1,9 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 //import "./patches/ERC2771ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
@@ -10,7 +11,7 @@ import "./interfaces/IVault.sol";
 import "./library/SharedStructures.sol";
 
 contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
-    ERC20Upgradeable token;
+    IERC20Upgradeable token;
 
     address immutable _registry;
 
@@ -25,7 +26,7 @@ contract Vault is Initializable, IVault, ERC2771ContextUpgradeable {
     }
 
     function initialize(address _tokenAddress) public initializer {
-        token = ERC20Upgradeable(_tokenAddress);
+        token = IERC20Upgradeable(_tokenAddress);
     }
 
     function canAddressPay(address _address, uint256 _amount) public view returns (bool) {

@@ -43,13 +43,34 @@ class State {
   numberOfPublications = 0;
   listedPublications: Array<string> = [];
   contractAddress?: string;
-  userProfile: Object = null;
+  userProfile?: Object = undefined;
   userBids: Array<UserBid> = [];
   userLicences: Array<string> = [];
   miningTransactionObject: {
     status?: string;
     txHash: string;
   } = { txHash: "" };
+}
+
+class Publication {
+  publicationId = 0;
+  title: string = "";
+  abstract: string = "";
+  authorNumber = publicationObjectProcessed[0];
+  authorAddress = authorBlob.owned_address;
+  authorFirstName = authorProfile.firstName;
+  authorLastName = authorProfile.lastName;
+  authorEmail = authorProfile.email;
+  authorOrcid = authorProfile.orcid;
+  authorUniversity = authorProfile.university;
+  pdfFile = ipfsFile.pdfFile;
+  keyword = ipfsFile.keyword;
+  isAuction = false;
+  isRunning = false;
+  sellPrice = 0;
+  contributors = publicationObjectProcessed[6];
+  contributorsWeightings = publicationObjectProcessed[7];
+  bids = publicationBidsInformation;
 }
 
 export default new Vuex.Store<State>({

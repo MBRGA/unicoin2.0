@@ -5,7 +5,7 @@ module.exports = {
       sass: {
         // @/ is an alias to src/
         // so this assumes you have a file named `src/variables.scss`
-        prependData: `@import "@/styles/variables.scss"`,
+        prependData: `@import "@/styles/variables.scss";`,
       },
     },
   },
@@ -23,11 +23,6 @@ module.exports = {
             "css-loader",
             {
               loader: "sass-loader",
-              // Requires sass-loader@^7.0.0
-              options: {
-                implementation: require("sass"),
-                indentedSyntax: true, // optional
-              },
               // Requires >= sass-loader@^8.0.0
               options: {
                 implementation: require("sass"),

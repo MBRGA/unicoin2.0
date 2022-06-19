@@ -1,4 +1,7 @@
 <template>
+  <v-card class="mx-auto pa-7">
+    <v-card-title class="text-heading-5"> {{ bidInformation.publicationTitle }}</v-card-title>
+  </v-card>
   <md-card style="padding: 30px">
     <div class="md-layout">
       <div class="md-layout-item">

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 //import "./patches/ERC2771ContextUpgradeable.sol";
@@ -62,10 +62,10 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
         //SharedStructures.Citation[] storage __citations = citations;
 
         _citations.push(citations);
-        uint256 citationsId = _citations.length - 1;
+        //uint256 citationsId = _citations.length - 1;
 
         _contributions.push(contributors);
-        uint256 contributionsId = _contributions.length - 1;
+        //uint256 contributionsId = _contributions.length - 1;
         
 
         SharedStructures.Publication memory publication = SharedStructures.Publication(
@@ -78,16 +78,17 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             0, // number of licenses issued starts as 0
             ID_NONE, // No previous version
             auctionIds, //ids of bids on the publication
-            contributionsId,
+            _contributions.length - 1, //contributionsId,
             donations,
-            citationsId,
+            _citations.length - 1, //citationsId,
             0 // No earnings to date
         );
 
         publications.push(publication);
-        publicationId = publications.length - 1;
+        //publicationId = publications.length - 1;
 
-        publicationOwners[_ownerAddress].push(publicationId);
+        // publications.length - 1 is the publication id
+        publicationOwners[_ownerAddress].push(publications.length - 1);
 
         // Referencing pub properties due to stack depth
         emit NewPublication(
@@ -96,7 +97,7 @@ contract PublicationManager is IPublicationManager, Initializable, ERC2771Contex
             publication.pricingStrategy
         );
 
-        return publicationId;
+        return publications.length - 1;
     }
 
     function _replacePublication(

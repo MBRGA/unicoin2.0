@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.9;
 
 /// @title UniCoin smart contract
 /// @author Chris Maree
 
 import "@opengsn/contracts/src/BaseRelayRecipient.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 
 import "./interfaces/IAuctionManager.sol";
 import "./interfaces/ILicenceManager.sol";
@@ -17,10 +18,7 @@ import "./interfaces/IHarbergerTaxManager.sol";
 
 import "./library/SharedStructures.sol";
 
-contract UnicoinRegistry is BaseRelayRecipient, Initializable {
-    function versionRecipient() public pure override returns (string memory) {
-        return "3.0.0-alpha0+unicoin";
-    }
+contract UnicoinRegistry is Initializable, ERC2771ContextUpgradeable {
 
     IAuctionManager private auctionManager;
     ILicenceManager private licenceManager;
@@ -33,18 +31,19 @@ contract UnicoinRegistry is BaseRelayRecipient, Initializable {
 
     //string public override versionRecipient = "2.2.6+opengsn.unicoinregistry";
 
+    constructor (address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) initializer {
+
+    }
+
     function initialize(
         address _auctionManager,
         address _licenceManager,
         address _publicationManager,
         address _userManager,
         address _harbergerTaxManager,
-        address _vault,
-        address _forwarder
+        address _vault
     ) public initializer {
         owner = _msgSender();
-
-        _setTrustedForwarder(_forwarder);
 
         //GSNRecipient.initialize();
 

@@ -1,4 +1,5 @@
 import Vue from "vue";
+//import Vuetify from "vuetify";
 import vuetify from "@/plugins/vuetify";
 
 import App from "./App.vue";
@@ -13,14 +14,15 @@ import Web3 from "web3";
 
 //import pdf from "vue-pdf";
 
-import VueMaterial from "vue-material";
+//import VueMaterial from "vue-material";
 
-//const VueMaterial = require("vue-material");
+const VueMaterial = require("vue-material");
 
 import VModal from "vue-js-modal";
 //import Jazzicon from "vue-jazzicon";
 
-import Jazzicon from "@metamask/jazzicon";
+//import Jazzicon from "@metamask/jazzicon";
+const Jazzicon = require("@metamask/jazzicon");
 
 import VueSlider from "vue-slider-component";
 

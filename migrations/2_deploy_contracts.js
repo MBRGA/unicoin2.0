@@ -1,4 +1,1 @@
-import * as deploy_contracts from "./deploy_contracts";
-
-/* global artifacts, web3 */
-deploy_contracts(artifacts, web3);
+module.exports = require("./deploy_contracts.ts")(artifacts, web3);

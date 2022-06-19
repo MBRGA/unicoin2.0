@@ -43,6 +43,7 @@
 <script lang="ts">
 /* global web3:true */
 import Web3 from "web3";
+import Vue from "vue";
 import * as actions from "@/store/actions";
 import * as mutations from "@/store/mutation-types";
 import { mapActions, mapState } from "vuex";
