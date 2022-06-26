@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import { MetaMaskInpageProvider } from "@metamask/providers";
 
 declare module "pdfvuer";
 declare module "vue-material";
@@ -6,10 +7,19 @@ declare module "@metamask/jazzicon" {
   export default function (diameter: number, seed: number): HTMLElement;
 }
 
-interface Vue {
-  $web3: import("web3").default;
+
+declare global {
+  interface Window {
+    ethereum: MetaMaskInpageProvider;
+  }
 }
 
+declare module "vue/types/vue" {
+  interface Vue {
+    $web3: import("web3").default;
+    $provider: ethers.providers.Web3Provider;
+  }
+}
 
 declare module "@vue/runtime-core" {
   interface State {
@@ -34,4 +44,5 @@ declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
     $store: import("vuex").Store<State>;
   }
+
 }

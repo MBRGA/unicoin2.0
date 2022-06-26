@@ -1,26 +1,30 @@
 import Web3 from "web3";
 import Vuex from "vuex";
 import Vue from "vue";
+import { ethers, network, upgrades } from "hardhat";
 
-import VuexPersistence from 'vuex-persist';
+import VuexPersistence from "vuex-persist";
 
 import moment from "moment";
 
 import { getEtherscanAddress, getNetIdString } from "@/utils/lookupTools";
 
-import { uploadFile, viewFile } from "@/utils/ipfsUploader";
+import { uploadFile, viewFile, IPFSPublication } from "@/utils/ipfsUploader";
 
 // import getTokenInfo from "@/utils/TokenInfo.js"
 
 import * as actions from "./actions";
 import * as mutations from "./mutation-types";
-import TruffleContract from "@truffle/contract";
+import UnicoinRegistryArtifact from "artifacts/contracts/UnicoinRegistry.sol/UnicoinRegistry.json";
+import { UnicoinRegistry } from "typechain-types/contracts/UnicoinRegistry";
 
-const contract = require("@truffle/contract");
 
-import UnicoinRegistryABI from "../../build/contracts/UnicoinRegistry.json";
 
-const Registry: TruffleContract.Contract = contract(UnicoinRegistryABI);
+//const contract = require("@truffle/contract");
+
+//import UnicoinRegistryABI from "../../build/contracts/UnicoinRegistry.json";
+
+//const Registry: TruffleContract.Contract = contract(UnicoinRegistryABI);
 
 Vue.use(Vuex);
 
@@ -28,9 +32,12 @@ class UserBid {
   id = 0;
   offer = 0;
   bidStatus = "";
-  publication_Id = 0;
-  publicationTitle = "";
-  pdfFile = "";
+  ownerId = 0;
+  ownerAddress = "";
+  bidderFirstName = "";
+  bidderLastName = "";
+  bidderAccountType = 0;
+  bidderCompanyName = "";
 }
 
 class State {
@@ -54,23 +61,23 @@ class State {
 
 class Publication {
   publicationId = 0;
-  title: string = "";
-  abstract: string = "";
-  authorNumber = publicationObjectProcessed[0];
-  authorAddress = authorBlob.owned_address;
-  authorFirstName = authorProfile.firstName;
-  authorLastName = authorProfile.lastName;
-  authorEmail = authorProfile.email;
-  authorOrcid = authorProfile.orcid;
-  authorUniversity = authorProfile.university;
-  pdfFile = ipfsFile.pdfFile;
-  keyword = ipfsFile.keyword;
+  title = "";
+  abstract = "";
+  authorNumber = -1;
+  authorAddress = "";
+  authorFirstName = "";
+  authorLastName = "";
+  authorEmail = "";
+  authorOrcid = "";
+  authorUniversity = "";
+  pdfFile = "";
+  keyword = "";
   isAuction = false;
   isRunning = false;
   sellPrice = 0;
-  contributors = publicationObjectProcessed[6];
-  contributorsWeightings = publicationObjectProcessed[7];
-  bids = publicationBidsInformation;
+  contributors: string[] = [];
+  contributorsWeightings: number[] = [];
+  bids: UserBid[] = [];
 }
 
 export default new Vuex.Store<State>({
@@ -131,11 +138,27 @@ export default new Vuex.Store<State>({
     },
 
     [actions.INIT_APP]: async function ({ commit, dispatch, state }, web3: Web3) {
-      Registry.setProvider(web3.currentProvider);
+
+      const Registry = await ethers.getContractFactory("UnicoinRegistry");
+      //const registry = network.name === "hardhat" ? await Registry.deploy() : Registry.attach("0x0");
+
+      const registry = await (() => {
+        if (network.name === "hardhat") {
+          return upgrades.deployProxy(Registry);
+        } else {
+          return Registry.attach("0x0");
+        }
+      })();
+
+      await registry.deployed();
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      //Registry.setProvider(web3.currentProvider);
 
       dispatch(actions.GET_CURRENT_NETWORK);
 
-      const registry = await Registry.deployed();
+      //const registry = await Registry.deployed();
 
       if (registry.address) {
         commit(mutations.SET_CONTRACT_ADDRESS, registry.address);

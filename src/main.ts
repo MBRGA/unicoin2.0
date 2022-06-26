@@ -7,6 +7,10 @@ import router from "@/router";
 import store from "./store";
 import "./registerServiceWorker";
 import VueRouter from "vue-router";
+import { ethers } from "ethers";
+
+import * as VueMaterial from "vue-material";
+import * as Jazzicon from "@metamask/jazzicon";
 
 import Web3 from "web3";
 
@@ -16,13 +20,15 @@ import Web3 from "web3";
 
 //import VueMaterial from "vue-material";
 
-const VueMaterial = require("vue-material");
+
+
+//const VueMaterial = require("vue-material");
 
 import VModal from "vue-js-modal";
 //import Jazzicon from "vue-jazzicon";
 
 //import Jazzicon from "@metamask/jazzicon";
-const Jazzicon = require("@metamask/jazzicon");
+//const Jazzicon = require("@metamask/jazzicon");
 
 import VueSlider from "vue-slider-component";
 
@@ -39,7 +45,6 @@ Vue.component("VueSlider", VueSlider);
 Vue.use(VueMaterial);
 Vue.use(VModal);
 Vue.use(VueRouter);
-
 
 new Vue({
   router,

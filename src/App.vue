@@ -51,7 +51,12 @@ import router from "@/router";
 import MiningTransaction from "./components/widgets/MiningTransaction.vue";
 import ClickableAddress from "./components/widgets/ClickableAddress.vue";
 import detectEthereumProvider from "@metamask/detect-provider";
+import { MetaMaskInpageProvider } from "@metamask/providers";
 import provider from "web3";
+import { ethers } from "hardhat";
+import { ExternalProvider } from "@ethersproject/providers";
+import * as dotenv from "dotenv";
+import defineComponent from "vue";
 
 interface MenuItem {
   label: string;
@@ -65,7 +70,11 @@ interface AppData {
   menuItems: MenuItem[];
 }
 
-export default {
+interface Unicoin {
+
+}
+
+export default class Unicoin extends Vue {
   name: "app",
   components: { ClickableAddress, MiningTransaction },
   data(): AppData {
@@ -90,10 +99,12 @@ export default {
   /* global ethereum */
 
   async mounted() {
+    dotenv.config();
+
     const eth = await detectEthereumProvider();
 
     if (eth) {
-      Vue.prototype.$web3 = new Web3(eth as any);
+      Vue.prototype.$provider = new ethers.providers.Web3Provider(eth as ExternalProvider);
 
       console.log("web3 provider detected!");
       (eth as any)
@@ -103,21 +114,19 @@ export default {
         })
         .catch((error: any) => {
           console.log("User denied access, bootstrapping application using infura", error);
-          Vue.prototype.$web3 = new Web3(
-            new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
-          );
+
+          Vue.prototype.$provider = new ethers.providers.JsonRpcProvider(process.env.KOVAN_URL);
         });
-    } else if (Vue.prototype.$web3) {
+      /*} else if (Vue.prototype.$web3) {
       console.log("Running legacy web3 provider");
-      Vue.prototype.$web3 = new Web3(Vue.prototype.$web3.currentProvider);
+      Vue.prototype.$web3 = new Web3(Vue.prototype.$web3.currentProvider);*/
     } else {
-      Vue.prototype.$web3 = new Web3(
-        new Web3.providers.HttpProvider("https://kovan.infura.io/v3/fb32a606c5c646c7932e43cfaf6c39df")
-      );
+      Vue.prototype.$provider = new ethers.providers.JsonRpcProvider(process.env.KOVAN_URL);
+
       console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
     }
 
-    this.INIT_APP(Vue.prototype.$web3);
+    this.INIT_APP(Vue.prototype.$provider);
   },
   computed: {
     ...mapState(["currentNetwork", "account", "contractAddress", "userProfile"]),
@@ -131,9 +140,10 @@ export default {
 @include md-register-theme(
   "default",
   (
-    primary: #828ec6,
     // The primary color of your brand
-    accent: #dd688c // The secondary color of your brand,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+    primary: #828ec6,
+    // The secondary color of your brand
+    accent: #dd688c
   )
 );
 @import "~vue-material/dist/theme/all"; // Apply the theme
