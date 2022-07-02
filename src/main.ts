@@ -12,6 +12,8 @@ import { ethers } from "ethers";
 import * as VueMaterial from "vue-material";
 import * as Jazzicon from "@metamask/jazzicon";
 
+import { createPinia, PiniaVuePlugin } from 'pinia';
+
 import Web3 from "web3";
 
 //import colors from "vuetify/lib/util/colors";
@@ -45,10 +47,14 @@ Vue.component("VueSlider", VueSlider);
 Vue.use(VueMaterial);
 Vue.use(VModal);
 Vue.use(VueRouter);
+Vue.use(PiniaVuePlugin);
+
+const pinia = createPinia();
 
 new Vue({
   router,
   store,
   vuetify,
+  pinia,
   render: (h) => h(App),
 }).$mount("#app");

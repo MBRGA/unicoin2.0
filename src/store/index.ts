@@ -17,8 +17,7 @@ import * as actions from "./actions";
 import * as mutations from "./mutation-types";
 import UnicoinRegistryArtifact from "artifacts/contracts/UnicoinRegistry.sol/UnicoinRegistry.json";
 import { UnicoinRegistry } from "typechain-types/contracts/UnicoinRegistry";
-
-
+import { Signer } from "ethers";
 
 //const contract = require("@truffle/contract");
 
@@ -40,21 +39,28 @@ class UserBid {
   bidderCompanyName = "";
 }
 
+enum transactionStatus {
+  pending,
+  uploading,
+  done
+}
+
 class State {
   web3?: Web3;
-  account?: string;
+  //account?: string;
   currentNetwork?: string;
   etherscanBase?: string;
-  registry?: string;
+  registry?: UnicoinRegistry;
   userNumber = 0;
   numberOfPublications = 0;
   listedPublications: Array<string> = [];
   contractAddress?: string;
-  userProfile?: Object = undefined;
+  signer?: Signer = undefined;
   userBids: Array<UserBid> = [];
+  userProfile?: unknown = undefined;
   userLicences: Array<string> = [];
   miningTransactionObject: {
-    status?: string;
+    status?: transactionStatus;
     txHash: string;
   } = { txHash: "" };
 }
@@ -84,8 +90,11 @@ export default new Vuex.Store<State>({
   state: new State(),
   mutations: {
     //WEB3 Stuff
-    [mutations.SET_ACCOUNT](state, account) {
-      state.account = account;
+    //[mutations.SET_ACCOUNT](state, account) {
+    //  state.account = account;
+    //},
+    [mutations.SET_SIGNER](state, signer: Signer) {
+      state.signer = signer;
     },
     [mutations.SET_USER_NUMBER](state, userNumber) {
       state.userNumber = userNumber;
@@ -108,7 +117,7 @@ export default new Vuex.Store<State>({
     [mutations.SET_CONTRACT_ADDRESS](state, contractAddress) {
       state.contractAddress = contractAddress;
     },
-    [mutations.SET_WEB3]: async function (state, { web3, contract } ) {
+    [mutations.SET_WEB3]: async function (state, { web3, contract }) {
       state.web3 = web3;
       state.registry = contract;
     },
@@ -129,16 +138,16 @@ export default new Vuex.Store<State>({
   },
   actions: {
     [actions.GET_CURRENT_NETWORK]: function ({ commit, dispatch, state }) {
-      getNetIdString().then((currentNetwork) => {
-        commit(mutations.SET_CURRENT_NETWORK, currentNetwork);
-      });
-      getEtherscanAddress().then((etherscanBase) => {
-        commit(mutations.SET_ETHERSCAN_NETWORK, etherscanBase);
-      });
+      commit(mutations.SET_CURRENT_NETWORK, getNetIdString());
+      //getNetIdString().then((currentNetwork) => {
+      //  commit(mutations.SET_CURRENT_NETWORK, currentNetwork);
+      commit(mutations.SET_ETHERSCAN_NETWORK, getEtherscanAddress());
+      //getEtherscanAddress().then((etherscanBase) => {
+      //  commit(mutations.SET_ETHERSCAN_NETWORK, etherscanBase);
+      //});
     },
 
     [actions.INIT_APP]: async function ({ commit, dispatch, state }, web3: Web3) {
-
       const Registry = await ethers.getContractFactory("UnicoinRegistry");
       //const registry = network.name === "hardhat" ? await Registry.deploy() : Registry.attach("0x0");
 
@@ -152,7 +161,7 @@ export default new Vuex.Store<State>({
 
       await registry.deployed();
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
 
       //Registry.setProvider(web3.currentProvider);
 
@@ -163,6 +172,10 @@ export default new Vuex.Store<State>({
       if (registry.address) {
         commit(mutations.SET_CONTRACT_ADDRESS, registry.address);
       }
+
+      await provider.send("eth_requestAccounts", []);
+
+      const signer = provider.getSigner();
 
       const accounts = await web3.eth.getAccounts();
       const account = accounts[0];
@@ -211,14 +224,17 @@ export default new Vuex.Store<State>({
       }
 
       console.log(ipfsHash.toString());
-      const txHash = await state.registry.registerUser(ipfsHash.toString(), {
-        from: state.account,
+
+      const txHash = await state.registry?.registerUser(ipfsHash.toString(), {
+        //from: state.account,
+        from: state.signer?.getAddress(),
       });
 
       if (txHash) {
         commit(mutations.SET_MINING_TRANSACTION_OBJECT, {
           status: "done",
-          txHash: txHash.tx,
+          //txHash: txHash.tx,
+          txHash: txHash.blockHash
         });
       }
     },
@@ -245,7 +261,7 @@ export default new Vuex.Store<State>({
         });
       }
 
-      const txHash = await state.registry.createPublication.sendTransaction(
+      const txHash = await state.registry?.createPublication.sendTransaction(
         ipfsHash.toString(),
         params.isAuction,
         true,
@@ -253,7 +269,7 @@ export default new Vuex.Store<State>({
         params.contributors,
         params.contributorsWeightings,
         {
-          from: state.account,
+          from: state.signer?.getAddress(),
         }
       );
       if (txHash) {
