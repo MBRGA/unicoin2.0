@@ -16,6 +16,10 @@ class IPFSPublication {
   pdfFile = "";
 }
 
+class IPFSProfile {
+  name = "";
+}
+
 const ipfs = create({
   url: "ipfs.infura.io",
   port: 5001,
