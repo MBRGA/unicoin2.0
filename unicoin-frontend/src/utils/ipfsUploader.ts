@@ -1,0 +1,61 @@
+/* eslint-disable no-console */
+
+//using the infura.io node, otherwise ipfs requires you to run a //daemon on your own computer/server.
+//const IPFS = require("ipfs-api");
+
+import { create, CID } from "ipfs-http-client";
+
+abstract class IPFSFile {}
+
+class IPFSPublication extends IPFSFile {
+  title = "";
+  abstract = "";
+  keyword = "";
+  contributors: string[] = [];
+  contributorsWeightings: number[] = [];
+  sellPrice = -1;
+  pricingStrategy = PricingStrategy.FixedRate;
+  auctionStatus = AuctionStatus.Pending;
+  pdfFile = "";
+}
+
+class IPFSProfile extends IPFSFile {
+  firstName = "";
+  lastName = "";
+  email = "";
+  orcid = "";
+  university = "";
+  accountType = AccountType.Academic;
+  companyName = "";
+  address = "";
+}
+
+const ipfs = create({
+  url: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+});
+
+/*const ipfs2 = new IPFS({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+});*/
+
+async function uploadFile(_content: IPFSFile): Promise<CID> {
+  console.log("UPLOADING TO IPFS");
+  const bufferContent = Buffer.from(JSON.stringify(_content));
+  console.log(bufferContent);
+  const filesAdded = await ipfs.add(bufferContent);
+  /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+  console.log("Added file:", filesAdded.cid);
+  return filesAdded.cid;
+}
+
+async function viewFile<T extends IPFSFile>(c: CID): Promise<T> {
+  console.log("Getting file from ipfs:", c);
+  const fileBuffer = await ipfs.cat(c);
+  return JSON.parse(fileBuffer.toString());
+}
+
+export { uploadFile, viewFile, IPFSPublication, IPFSProfile };
