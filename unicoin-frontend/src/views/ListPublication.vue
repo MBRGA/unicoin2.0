@@ -1,69 +1,138 @@
 <template>
+  <v-app>
+    <v-main>
+      <v-stepper v-model="liststep">
+        <v-stepper-header>
+          <v-stepper-step :complete="liststep > 1" step="1"> Information and setup </v-stepper-step>
+
+          <v-divider></v-divider>
+
+          <v-stepper-step :complete="liststep > 2" step="2"> Collaborators </v-stepper-step>
+
+          <v-divider></v-divider>
+
+          <v-stepper-step :complete="liststep > 3" step="3"> Market settings </v-stepper-step>
+
+          <v-divider></v-divider>
+
+          <v-stepper-step :complete="liststep > 4" step="4"> Deploy </v-stepper-step>
+        </v-stepper-header>
+
+        <v-stepper-items>
+          <v-stepper-content step="1">
+            <v-row>
+              <v-col>
+                <v-card>
+                  <v-card-title>Add a new publication to the UniCoin marketplace🦄</v-card-title>
+                  <v-card-subtitle
+                    >Add a new publication to the UniCoin marketplace. This onboarding flow will guide you though
+                    uploading your paper, linking other contributors and specifying the auction process used for selling
+                    license.</v-card-subtitle
+                  >
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <v-card>
+                  <v-card-title>Upload your paper</v-card-title>
+                  <v-card-subtitle>Add your paper in PDF format. 🗂</v-card-subtitle>
+                  <v-file-input label="Paper PDF" v-model="setupData.pdfName"></v-file-input>
+                </v-card>
+              </v-col>
+              <v-col>
+                <v-card>
+                  <v-card-title>Key paper information</v-card-title>
+                  <v-card-subtitle>Specify the key information about your paper. 📄</v-card-subtitle>
+                  <v-text-field label="Paper title" v-model="setupData.title"></v-text-field>
+                  <v-textarea label="Paper abstract" v-model="setupData.abstract" auto-grow></v-textarea>
+                </v-card>
+              </v-col>
+              <v-col>
+                <v-card>
+                  <v-card-title>Paper key words</v-card-title>
+                  <v-card-subtitle>Label your publication so that others can find it more easily. 🔍</v-card-subtitle>
+                  <v-combobox
+                    v-model="setupData.keywords"
+                    label="Keyword list"
+                    multiple
+                    chips
+                    deletable-chips
+                    placeholder="Nanotechnology..."
+                    hint="Press enter to add keyword"
+                  ></v-combobox>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-btn @click="liststep = 2" color="primary">Continue</v-btn>
+          </v-stepper-content>
+
+          <v-stepper-content step="2">
+            <v-row>
+              <v-col>
+                <v-card>
+                  <v-card-title>Specify paper contributors🎓</v-card-title>
+                  <v-card-subtitle
+                    >Attribute a percentage of your total income from your research to your paper contributors. They
+                    will automatically recive a proportion of all licencing fees you receive. The allocation is
+                    completely up to you.</v-card-subtitle
+                  >
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="8">
+                <v-card>
+                  <v-card-title>Add contributors</v-card-title>
+                  <v-card-subtitle
+                    >Add contributors who were influential in developing your research. You can choose what percentage
+                    allocation they will receive from the total funding pool.</v-card-subtitle
+                  >
+                  <v-card-text>
+                    <v-row v-for="(contributor, index) of coAuthors" :key="contributor.id">
+                      <v-col>
+                        <v-combobox v-model="contributor.name" label="Contributor Name"></v-combobox>
+                      </v-col>
+                      <v-col>
+                        <clickable-address :light="false" :icon="true" :eth-address="contributor.address" />
+                      </v-col>
+                      <v-col>
+                        <v-slider
+                          v-model="contributor.weighting"
+                          thumb-label="always"
+                          min="0"
+                          :max="contributor.weighting + remainingAllocation"
+                          :disabled="!contributor.address"
+                        >
+                        </v-slider>
+                      </v-col>
+                      <v-col>
+                        <v-btn color="accent" @click="removeContributor(index)">
+                          <v-icon>mdi-minus</v-icon>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+
+              <v-col>
+                <v-card>
+                  <v-card-text>Your allocation: 100%</v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-btn @click="liststep = 3" color="primary">Continue</v-btn>
+            <v-btn @click="liststep = 1">Back</v-btn>
+          </v-stepper-content>
+        </v-stepper-items>
+      </v-stepper>
+    </v-main>
+  </v-app>
   <div class="page-container">
     <md-steppers style="margin: 20px" v-model:md-active-step="active" md-linear>
-      <md-step
-        id="first"
-        md-label="Information and setup"
-        v-model:md-done="first"
-        style="background: #f5f9f9; padding-left: 0px; marin: 0px; padding-right: 0px"
-      >
-        <div class="md-layout">
-          <div class="md-layout-item">
-            <md-content style="padding: 20px">
-              <md-card-header>
-                <div class="md-title">Add a new publication to the UniCoin marketplace🦄</div>
-              </md-card-header>
-              <p>
-                Add a new publication to the UniCoin marketplace. This onboarding flow will guide you though uploading
-                your paper, linking other contributors and specifying the auction process used for selling license.
-              </p>
-            </md-content>
-            <br />
-            <div class="md-layout md-gutter">
-              <div class="md-layout-item">
-                <md-content style="padding: 20px">
-                  <md-card-header> <div class="md-title">Upload your paper</div> </md-card-header>Add your Paper in PDF
-                  format. 🗂
-                  <md-field>
-                    <label>Paper PDF</label>
-                    <md-file v-model="pdfName" id="file" ref="file" @change="handleFileUpload($event.target.files)" />
-                  </md-field>
-                  <div v-if="pdfFile != null" class="text-center" style="width: 200px">
-                    <pdf :src="pdfFile" :page="1" :resize="true">
-                      <template v-slot:loading>loading content here...</template>
-                    </pdf>
-                  </div>
-                </md-content>
-              </div>
-              <div class="md-layout-item">
-                <md-content style="padding: 20px">
-                  <md-card-header> <div class="md-title">Key paper information</div> </md-card-header>Specify the key
-                  information about your paper.📄
-                  <md-field>
-                    <label>Paper title</label>
-                    <md-input v-model="title"></md-input>
-                    <span class="md-helper-text"></span>
-                  </md-field>
-                  <md-field>
-                    <label>Paper abstract</label>
-                    <md-textarea v-model="abstract" md-autogrow></md-textarea>
-                  </md-field>
-                </md-content>
-              </div>
-              <div class="md-layout-item">
-                <md-content style="padding: 20px">
-                  <md-card-header> <div class="md-title">Paper key words</div> </md-card-header>Label your publication
-                  so others can find it easier.🔍
-                  <md-chips v-model="keywords" md-placeholder="Nanotechnology..."></md-chips>
-                </md-content>
-              </div>
-            </div>
-          </div>
-        </div>
-        <md-button class="md-raised md-primary" @click="setDone('first', 'second')" :disabled="false"
-          >Continue</md-button
-        >
-      </md-step>
       <md-step
         id="second"
         md-label="Paper Collaborators"
@@ -309,13 +378,49 @@
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref, reactive, computed } from "vue";
+import { useStore } from "@/store/piniastore";
+import ClickableAddress from "@/components/widgets/ClickableAddress.vue";
+import VuePdfNoSss from "../../.yarn/cache/vue-pdf-npm-4.3.0-b46a6dbaa1-cbf84cf11c.zip/node_modules/vue-pdf/src/vuePdfNoSss.vue";
+
+const store = useStore();
+
+const liststep = ref(0);
+
+const setupData = reactive({ pdfFile: "", pdfName: "", title: "", abstract: "", keywords: [] });
+
+interface Contributor {
+  id: number;
+  name: string;
+  address: string;
+  weighting: number;
+}
+
+let numContribs = 0;
+
+const coAuthors: Array<Contributor> = reactive([]);
+
+function addContributor() {
+  coAuthors.push({ id: numContribs++, name: "", address: "", weighting: 0 });
+}
+function removeContributor(index: number) {
+  coAuthors.splice(index, 1);
+}
+
+// Calculates the number of percentage points still available after adding together existing weightings
+const remainingAllocation = computed(() => {
+  return Math.max(100 - coAuthors.map((c) => c.weighting).reduce((prev, cur) => prev + cur, 0), 0);
+});
+</script>
+
 <script>
 import { mapActions, mapState } from "vuex";
 
-import ClickableAddress from "@/components/widgets/ClickableAddress";
+//import ClickableAddress from "@/components/widgets/ClickableAddress";
 
 import VuePlotly from "@statnett/vue-plotly";
-import { constants } from "fs";
+//import { constants } from "fs";
 
 import pdf from "pdfvuer";
 
@@ -445,7 +550,7 @@ export default {
       console.log(publicationObject);
       this.LIST_PUBLICATION(publicationObject);
     },
-    addContributor() {
+    /*addContributor() {
       this.coAuthor.push({ name: "", address: "", weighting: 0 });
     },
     removeContributor(index) {
@@ -456,7 +561,7 @@ export default {
     },
     slideContribution(index) {
       console.log("SLIDE");
-    },
+    },*/
   },
   computed: {
     ...mapState(["userNumber"]),
@@ -468,7 +573,7 @@ export default {
         ],
       };
     },
-    remainingAllocation() {
+    /*remainingAllocation() {
       if (this.coAuthor.length == 0) {
         return 100;
       } else {
@@ -477,7 +582,7 @@ export default {
         console.log(weightings.reduce((sum, value) => sum + value, 0));
         return this.coAuthor.map((v) => v.weighting).reduce((sum, value) => sum - value, 100);
       }
-    },
+    },*/
     pieData() {
       return [
         {

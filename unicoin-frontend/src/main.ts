@@ -4,15 +4,15 @@ import vuetify from "@/plugins/vuetify";
 
 import App from "./App.vue";
 import router from "@/router";
-import store from "./store";
+//import store from "./store";
 import "./registerServiceWorker";
 import VueRouter from "vue-router";
 import { ethers } from "ethers";
 
-import * as VueMaterial from "vue-material";
-import * as Jazzicon from "@metamask/jazzicon";
+//import * as VueMaterial from "vue-material";
+//import * as Jazzicon from "@metamask/jazzicon";
 
-import { createPinia, PiniaVuePlugin } from 'pinia';
+import { createPinia, PiniaVuePlugin } from "pinia";
 
 import Web3 from "web3";
 
@@ -21,8 +21,6 @@ import Web3 from "web3";
 //import pdf from "vue-pdf";
 
 //import VueMaterial from "vue-material";
-
-
 
 //const VueMaterial = require("vue-material");
 
@@ -41,10 +39,10 @@ import { Verify } from "crypto";
 
 require("vue2-animate/dist/vue2-animate.min.css");
 
-Vue.component("jazzicon", Jazzicon);
+//Vue.component("jazzicon", Jazzicon);
 Vue.component("VueSlider", VueSlider);
 
-Vue.use(VueMaterial);
+//Vue.use(VueMaterial);
 Vue.use(VModal);
 Vue.use(VueRouter);
 Vue.use(PiniaVuePlugin);
@@ -53,7 +51,7 @@ const pinia = createPinia();
 
 new Vue({
   router,
-  store,
+  //store,
   vuetify,
   pinia,
   render: (h) => h(App),

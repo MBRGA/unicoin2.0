@@ -1,176 +1,284 @@
 <template>
-  <div class="page-container" style="padding-left: 20px; padding-right: 20px">
-    <div class="md-layout">
-      <div class="md-layout">
-        <div class="md-layout-item">
-          <md-content style="padding: 20px">
-            <md-card-header>
-              <div class="md-title">Welcome to UniCoin!</div>
-            </md-card-header>
-            <p>
-              Create your profile here. Are you a researcher wanting to publish material, or do you represent a company
-              wishing to licence a researcher's work?
-            </p>
-            <br />
-          </md-content>
-        </div>
-      </div>
-    </div>
+  <v-app>
+    <v-container class="px-5">
+      <v-row>
+        <v-row>
+          <v-col>
+            <v-sheet class="pa-5">
+              <v-card-title> Welcome to Unicoin! </v-card-title>
+              <p>
+                Create your profile here. Are you a researcher wanting to publish material, or do you represent a
+                company wishing to licence a researcher's work?
+              </p>
+            </v-sheet>
+          </v-col>
+        </v-row>
+      </v-row>
+    </v-container>
+    <v-radio-group v-model="accountType" row @change="clearForm">
+      <v-radio label="Academic" value="academic"></v-radio>
+      <v-radio label="Company" value="company"></v-radio>
+    </v-radio-group>
 
-    <md-radio v-model="accountType" value="academic" @change="clearForm">Academic</md-radio>
-    <md-radio v-model="accountType" value="company" @change="clearForm">Company</md-radio>
-    <br />
-    <form
-      v-if="accountType == 'academic'"
-      class="md-layout"
-      novalidate
-      @submit.prevent="$v.$touch()"
-      style="padding-top: 20px"
+    <v-form
+      v-if="accountType == AccountType.Academic"
+      ref="academicFormRef"
+      @submit.prevent="validateAcademic"
+      v-model="academicValid"
     >
-      <div class="md-layout-item md-size-15 md-size-small-0" />
-      <md-content class="md-layout-item md-size-70 md-small-size-100">
-        <md-card-header>
-          <div class="md-title">To verify your profile as a researcher, please login with ORCID below.</div>
-        </md-card-header>
-
-        <md-card-content>
-          <md-button
+      <v-card>
+        <v-card-title class="text-title">
+          To verify your profile as a researcher, please login with ORCID below
+        </v-card-title>
+        <v-card-text>
+          <v-btn
+            plain
             href="https://orcid.org/oauth/authorize?client_id=APP-0JZDFYT5L60YYAWM&response_type=token&scope=openid&redirect_uri=http://localhost:8080/CreateProfile"
           >
             <img class="text-right" alt="ORCID logo" style="width: 18px" src="../assets/orcid.png" /> ORCID LOGIN
-          </md-button>
-          <div class="md-layout md-gutter">
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getAcademicValidationClass('firstName')">
-                <label for="first-name">First Name</label>
-                <md-input
-                  name="first-name"
-                  id="first-name"
-                  autocomplete="given-name"
-                  v-model="academicForm.firstName"
-                  :disabled="true"
-                />
-                <span class="md-error" v-if="!$v.academicForm.firstName.required">The first name is required</span>
-                <span class="md-error" v-else-if="!$v.academicForm.firstName.minlength">Invalid first name</span>
-              </md-field>
-            </div>
-
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getAcademicValidationClass('lastName')">
-                <label for="last-name">Last Name</label>
-                <md-input
-                  name="last-name"
-                  id="last-name"
-                  autocomplete="family-name"
-                  v-model="academicForm.lastName"
-                  :disabled="true"
-                />
-                <span class="md-error" v-if="!$v.academicForm.lastName.required">The last name is required</span>
-                <span class="md-error" v-else-if="!$v.academicForm.lastName.minlength">Invalid last name</span>
-              </md-field>
-            </div>
-          </div>
-
-          <div class="md-layout md-gutter">
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getAcademicValidationClass('university')">
-                <label for="university">University</label>
-                <md-input
-                  name="university"
-                  id="university"
-                  autocomplete="university"
-                  v-model="academicForm.university"
-                />
-                <span class="md-error" v-if="!$v.academicForm.university.required">The university is required</span>
-                <span class="md-error" v-else-if="!$v.academicForm.university.minlength">Invalid university name</span>
-              </md-field>
-            </div>
-          </div>
-
-          <md-field :class="getAcademicValidationClass('email')">
-            <label for="email">Email</label>
-            <md-input type="email" name="email" id="email" autocomplete="email" v-model="academicForm.email" />
-            <span class="md-error" v-if="!$v.academicForm.email.required">The email is required</span>
-            <span class="md-error" v-else-if="!$v.academicForm.email.email">Invalid email</span>
-          </md-field>
-        </md-card-content>
-
-        <md-progress-bar md-mode="indeterminate" v-if="sending" />
-
-        <md-card-actions>
-          <md-button type="submit" class="md-raised md-accent" @click="createUser">Create user</md-button>
-        </md-card-actions>
-        <!-- {{form.orcid}} -->
-      </md-content>
-
-      <md-snackbar v-model:md-active="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
-    </form>
-
-    <form
-      v-if="accountType == 'company'"
-      novalidate
-      class="md-layout"
-      @submit.prevent="$v.$touch()"
-      style="padding-top: 20px"
+          </v-btn>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="First Name"
+                v-model="academicForm.firstName"
+                autocomplete="given-name"
+                disabled
+                :rules="[rules.required, rules.minLength]"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                label="Last Name"
+                v-model="academicForm.lastName"
+                autocomplete="family-name"
+                disabled
+                :rules="[rules.required, rules.minLength]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="University"
+                v-model="academicForm.university"
+                autocomplete="university"
+                :rules="[rules.required, rules.minLength]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="Email"
+                v-model="academicForm.email"
+                autocomplete="email"
+                :rules="[rules.required, rules.email]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-progress-linear :indeterminate="sending" :active="sending"></v-progress-linear>
+          <v-btn type="submit" @click="createUser">Create User</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+    <v-form
+      v-else-if="accountType == AccountType.Company"
+      ref="companyFormRef"
+      @submit.prevent="validateCompany"
+      v-model="companyValid"
     >
-      <div class="md-layout-item md-size-15 md-size-small-0" />
-      <md-content class="md-layout-item md-size-70 md-small-size-100">
-        <md-card-header>
-          <div class="md-title">
-            To verify your profile as an institution, please provide your company details below.
-          </div>
-        </md-card-header>
-
-        <md-card-content>
-          <div class="md-layout md-gutter">
-            <div class="md-layout-item md-small-size-100">
-              <md-field :class="getCompanyValidationClass('name')">
-                <label for="company">Company</label>
-                <md-input name="company" id="company" autocomplete="company" v-model="companyForm.name" />
-                <span class="md-error" v-if="!$v.companyForm.name.required">The company name is required</span>
-                <span class="md-error" v-else-if="!$v.companyForm.name.minlength">Invalid company name</span>
-              </md-field>
-            </div>
-          </div>
-
-          <md-field :class="getCompanyValidationClass('email')">
-            <label for="email">Email</label>
-            <md-input type="email" name="email" id="email" autocomplete="email" v-model="companyForm.email" />
-            <span class="md-error" v-if="!$v.companyForm.email.required">The email is required</span>
-            <span class="md-error" v-else-if="!$v.companyForm.email.email">Invalid email</span>
-          </md-field>
-        </md-card-content>
-
-        <md-progress-bar md-mode="indeterminate" v-if="sending" />
-
-        <md-card-actions>
-          <md-button type="submit" class="md-raised md-accent" @click="createUser">Create user</md-button>
-        </md-card-actions>
-        <!-- {{form.orcid}} -->
-      </md-content>
-
-      <md-snackbar v-model:md-active="userSaved">The user {{ lastUser }} was saved with success!</md-snackbar>
-    </form>
-    <br />
-    <br />
-    <md-dialog v-model:md-active="newUser">
-      <md-dialog-title>Create an account</md-dialog-title>
-      <md-content style="padding: 30px">
-        <p>
-          To use the Unicorn platform you first need to create an account. This will add your information to the
-          blockchain and be used to verify your identity when you add new publications or place bids on research. As an
-          academic you will require an OrcidID to make your account. A company needs a name an an email address.
-        </p>
-      </md-content>
-    </md-dialog>
-    <!-- <mining-transaction /> -->
-  </div>
+      <v-card>
+        <v-card-title class="text-title">
+          To verify your profile as an institution, please provide your company details below.
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="Company"
+                v-model="companyForm.companyName"
+                autocomplete="company"
+                disabled
+                :rules="[rules.required, rules.minLength]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="Email"
+                v-model="companyForm.email"
+                autocomplete="email"
+                :rules="[rules.required, rules.email]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-progress-linear :indeterminate="sending" :active="sending"></v-progress-linear>
+          <v-btn type="submit" @click="createUser">Create User</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+    <v-snackbar v-model="userSaved">The user {{ lastUser }} was successfully saved!</v-snackbar>
+    <v-dialog v-model="newUser">
+      <v-card>
+        <v-card-title>Create an account</v-card-title>
+        <v-card-text>
+          <p class="pa-6">
+            To use the Unicorn platform you first need to create an account. This will add your information to the
+            blockchain and be used to verify your identity when you add new publications or place bids on research. As
+            an academic you will require an OrcidID to make your account. A company needs a name an an email address.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </v-app>
 </template>
 
-<script>
-import MiningTransaction from "@/components/widgets/MiningTransaction";
+<script setup lang="ts">
+import MiningTransaction from "@/components/widgets/MiningTransaction.vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import { useStore } from "@/store/piniastore";
+import { useRouter, useRoute } from "vue2-helpers/vue-router";
+//import { useRouter, useRoute } from "vue-router";
+//import useRouter from "vue-router";
 
-import { mapActions, mapState } from "vuex";
+import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
+import { isContext } from "vm";
+import { VForm } from "vuetify/lib/components";
+import Vue from "vue";
+import { AcademicProfile, CompanyProfile } from "@/utils/ipfsUploader";
+
+const store = useStore();
+
+const academicForm = reactive({
+  firstName: "",
+  lastName: "",
+  email: "",
+  orcid: "",
+  university: "",
+  timestamp: new Date(),
+});
+
+const companyForm = reactive({
+  companyName: "",
+  email: "",
+  timestamp: new Date(),
+});
+
+const rules = {
+  required: (value: string) => !!value || "Required.",
+  minLength: (value: string) => value.length >= 3 || "Invalid value.",
+  email: (value: string) => {
+    const pattern =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return pattern.test(value) || "Invalid email.";
+  },
+};
+
+enum AccountType {
+  Academic,
+  Company,
+}
+
+const newUser = ref(false);
+const accountType = ref(AccountType.Academic);
+const userSaved = ref(false);
+const sending = ref(false);
+const lastUser = ref("");
+
+const router = useRouter();
+
+const route = useRoute();
+
+// We have to manually make sure these refs are typed with the validate function included
+const academicFormRef = ref<(Vue & { validate: () => boolean }) | null>(null);
+const companyFormRef = ref<(Vue & { validate: () => boolean }) | null>(null);
+
+const companyValid = ref(false);
+const academicValid = ref(false);
+
+const canCreateUser = computed(() => {
+  return (accountType.value == AccountType.Academic && academicValid.value) || companyValid.value;
+});
+
+function validateAcademic() {
+  academicFormRef.value?.validate();
+}
+
+function validateCompany() {
+  companyFormRef.value?.validate();
+}
+
+function createUser() {
+  if (canCreateUser.value) {
+    console.log("Create User method");
+
+    let submitBlob =
+      accountType.value == AccountType.Academic ? (academicForm as AcademicProfile) : (companyForm as CompanyProfile);
+    submitBlob.timestamp = new Date();
+    console.log("user create blob");
+    store.createUser(submitBlob);
+  }
+}
+
+onMounted(async () => {
+  const token = route?.hash;
+  if (token) {
+    const openid_resp = new URLSearchParams(token);
+    const id_token = openid_resp.get("id_token");
+
+    if (id_token) {
+      jwt.verify(
+        id_token,
+        (header, callback) => {
+          const client = jwksClient({ jwksUri: "https://sandbox.orcid.org/oauth/jwks" });
+          client.getSigningKey(header.kid, (err, key) => {
+            callback(null, key?.getPublicKey());
+          });
+        },
+        (err, decoded) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          if (!decoded) {
+            console.error("Missing ORCID OpenID response");
+            return;
+          }
+
+          if (typeof decoded === "string") {
+            console.error("Unable to parse ORCID OpenID response");
+            return;
+          }
+
+          const dec_payload = decoded as jwt.JwtPayload;
+
+          if (!dec_payload.sub) {
+            console.error("Invalid ORCID OpenID response - missing 'sub' field");
+            return;
+          }
+
+          academicForm.firstName = dec_payload.given_name;
+          academicForm.lastName = dec_payload.family_name;
+          academicForm.orcid = dec_payload.sub;
+        }
+      );
+    }
+  }
+});
+</script>
+
+<script>
+//import MiningTransaction from "@/components/widgets/MiningTransaction";
+
+/*import { mapActions, mapState } from "vuex";
 import { validationMixin } from "vuelidate";
 import { required, email, minLength, maxLength } from "vuelidate/lib/validators";
 import router from "@/router";
@@ -314,7 +422,7 @@ export default {
       return false;
     },
   },
-};
+};*/
 </script>
 
 <style lang="scss" scoped>

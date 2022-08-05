@@ -4,7 +4,7 @@ import VueRouter, { RouteConfig } from "vue-router";
 //import { createWebHistory, createRouter } from "vue-router";
 //import { RouteRecordRaw } from "vue-router";
 
-import store from "./store/index";
+//import store from "./store/index";
 
 //pages
 import Home from "./views/Home.vue";

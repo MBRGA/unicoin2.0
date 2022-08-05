@@ -42,7 +42,7 @@ class UserBid {
 enum transactionStatus {
   pending,
   uploading,
-  done
+  done,
 }
 
 class State {
@@ -234,7 +234,7 @@ export default new Vuex.Store<State>({
         commit(mutations.SET_MINING_TRANSACTION_OBJECT, {
           status: "done",
           //txHash: txHash.tx,
-          txHash: txHash.blockHash
+          txHash: txHash.blockHash,
         });
       }
     },

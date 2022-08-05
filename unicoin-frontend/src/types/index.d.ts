@@ -7,7 +7,6 @@ declare module "@metamask/jazzicon" {
   export default function (diameter: number, seed: number): HTMLElement;
 }
 
-
 declare global {
   interface Window {
     ethereum: MetaMaskInpageProvider;
@@ -44,5 +43,4 @@ declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
     $store: import("vuex").Store<State>;
   }
-
 }

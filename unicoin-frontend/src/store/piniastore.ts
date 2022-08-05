@@ -5,9 +5,24 @@ import { UnicoinRegistry__factory } from "@factories/contracts";
 import { BigNumber, BigNumberish, ethers, Signer } from "ethers";
 import { getEtherscanAddress, getNetIdString } from "@/utils/lookupTools";
 import { GET_ALL_PUBLICATIONS, GET_USER_BIDS, GET_USER_LICENCES, GET_USER_PROFILE } from "./actions";
-import { IPFSPublication, viewFile, IPFSProfile, uploadFile } from "@/utils/ipfsUploader";
+import {
+  viewFile,
+  Publication as IPFSPublication,
+  AcademicProfile,
+  CompanyProfile,
+  uploadFile,
+} from "@/utils/ipfsUploader";
 import { CID } from "ipfs-http-client";
 import detectEthereumProvider from "@metamask/detect-provider";
+import {
+  TransactionStatus,
+  PricingStrategy,
+  BidStatus,
+  AccountType,
+  AuctionStatus,
+  PublicationStatus,
+} from "@/utils/enums";
+import { ifError } from "assert";
 
 /**
  * Thrown if an invalid or missing IPFS content identifier has been attempted to be parsed from a string
@@ -36,7 +51,7 @@ class ObjectNotFoundError extends Error {
   }
 }
 
-class UserBid {
+export class UserBid {
   constructor(
     readonly id: BigNumber,
     readonly offer: number,
@@ -62,10 +77,12 @@ class PublicationBid {
     readonly offer: number,
     readonly status: BidStatus,
     readonly ownerAddress: string,
-    readonly bidderFirstName: string,
-    readonly bidderLastName: string,
-    readonly bidderAccountType: AccountType,
-    readonly bidderCompanyName: string
+    readonly bidderDetails:
+      | {
+          bidderFirstName: string;
+          bidderLastName: string;
+        }
+      | { bidderCompanyName: string }
   ) {}
   /**
    * Obtains the details of a bid made on a publication from the blockchain and IPFS
@@ -87,20 +104,32 @@ class PublicationBid {
       throw new InvalidCIDError("Could not obtain bidder URI");
     }
 
-    const bidderProfile: IPFSProfile = await viewFile(bidderCID);
+    // So, this is going to be inefficient because to get the right type we're going to have to query IPFS twice
+    // Probably a better way to do it by moving ser/deser logic out of ipfsUploader
+    const academicBidderProfile = await viewFile(bidderCID, AcademicProfile);
 
-    console.log("FETCHING BIDDER PROFILE");
-    console.log(bidderProfile);
+    if (academicBidderProfile) {
+      return new PublicationBid(
+        bidId,
+        bidInformation.revealedBid.toNumber(),
+        bidInformation.status,
+        bidInformation.bidderAddress,
+        { bidderFirstName: academicBidderProfile.firstName, bidderLastName: academicBidderProfile.lastName }
+      );
+    }
+
+    const companyBidderProfile = await viewFile(bidderCID, CompanyProfile);
+
+    if (!companyBidderProfile) {
+      throw new ObjectNotFoundError("No AcademicProfile or CompanyProfile found at given CID");
+    }
 
     return new PublicationBid(
       bidId,
       bidInformation.revealedBid.toNumber(),
       bidInformation.status,
       bidInformation.bidderAddress,
-      bidderProfile.firstName,
-      bidderProfile.lastName,
-      bidderProfile.accountType,
-      bidderProfile.companyName
+      { bidderCompanyName: companyBidderProfile.companyName }
     );
   }
 }
@@ -188,7 +217,11 @@ export class Publication {
       throw new InvalidCIDError("Unable to obtain CID for publication");
     }
 
-    const ipfsFile: IPFSPublication = await viewFile(ipfsCID);
+    const ipfsPub = await viewFile(ipfsCID, IPFSPublication);
+
+    if (!ipfsPub) {
+      throw new ObjectNotFoundError("No valid publication found at given CID");
+    }
 
     const authorUri = await registry.getUserProfileUri(ownerAddress);
     const authorCID = CID.asCID(authorUri);
@@ -199,7 +232,11 @@ export class Publication {
       throw new InvalidCIDError("Could not obtain author CID");
     }
 
-    const authorProfile: IPFSProfile = await viewFile(authorCID);
+    const authorProfile = await viewFile(authorCID, AcademicProfile);
+
+    if (!authorProfile) {
+      throw new ObjectNotFoundError("Unable to find a valid author profile");
+    }
 
     const publicationBidsInformation: PublicationBid[] = [];
 
@@ -211,18 +248,18 @@ export class Publication {
       publicationBidsInformation.push(await PublicationBid.getPublicationBid(bidId, registry));
     }
 
-    const title = ipfsFile.title;
-    const abstract = ipfsFile.abstract;
-    const authorAddress = authorProfile.address;
+    const title = ipfsPub.title;
+    const abstract = ipfsPub.abstract;
+    const authorAddress = ownerAddress;
     const authorFirstName = authorProfile.firstName;
     const authorLastName = authorProfile.lastName;
     const authorEmail = authorProfile.email;
     const authorOrcid = authorProfile.orcid;
     const authorUniversity = authorProfile.university;
-    const pdfFile = ipfsFile.pdfFile;
+    const pdfFile = ipfsPub.pdfFile;
     const auctionStatus = currentAuction.status;
     //const contributors = ipfsFile.contributors;
-    const keyword = ipfsFile.keyword;
+    const keyword = ipfsPub.keyword;
 
     return new Publication(
       pricingStrategy,
@@ -268,7 +305,7 @@ interface State {
   contractAddress: string;
   signer?: Signer;
   userBids?: Array<UserBid>;
-  userProfile?: IPFSProfile;
+  userProfile?: AcademicProfile | CompanyProfile;
   userLicences?: Array<UserLicence>;
   miningTransactionObject?: {
     status: TransactionStatus;
@@ -303,7 +340,8 @@ export const useStore = defineStore("main", {
      * Thrown if the address of the Unicoin contract is not provided in the Environment
      */
     async initApp() {
-      if (!process.env.UNICOIN_ADDRESS) throw new MissingEnvironmentError("No address provided for Unicoin Deployment");
+      if (!process.env.VUE_APP_UNICOIN_ADDRESS)
+        throw new MissingEnvironmentError("No address provided for Unicoin Deployment");
 
       const eth = await detectEthereumProvider();
 
@@ -329,7 +367,7 @@ export const useStore = defineStore("main", {
 
       this.currentNetwork = await getNetIdString(provider);
       this.etherscanBase = await getEtherscanAddress(provider);
-      this.registry = UnicoinRegistry__factory.connect(process.env.UNICOIN_ADDRESS, signer ? signer : provider);
+      this.registry = UnicoinRegistry__factory.connect(process.env.VUE_APP_UNICOIN_ADDRESS, signer ? signer : provider);
 
       this.contractAddress = this.registry.address;
 
@@ -451,10 +489,22 @@ export const useStore = defineStore("main", {
       const profile_cid = CID.asCID(profile_uri);
       if (!profile_cid) throw new InvalidCIDError("No valid profile information available for user");
 
-      const ipfsBlob: IPFSProfile = await viewFile(profile_cid);
-      this.userProfile = ipfsBlob;
+      const academicProfile = await viewFile(profile_cid, AcademicProfile);
 
-      return true;
+      if (academicProfile) {
+        this.userProfile = academicProfile;
+        return true;
+      }
+
+      // If no academic profile, let's try it as a company profile.
+      const companyProfile = await viewFile(profile_cid, CompanyProfile);
+
+      if (companyProfile) {
+        this.userProfile = companyProfile;
+        return true;
+      }
+
+      return false;
     },
     /**
      * Obtains the list of all bids that have been made by the current user that are stored on the Blockchain
@@ -479,7 +529,7 @@ export const useStore = defineStore("main", {
 
         const ipfsCID = CID.asCID(publicationObject.publicationUri);
 
-        const ipfsFile = ipfsCID ? ((await viewFile(ipfsCID)) as IPFSPublication) : undefined;
+        const ipfsFile = ipfsCID ? await viewFile(ipfsCID, IPFSPublication) : undefined;
 
         const newBid = new UserBid(
           bid,
@@ -500,10 +550,10 @@ export const useStore = defineStore("main", {
     /**
      * Creates a new user profile.
      * Profile data is uploaded to IPFS, and an entry is created on the blockchain
-     * @param userData An {@link ipfsUploader#IPFSProfile} object containing user information
+     * @param userData An {@link ipfsUploader#AcademicProfile} or {@link ipfsUploader#CompanyProfile} object containing user information
      * @return Returns true if the action completed successfully
      */
-    async createUser(userData: IPFSProfile): Promise<boolean> {
+    async createUser(userData: AcademicProfile | CompanyProfile): Promise<boolean> {
       if (!this.registry) {
         console.warn("createUser called without valid registry or signer being set. Ignoring request.");
         return false;
@@ -540,6 +590,88 @@ export const useStore = defineStore("main", {
         status: TransactionStatus.Failed,
         txHash: undefined,
       };
+
+      return false;
+    },
+    async cancelBid(bidId: BigNumber): Promise<boolean> {
+      if (!this.registry) {
+        console.warn("cancelBid called without valid registry or signer being set. Ignoring request.");
+        return false;
+      }
+
+      this.miningTransactionObject = {
+        status: TransactionStatus.Pending,
+        txHash: "",
+      };
+
+      // Not actually implemented anywhere\
+      // FIXME: Needs to be implemented on backend
+      const txHash = await this.registry.cancelBid(bidId);
+
+      if (txHash) {
+        this.miningTransactionObject = {
+          status: TransactionStatus.Done,
+          txHash: txHash.blockHash,
+        };
+        return true;
+      }
+
+      return false;
+    },
+    async listPublication(publication: Publication): Promise<boolean> {
+      if (!this.registry) {
+        console.warn("listPublication called without valid registry or signer being set. Ignoring request.");
+        return false;
+      }
+
+      const ipfsFile: IPFSPublication = {
+        title: publication.title,
+        abstract: publication.abstract,
+        keyword: publication.keyword,
+        contributors: ["publication.contributionsId"],
+        contributorsWeightings: [0],
+        sellPrice: publication.sellPrice,
+        pricingStrategy: publication.pricingStrategy,
+        auctionStatus: publication.auctionStatus,
+        pdfFile: publication.pdfFile,
+      };
+
+      this.miningTransactionObject = {
+        status: TransactionStatus.Uploading,
+        txHash: "",
+      };
+
+      const ipfsHash = await uploadFile(ipfsFile);
+
+      if (ipfsHash) {
+        this.miningTransactionObject = {
+          status: TransactionStatus.Pending,
+          txHash: "",
+        };
+      }
+
+      // FIXME: sort out auction info for new publication
+      const txHash = await this.registry.createPublication(
+        publication.pricingStrategy,
+        ipfsHash.toString(),
+        0, // auction floor
+        0, // auction start time
+        0, // auction duration
+        publication.sellPrice,
+        publication.maxNumberOfLicences,
+        [], //contributions
+        [] //citations
+      );
+
+      if (txHash) {
+        this.miningTransactionObject = {
+          status: TransactionStatus.Done,
+          txHash: txHash.blockHash,
+        };
+
+        this.numberOfPublications++;
+        return true;
+      }
 
       return false;
     },

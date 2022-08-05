@@ -11,7 +11,7 @@ import { useStore } from "@/store/piniastore";
 
 const store = useStore();
 
-const props = defineProps({ transaction: { type: String } });
+const props = defineProps(["transaction"]);
 
 const dotDotDot = computed(() => {
   if (props.transaction) {

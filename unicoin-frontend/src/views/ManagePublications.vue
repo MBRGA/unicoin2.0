@@ -11,12 +11,14 @@
               </p>
             </div>
           </v-sheet>
-          <manage-publication-row-item
-            v-for="publication in store.listedPublications?.filter((x) => x.authorAddress === store.userAddress)"
-            :publicationInformation="publication"
-            :key="publication.publicationId.toNumber()"
-            style="margin: 20px"
-          />
+          <div v-if="store.listedPublications">
+            <manage-publication-row-item
+              v-for="publication in store.listedPublications.filter((x) => x.authorAddress === store.userAddress)"
+              :publicationInformation="publication"
+              :key="publication.publicationId.toNumber()"
+              style="margin: 20px"
+            />
+          </div>
         </v-col>
       </v-row>
     </v-container>

@@ -1,67 +1,62 @@
 <template>
-  <v-app>
-    <v-app-bar color="primary">
-      <v-app-bar-nav-icon @click.stop="menuVisible = !menuVisible"></v-app-bar-nav-icon>
+  <div id="app">
+    <v-app>
+      <v-app-bar color="primary">
+        <v-app-bar-nav-icon @click.stop="menuVisible = !menuVisible"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>{{ $route.name }}</v-toolbar-title>
+        <v-toolbar-title>{{ $route.name }}</v-toolbar-title>
 
-      <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
 
-      <v-toolbar-title class="text-subtitle-2">{{
-        "${userProfile.firstName} ${userProfile.lastName}"
-      }}</v-toolbar-title>
-    </v-app-bar>
+        <v-toolbar-title class="text-subtitle-2" v-if="store.userProfile">{{
+          `${store.userProfile.firstName} ${store.userProfile.lastName}`
+        }}</v-toolbar-title>
+      </v-app-bar>
 
-    <v-navigation-drawer v-model="menuVisible" absolute temporary>
-      <v-list nav dense>
-        <v-list-item v-for="item in menuItems" :key="item.label" link>
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
+      <v-navigation-drawer v-model="menuVisible" absolute temporary>
+        <v-list nav dense>
+          <v-list-item v-for="item in menuItems" :key="item.label" link>
+            <v-list-item-icon>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
 
-          <v-list-item-content>
-            <v-list-item-title
-              ><router-link :to="item.path">{{ item.label }}</router-link></v-list-item-title
-            >
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-main>
-      <mining-transaction />
-      <router-view />
-    </v-main>
-    <v-row>
-      <v-col class="text-subtitle"><a href="/TermsOfService">Terms of service</a> </v-col>
-      <v-col class="text-caption">
-        {{ currentNetwork }}<clickable-address :light="false" :icon="false" :eth-address="contractAddress"
-      /></v-col>
-    </v-row>
-  </v-app>
+            <v-list-item-content>
+              <v-list-item-title>
+                <!-- Any non-relative links will be opened in a new tab -->
+                <router-link :to="item.path" v-if="isRelativeLink(item.path)">
+                  {{ item.label }}
+                </router-link>
+                <a v-else :href="item.path" target="_blank">{{ item.label }}</a>
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+      <v-main>
+        <mining-transaction />
+        <router-view />
+      </v-main>
+      <v-row>
+        <v-col class="text-subtitle"><a href="/TermsOfService">Terms of service</a> </v-col>
+        <v-col class="text-caption">
+          {{ currentNetwork }}<clickable-address :light="false" :icon="false" :eth-address="store.contractAddress"
+        /></v-col>
+      </v-row>
+    </v-app>
+  </div>
 </template>
 
 <script setup lang="ts">
-
-import ClickableAddress from "./components/ClickableAddress.vue";
-
-</script>
-
-<script lang="ts">
-/* global web3:true */
-import Web3 from "web3";
-import Vue from "vue";
-import * as actions from "@/store/actions";
-import * as mutations from "@/store/mutation-types";
-import { mapActions, mapState } from "vuex";
-import   from "@/router";
-import MiningTransaction from "./components/widgets/MiningTransaction.vue";
 import ClickableAddress from "./components/widgets/ClickableAddress.vue";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { MetaMaskInpageProvider } from "@metamask/providers";
-import provider from "web3";
-import { ExternalProvider } from "@ethersproject/providers";
-import * as dotenv from "dotenv";
-import defineComponent from "vue";
+import MiningTransaction from "./components/widgets/MiningTransaction.vue";
+
+import { ref, onMounted } from "vue";
+
+import { useStore } from "@/store/piniastore";
+
+const menuVisible = ref(false);
+
+const store = useStore();
 
 interface MenuItem {
   label: string;
@@ -69,74 +64,48 @@ interface MenuItem {
   icon: string;
 }
 
-interface AppData {
-  web3Detected: boolean;
-  menuVisible: boolean;
-  menuItems: MenuItem[];
+const menuItems: Array<MenuItem> = [
+  { label: "Home", path: "/", icon: "mdi-home" },
+  { label: "Profile", path: "/Profile", icon: "mdi-account-box" },
+  { label: "Create New User", path: "/CreateProfile", icon: "mdi-account-plus" },
+  { label: "Browse Publications", path: "/BrowsePublications", icon: "mdi-search" },
+  { label: "List New Publication", path: "/ListPublication", icon: "mdi-publish" },
+  { label: "Manage Publications", path: "/ManagePublications", icon: "mdi-format-list-bulleted" },
+  { label: "My Bids", path: "/MyBids", icon: "mdi-attach-money" },
+  { label: "My Licences", path: "/MyLicences", icon: "mdi-key" },
+  { label: "Github", path: "https://github.com/unicoinlicences/unicoindapp", icon: "mdi-github" },
+  {
+    label: "Documentation",
+    path: "https://github.com/unicoinlicences/unicoindapp/tree/master/Documentation/TechnicalArchitecture.md",
+    icon: "mdi-chat",
+  },
+  { label: "Contact Us", path: "/ContactUs", icon: "mdi-chat" },
+];
+
+function isRelativeLink(url: string) {
+  return !/^(?:[a-z]+:)\/\//i.test(url);
 }
 
-interface Unicoin {
+onMounted(() => {
+  store.initApp();
+});
+</script>
 
-}
+<script lang="ts">
+/*import Vue from "vue";
+import HelloWorld from "./components/HelloWorld.vue";
 
-export default class Unicoin extends Vue {
-  name: "app",
-  components: { ClickableAddress, MiningTransaction },
-  data(): AppData {
-    return {
-      web3Detected: true,
-      menuVisible: false,
-      menuItems: [
-        { label: "Home", path: "/", icon: "mdi-home" },
-        { label: "Profile", path: "/Profile", icon: "mdi-account-box" },
-        { label: "Create New User", path: "/CreateProfile", icon: "mdi-account-plus" },
-      ],
-    };
-  },
-  methods: {
-    ...mapActions(["INIT_APP"]),
-    redirect(_path: string) {
-      router.push({ name: _path });
-    },
+export default Vue.extend({
+  name: "App",
+
+  components: {
+    HelloWorld,
   },
 
-  // Make sure ESLint knows about ethereum global variable
-  /* global ethereum */
-
-  async mounted() {
-    dotenv.config();
-
-    const eth = await detectEthereumProvider();
-
-    if (eth) {
-      Vue.prototype.$provider = new ethers.providers.Web3Provider(eth as ExternalProvider);
-
-      console.log("web3 provider detected!");
-      (eth as any)
-        .request({ method: "eth_requestAccounts" })
-        .then((value: any) => {
-          console.log("Bootstrapping web app - provider acknowledged", value);
-        })
-        .catch((error: any) => {
-          console.log("User denied access, bootstrapping application using infura", error);
-
-          Vue.prototype.$provider = new ethers.providers.JsonRpcProvider(process.env.KOVAN_URL);
-        });
-      /*} else if (Vue.prototype.$web3) {
-      console.log("Running legacy web3 provider");
-      Vue.prototype.$web3 = new Web3(Vue.prototype.$web3.currentProvider);*/
-    } else {
-      Vue.prototype.$provider = new ethers.providers.JsonRpcProvider(process.env.KOVAN_URL);
-
-      console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
-    }
-
-    this.INIT_APP(Vue.prototype.$provider);
-  },
-  computed: {
-    ...mapState(["currentNetwork", "account", "contractAddress", "userProfile"]),
-  },
-};
+  data: () => ({
+    //
+  }),
+});*/
 </script>
 
 <style lang="scss">
@@ -145,10 +114,9 @@ export default class Unicoin extends Vue {
 @include md-register-theme(
   "default",
   (
-    // The primary color of your brand
     primary: #828ec6,
-    // The secondary color of your brand
-    accent: #dd688c
+    // The primary color of your brand
+      accent: #dd688c // The secondary color of your brand
   )
 );
 @import "~vue-material/dist/theme/all"; // Apply the theme

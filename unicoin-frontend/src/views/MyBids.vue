@@ -1,25 +1,34 @@
 <template>
-  <div class="page-container">
-    <div class="md-layout">
-      <div class="md-layout">
-        <div class="md-layout-item">
-          <md-content style="padding: 20px">
-            <md-card-header>
-              <div class="md-title">View all pending, cancelled, or accepted bids and purchases here</div>
-            </md-card-header>
-
-            <browse-bids-row-item v-for="bid in userBids" :bidInformation="bid" style="margin: 20px" :key="bid" />
-          </md-content>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-app>
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-card-title> View all pending, cancelled, or accepted bids and purchases here </v-card-title>
+        </v-card>
+        <BrowseBidsRowItem v-for="bid in store.userBids" :bidInformation="bid" class="ma-4" :key="bid.id.toNumber()" />
+      </v-col>
+    </v-row>
+  </v-app>
 </template>
 
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { useStore } from "@/store/piniastore";
+import BrowseBidsRowItem from "@/components/BrowseBidsRowItem.vue";
+
+const store = useStore();
+
+onMounted(() => {
+  store.loadUserBids();
+  store.loadAllPublications();
+});
+</script>
+
 <script>
-import { mapActions, mapState } from "vuex";
-import browseBidsRowItem from "@/components/browseBidsRowItem.vue";
+/*import { mapActions, mapState } from "vuex";
+import BrowseBidsRowItem from "@/components/BrowseBidsRowItem.vue";
 import browsePublicationRowItem from "@/components/browsePublicationRowItem.vue";
+import { onMounted } from "vue";
 
 export default {
   name: "viewbid",
@@ -39,5 +48,5 @@ export default {
     ...mapState(["userBids"]),
     ...mapState(["numberOfPublications", "listedPublications"]),
   },
-};
+};*/
 </script>
