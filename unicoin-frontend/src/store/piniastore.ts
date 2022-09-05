@@ -4,7 +4,6 @@ import { UnicoinRegistry, SharedStructures } from "@contracts/UnicoinRegistry";
 import { UnicoinRegistry__factory } from "@factories/contracts";
 import { BigNumber, BigNumberish, ethers, Signer } from "ethers";
 import { getEtherscanAddress, getNetIdString } from "@/utils/lookupTools";
-import { GET_ALL_PUBLICATIONS, GET_USER_BIDS, GET_USER_LICENCES, GET_USER_PROFILE } from "./actions";
 import {
   viewFile,
   Publication as IPFSPublication,
@@ -173,7 +172,7 @@ export class Publication {
     readonly authorOrcid: string,
     readonly authorUniversity: string,
     readonly pdfFile: string,
-    readonly keyword: string,
+    readonly keywords: string[],
     readonly bids: PublicationBid[]
   ) {}
 
@@ -259,7 +258,7 @@ export class Publication {
     const pdfFile = ipfsPub.pdfFile;
     const auctionStatus = currentAuction.status;
     //const contributors = ipfsFile.contributors;
-    const keyword = ipfsPub.keyword;
+    const keyword = ipfsPub.keywords;
 
     return new Publication(
       pricingStrategy,
@@ -618,23 +617,28 @@ export const useStore = defineStore("main", {
 
       return false;
     },
-    async listPublication(publication: Publication): Promise<boolean> {
+    async listPublication(publication: IPFSPublication, pricingInfo: {
+      auctionFloor: number,
+      auctionStart: date,
+      auctionDuration: number,
+      
+    }): Promise<boolean> {
       if (!this.registry) {
         console.warn("listPublication called without valid registry or signer being set. Ignoring request.");
         return false;
       }
 
-      const ipfsFile: IPFSPublication = {
+      /*const ipfsFile: IPFSPublication = {
         title: publication.title,
         abstract: publication.abstract,
-        keyword: publication.keyword,
+        keywords: publication.keywords,
         contributors: ["publication.contributionsId"],
         contributorsWeightings: [0],
         sellPrice: publication.sellPrice,
         pricingStrategy: publication.pricingStrategy,
         auctionStatus: publication.auctionStatus,
         pdfFile: publication.pdfFile,
-      };
+      };*/
 
       this.miningTransactionObject = {
         status: TransactionStatus.Uploading,

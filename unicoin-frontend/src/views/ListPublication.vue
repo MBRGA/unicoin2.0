@@ -34,38 +34,59 @@
             </v-row>
 
             <v-row>
-              <v-col>
-                <v-card>
-                  <v-card-title>Upload your paper</v-card-title>
-                  <v-card-subtitle>Add your paper in PDF format. 🗂</v-card-subtitle>
-                  <v-file-input label="Paper PDF" v-model="setupData.pdfName"></v-file-input>
-                </v-card>
-              </v-col>
-              <v-col>
-                <v-card>
-                  <v-card-title>Key paper information</v-card-title>
-                  <v-card-subtitle>Specify the key information about your paper. 📄</v-card-subtitle>
-                  <v-text-field label="Paper title" v-model="setupData.title"></v-text-field>
-                  <v-textarea label="Paper abstract" v-model="setupData.abstract" auto-grow></v-textarea>
-                </v-card>
-              </v-col>
-              <v-col>
-                <v-card>
-                  <v-card-title>Paper key words</v-card-title>
-                  <v-card-subtitle>Label your publication so that others can find it more easily. 🔍</v-card-subtitle>
-                  <v-combobox
-                    v-model="setupData.keywords"
-                    label="Keyword list"
-                    multiple
-                    chips
-                    deletable-chips
-                    placeholder="Nanotechnology..."
-                    hint="Press enter to add keyword"
-                  ></v-combobox>
-                </v-card>
-              </v-col>
+              <v-form v-model="setupData.valid">
+                <v-col>
+                  <v-card>
+                    <v-card-title>Upload your paper</v-card-title>
+                    <v-card-subtitle>Add your paper in PDF format, and help us look up metadata. 🗂</v-card-subtitle>
+                    <v-file-input
+                      label="Paper PDF"
+                      accept="application/pdf"
+                      v-model="setupData.pdfFile"
+                      :rules="[requiredRule]"
+                      @change="handleFileUpload()"
+                    ></v-file-input>
+                    <v-text-field 
+                      label="Paper DOI"
+                      v-model="setupData.doi"
+                      :rules="[requiredRule]"
+                      @change="handleDoiLookup()"
+                      ></v-text-field>
+                    <vue-pdf-embed v-if="!!pdfData" :source="pdfData"></vue-pdf-embed>
+                  </v-card>
+                </v-col>
+                <v-col>
+                  <v-card>
+                    <v-card-title>Key paper information</v-card-title>
+                    <v-card-subtitle>Specify the key information about your paper. 📄</v-card-subtitle>
+                    <v-text-field label="Paper title" v-model="setupData.title" :rules="[requiredRule]"></v-text-field>
+                    <v-textarea
+                      label="Paper abstract"
+                      v-model="setupData.abstract"
+                      auto-grow
+                      :rules="[requiredRule]"
+                    ></v-textarea>
+                  </v-card>
+                </v-col>
+                <v-col>
+                  <v-card>
+                    <v-card-title>Paper key words</v-card-title>
+                    <v-card-subtitle>Label your publication so that others can find it more easily. 🔍</v-card-subtitle>
+                    <v-combobox
+                      v-model="setupData.keywords"
+                      label="Keyword list"
+                      multiple
+                      chips
+                      deletable-chips
+                      placeholder="Nanotechnology..."
+                      hint="Press enter to add keyword"
+                      :rules="[requiredRule]"
+                    ></v-combobox>
+                  </v-card>
+                </v-col>
+              </v-form>
             </v-row>
-            <v-btn @click="liststep = 2" color="primary">Continue</v-btn>
+            <v-btn @click="liststep = 2" color="primary" :disabled="!setupData.valid">Continue</v-btn>
           </v-stepper-content>
 
           <v-stepper-content step="2">
@@ -75,7 +96,7 @@
                   <v-card-title>Specify paper contributors🎓</v-card-title>
                   <v-card-subtitle
                     >Attribute a percentage of your total income from your research to your paper contributors. They
-                    will automatically recive a proportion of all licencing fees you receive. The allocation is
+                    will automatically receive a proportion of all licencing fees you receive. The allocation is
                     completely up to you.</v-card-subtitle
                   >
                 </v-card>
@@ -90,42 +111,216 @@
                     >Add contributors who were influential in developing your research. You can choose what percentage
                     allocation they will receive from the total funding pool.</v-card-subtitle
                   >
-                  <v-card-text>
-                    <v-row v-for="(contributor, index) of coAuthors" :key="contributor.id">
-                      <v-col>
-                        <v-combobox v-model="contributor.name" label="Contributor Name"></v-combobox>
-                      </v-col>
-                      <v-col>
-                        <clickable-address :light="false" :icon="true" :eth-address="contributor.address" />
-                      </v-col>
-                      <v-col>
-                        <v-slider
-                          v-model="contributor.weighting"
-                          thumb-label="always"
-                          min="0"
-                          :max="contributor.weighting + remainingAllocation"
-                          :disabled="!contributor.address"
-                        >
-                        </v-slider>
-                      </v-col>
-                      <v-col>
-                        <v-btn color="accent" @click="removeContributor(index)">
-                          <v-icon>mdi-minus</v-icon>
+                  <v-form v-model="coAuthorForm.valid">
+                    <v-card-text v-if="coAuthorForm.coAuthors.length > 0">
+                      <v-row v-for="(contributor, index) of coAuthorForm.coAuthors" :key="contributor.id">
+                        <v-col>
+                          <v-combobox
+                            v-model="contributor.name"
+                            label="Contributor Name"
+                            :rules="[requiredRule]"
+                          ></v-combobox>
+                        </v-col>
+                        <v-col>
+                          <clickable-address :light="false" :icon="true" :eth-address="contributor.address" />
+                        </v-col>
+                        <v-col>
+                          <v-slider
+                            v-model="contributor.weighting"
+                            thumb-label="always"
+                            min="0"
+                            :max="contributor.weighting + remainingAllocation"
+                            :disabled="!contributor.address"
+                          >
+                          </v-slider>
+                        </v-col>
+                        <v-col>
+                          <v-btn color="accent" @click="removeContributor(index)">
+                            <v-icon>mdi-minus</v-icon>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                      <v-fab-transition>
+                        <v-btn bottom right color="primary" @click="addContributor">
+                          <v-icon>mdi-add</v-icon>
                         </v-btn>
-                      </v-col>
-                    </v-row>
+                      </v-fab-transition>
+                    </v-card-text>
+                  </v-form>
+                  <v-card-text v-if="coAuthorForm.coAuthors.length == 0">
+                    <v-container class="text-center">
+                      <v-icon size="160px">mdi-monitor-smartphone-star</v-icon>
+                      <div class="text-h4">Add your first contributor</div>
+                      <div>Add all the people that helped make your research a reality.</div>
+                      <v-btn @click="addContributor" color="primary">Add first contributor</v-btn>
+                      <v-form v-model="validAttributionFile">
+                        <v-file-input
+                          label="Upload auto attribution file"
+                          persistent-hint
+                          hint="A text file with lines of the form (author, address, weighting)"
+                          v-model="autoAttribute"
+                          accept="text/plain"
+                          :rules="fileRules"
+                          :disabled="!cachedText || !validAttributionFile"
+                        >
+                          <template v-slot:append-outer>
+                            <v-btn @click="handleAutoAttributeFileUpload">Submit</v-btn>
+                          </template>
+                        </v-file-input>
+                      </v-form>
+                    </v-container>
                   </v-card-text>
                 </v-card>
               </v-col>
 
               <v-col>
                 <v-card>
-                  <v-card-text>Your allocation: 100%</v-card-text>
+                  <plotly-pie
+                    v-if="pieData && coAuthorForm.coAuthors.length > 0"
+                    :pieValues="pieData.values"
+                    :pieLabels="pieData.labels"
+                    :pieColors="colors"
+                    :pieHole="0.7"
+                  ></plotly-pie>
+                  <v-card-text>Your allocation: {{ remainingAllocation.toFixed() }} %</v-card-text>
                 </v-card>
               </v-col>
             </v-row>
-            <v-btn @click="liststep = 3" color="primary">Continue</v-btn>
+            <v-btn @click="liststep = 3" color="primary" :disabled="!coAuthorForm.valid">Continue</v-btn>
             <v-btn @click="liststep = 1">Back</v-btn>
+          </v-stepper-content>
+
+          <v-stepper-content step="3">
+            <v-container>
+              <v-row>
+                <v-col>
+                  <v-card>
+                    <v-card-title>Choose how you want to sell licences to your research 📄 </v-card-title>
+                    <v-card-subtitle
+                      >You can choose to either list your research at auction or sell it at a fixed price per
+                      licence</v-card-subtitle
+                    >
+                  </v-card>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-card>
+                    <v-card-title>Research market type</v-card-title>
+                    <v-card-text>
+                      <v-radio-group v-model="pricingForm.marketType" row>
+                        <v-radio label="Fixed Price" value="fixedPrice"></v-radio>
+                        <v-radio label="Sealed-Bid Auction" value="auction"></v-radio>
+                        <v-radio label="Auction with Harberger Tax" value="h-auction"></v-radio>
+                      </v-radio-group>
+                      <p v-if="marketType == 'auction'">
+                        Your publication will be listed as an auction. All potential buyers will submit a hidden bid,
+                        and after one month all bids will be revealed and the licence will be awarded to the highest
+                        bidder.
+                      </p>
+                      <div v-else-if="marketType == 'h-auction'">
+                        <p>
+                          Your publication will be listed as an auction. All potential buyers will submit a hidden bid,
+                          and after one month all bids will be revealed and the licence will be awarded to the highest
+                          bidder.
+                        </p>
+                        <p>
+                          The licence will be tradeable under Harberger taxation rules. Owners will pay a fee to you
+                          based on their valuation of the licence, and may be forced to sell in the case of higher bid
+                          being made.
+                        </p>
+                      </div>
+                      <div v-else>
+                        <p>
+                          Your publication will be listed at a fixed price. Buyers can purchase license immediately with
+                          no restriction. Use this setting if you feel happy with setting one fixed price for all
+                          licences.
+                        </p>
+                        <v-text-field
+                          label="Price per licence (USD)"
+                          v-model.number="pricingForm.pricePerLicence"
+                        ></v-text-field>
+                      </div>
+                      <v-slider
+                        v-model="pricingForm.maxLicences"
+                        min="1"
+                        max="10"
+                        label="Maximum Issuable Licences"
+                      ></v-slider>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+              <v-btn @click="liststep = 4" color="primary">Continue</v-btn>
+              <v-btn @click="liststep = 2">Back</v-btn>
+            </v-container>
+          </v-stepper-content>
+
+          <v-stepper-content step="4">
+            <v-container>
+              <v-row>
+                <v-column>
+                  <v-card>
+                    <v-card-title> Review your publication information 🔍 </v-card-title>
+                    <v-card-subtitle
+                      >You're nearly ready to go. Review your publication's details below.</v-card-subtitle
+                    >
+                  </v-card>
+                </v-column>
+                <v-row>
+                  <v-column cols="8">
+                    <v-card>
+                      <v-card-title>Publication summary</v-card-title>
+                      <v-card-text>
+                        <v-simple-table>
+                          <tbody>
+                            <tr>
+                              <td>Paper Title</td>
+                              <td>{{ setupData.title }}</td>
+                            </tr>
+                            <tr>
+                              <td>Keywords</td>
+                              <td>
+                                <div v-for="kwd of setupData.keywords" :key="kwd">{{ kwd }}</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Contributors</td>
+                              <td>
+                                <div v-for="contrib of coAuthorForm.coAuthors" :key="contrib.id">
+                                  {{ contrib.name }}: {{ contrib.weighting }} %
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Your allocation</td>
+                              <td>{{ remainingAllocation }} %</td>
+                            </tr>
+                            <tr>
+                              <td>Sale type</td>
+                              <td>{{ marketType == "auction" ? "Auction" : "Fixed Price" }}</td>
+                            </tr>
+                            <tr v-if="marketType == 'fixedPrice'">
+                              <td>Fixed price per licence</td>
+                              <td>{{ pricePerLicence }}</td>
+                            </tr>
+                          </tbody>
+                        </v-simple-table>
+                      </v-card-text>
+                    </v-card>
+                  </v-column>
+                  <v-column>
+                    <v-card>
+                      <v-card-text>
+                        <vue-pdf-embed :source="pdfData"></vue-pdf-embed>
+                      </v-card-text>
+                    </v-card>
+                  </v-column>
+                </v-row>
+              </v-row>
+              <v-btn @click="deploy()" color="primary">Continue</v-btn>
+              <v-btn @click="liststep = 3">Back</v-btn>
+            </v-container>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -133,175 +328,6 @@
   </v-app>
   <div class="page-container">
     <md-steppers style="margin: 20px" v-model:md-active-step="active" md-linear>
-      <md-step
-        id="second"
-        md-label="Paper Collaborators"
-        v-model:md-done="second"
-        style="background: #f5f9f9; padding-left: 0px; marin: 0px; padding-right: 0px"
-      >
-        <div class="md-layout">
-          <div class="md-layout-item">
-            <md-content style="padding: 20px">
-              <md-card-header>
-                <div class="md-title">Specify paper contributors🎓</div>
-              </md-card-header>
-              <p>
-                Attribute a percentage of your total income from your research to your paper contributors. They will
-                automatically recive a proportion of all licencing fees you receive. The allocation is completely up to
-                you.
-              </p>
-            </md-content>
-            <br />
-            <div class="md-layout md-gutter">
-              <div class="md-layout-item">
-                <md-content style="padding: 20px">
-                  <md-card-header> <div class="md-title">Add contributors</div> </md-card-header>Add contributors that
-                  were influential in helping develop your research. You can choose what percentage allocation they will
-                  receive from the total funding pool.
-                  <div class="md-layout">
-                    <div class="md-layout-item">
-                      <div v-for="(contributor, index) in coAuthor">
-                        <div class="md-layout">
-                          <div class="md-layout-item md-size-5" style="padding-top: 30px">{{ index + 1 }})</div>
-                          <div class="md-layout-item md-size-30">
-                            <md-autocomplete
-                              v-model="contributor.name"
-                              :md-options="authorList"
-                              @input="changeContribution(index, contributor.name)"
-                            >
-                              <label>Contributors names</label> </md-autocomplete
-                            >¸
-                          </div>
-                          <div class="md-layout-item md-size-25" style="padding-top: 20px">
-                            <clickable-address :light="false" :icon="true" :eth-address="contributor.address || ''" />
-                          </div>
-                          <div class="md-layout-item">
-                            <vue-slider
-                              v-model="contributor.weighting"
-                              v-bind="sliderOptions"
-                              :min="0"
-                              :max="100"
-                              :interval="1"
-                              :adsorb="true"
-                              :dotOptions="{ max: contributor.weighting + remainingAllocation }"
-                              :tooltip="'always'"
-                              :process-style="{ backgroundColor: '#798288' }"
-                              :tooltip-style="{ backgroundColor: '#646B71', borderColor: '#646B71' }"
-                              style="padding-top: 30px"
-                              :disabled="contributor.address == null"
-                              @change="slideContribution(index)"
-                            />
-                          </div>
-                          <div class="md-layout-item md-size-10">
-                            <md-button
-                              class="md-icon-button md-icon-button md-accent md-raised"
-                              style="margin-top: 10px"
-                              @click="removeContributor(index)"
-                            >
-                              <md-icon>remove</md-icon>
-                            </md-button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <br />
-                  <md-empty-state
-                    md-icon="devices_other"
-                    md-label="Add your first contributor"
-                    md-description="Add all the people that helped make your research a reality."
-                    v-if="coAuthor.length == 0"
-                  >
-                    <md-button class="md-primary md-raised" @click="addContributor">Add first contributor</md-button>
-                    <md-field>
-                      <label>Auto Attribute</label>
-                      <md-file
-                        v-model="autoAttribute"
-                        id="file"
-                        ref="file"
-                        @change="handelAutoAttributeFileUpload($event.target.files)"
-                      />
-                    </md-field>
-                  </md-empty-state>
-                  <md-button
-                    @click="addContributor"
-                    class="md-icon-button md-icon-button md-primary md-raised"
-                    v-if="coAuthor.length > 0"
-                  >
-                    <md-icon>add</md-icon>
-                  </md-button>
-                </md-content>
-              </div>
-              <div class="md-layout-item md-size-40">
-                <md-content>
-                  <vue-plotly
-                    v-if="pieData && coAuthor.length > 0"
-                    :data="pieData"
-                    :layout="pieLayout"
-                    :options="pieOptions"
-                  />
-                  <p style="padding: 20px">Your Allocation: {{ remainingAllocation.toFixed(1) }}%</p>
-                </md-content>
-              </div>
-            </div>
-          </div>
-        </div>
-        <md-button class="md-raised md-primary" @click="setDone('second', 'third')" style="margin-top: 20px"
-          >Continue</md-button
-        >
-        <md-button class="md-raised" @click="setDone('second', 'first')" style="margin-top: 20px">Back</md-button>
-      </md-step>
-      <md-step
-        id="third"
-        md-label="Market settings"
-        v-model:md-done="third"
-        style="background: #f5f9f9; padding-left: 0px; marin: 0px; padding-right: 0px"
-      >
-        <div class="md-layout">
-          <div class="md-layout-item">
-            <md-content style="padding: 20px">
-              <md-card-header>
-                <div class="md-title">Choose how you want to sell licences to your research📄</div>
-              </md-card-header>
-              <p>
-                You can choose to either list your research on an auction where buyers will submit bids and you can
-                choose to accept or sell it at a fixed price per licence.
-              </p>
-            </md-content>
-            <br />
-            <div class="md-layout md-gutter">
-              <div class="md-layout-item">
-                <md-content style="padding: 20px">
-                  <md-card-header>
-                    <div class="md-title">Research market type</div>
-                  </md-card-header>
-                  <md-radio v-model="marketType" value="auction">Auction</md-radio>
-                  <md-radio v-model="marketType" value="fixedPrice">Fixed Price</md-radio>
-                  <p v-if="marketType == 'auction'">
-                    Your publication will be listed as an auction. All buyers will submit a bid to you that you can
-                    review before selling a licence. Use this setting if you want to be able to price discriminate
-                    against buyers.
-                  </p>
-                  <div v-if="marketType == 'fixedPrice'">
-                    <p>
-                      Your publication will be listed at a fixed price. Buyers can purchase license immediately with no
-                      restriction. Use this setting if you feel happy with setting one fixed price for all licences.
-                    </p>
-                    <md-field>
-                      <label>Price per licence (USD)</label>
-                      <md-input v-model="pricePerLicence" type="number"></md-input>
-                    </md-field>
-                  </div>
-                </md-content>
-              </div>
-            </div>
-          </div>
-        </div>
-        <md-button class="md-raised md-primary" @click="setDone('third', 'fourth')" style="margin-top: 20px"
-          >Continue</md-button
-        >
-        <md-button class="md-raised" @click="setDone('third', 'second')" style="margin-top: 20px">Back</md-button>
-      </md-step>
       <md-step
         id="fourth"
         md-label="Deploy"
@@ -379,16 +405,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, set } from "vue";
 import { useStore } from "@/store/piniastore";
+import { Publication } from "@/utils/ipfsUploader.js";
+import type { Ref } from "vue";
 import ClickableAddress from "@/components/widgets/ClickableAddress.vue";
-import VuePdfNoSss from "../../.yarn/cache/vue-pdf-npm-4.3.0-b46a6dbaa1-cbf84cf11c.zip/node_modules/vue-pdf/src/vuePdfNoSss.vue";
+import PlotlyPie from "@/components/PlotlyPie.vue";
+import VuePdfEmbed from "vue-pdf-embed/dist/vue2-pdf-embed";
+import axios from "axios";
 
 const store = useStore();
 
 const liststep = ref(0);
 
-const setupData = reactive({ pdfFile: "", pdfName: "", title: "", abstract: "", keywords: [] });
+interface SetupData {
+  pdfFile?: File;
+  title: string;
+  abstract: string;
+  keywords: Array<string>;
+  valid: boolean;
+  doi: string;
+}
+
+const setupData: SetupData = reactive({
+  pdfFile: undefined,
+  title: "",
+  abstract: "",
+  keywords: [],
+  valid: false,
+  doi: "",
+});
+
+const pdfData: Ref<string | null> = ref(null);
+
+const requiredRule = (v: unknown) => !!v || "Required";
+
+// Pie chart colours
+const colors = [
+  "#A8A2F5",
+  "#E66C82",
+  "#F8D771",
+  "#9BECBE",
+  "#4371E0",
+  "#CC83E9",
+  "#F77D6A",
+  "#D5F871",
+  "#67E6ED",
+  "#7B66F7",
+];
+
+const deployed = ref(false);
+
+// For validation of auto attribution file
+const fileRules = [
+  (v: File) => !v || v.size <= 10000 || "File shouldn't be larger than 10KB",
+  (v: File) => !v || validateAttributionFile(v) || "File doesn't have expected format",
+];
 
 interface Contributor {
   id: number;
@@ -399,19 +471,148 @@ interface Contributor {
 
 let numContribs = 0;
 
-const coAuthors: Array<Contributor> = reactive([]);
+const coAuthorForm: {
+  valid: boolean;
+  coAuthors: Array<Contributor>;
+} = reactive({ valid: false, coAuthors: [] });
+
+const pricingForm: {
+  marketType: "auction" | "h-auction" | "fixedPrice";
+  pricePerLicence: number;
+  maxLicences: number;
+} = reactive({ marketType: "auction", pricePerLicence: 100, maxLicences: 1 });
 
 function addContributor() {
-  coAuthors.push({ id: numContribs++, name: "", address: "", weighting: 0 });
+  coAuthorForm.coAuthors.push({ id: numContribs++, name: "", address: "", weighting: 0 });
 }
 function removeContributor(index: number) {
-  coAuthors.splice(index, 1);
+  coAuthorForm.coAuthors.splice(index, 1);
+}
+
+async function handleFileUpload() {
+  if (!setupData.pdfFile) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    pdfData.value = reader.result as string | null;
+  };
+
+  reader.readAsDataURL(setupData.pdfFile);
+}
+
+async function handleDoiLookup() {
+  if (!setupData.doi) return;
+
+  const doi_dat = await axios.get<>(`${process.env.BACKEND_ADDRESS}/FindDoi/${setupData.doi}`);
+}
+
+// Functions to verify and process an auto attribution text file
+let cachedText: string | null;
+
+// Looking for comma-separated values:
+// Name - word characters and spaces (making sure last character is not a space)
+// Address - 40 hex characters with 0x prefix
+// Weighting - digits
+// Also allowing for whitespace padding around each group
+const validRow =
+  /^[^\S\r\n]*(?<name>[\w ]*[\w])[^\S\r\n]*,[^\S\r\n]*(?<address>0x[0-9a-fA-F]{40})[^\S\r\n]*,[^\S\r\n]*(?<weight>\d+)[^\S\r\n]*$/;
+
+async function validateAttributionFile(file: File): Promise<boolean> {
+  const fileText = await file.text();
+
+  const rows = fileText.split(/\r?\n/);
+  // Check for rows that don't match regex, and return their index
+  // (Good rows will have value of -1 after the map, and get filtered out)
+  const badrows = rows.map((v, i) => (validRow.test(v) ? -1 : i)).filter((v) => v >= 0);
+
+  if (badrows.length) {
+    console.log(badrows);
+    cachedText = null;
+    return false;
+  }
+
+  cachedText = fileText;
+  return true;
+}
+
+const validAttributionFile = ref(false);
+
+function handleAutoAttributeFileUpload() {
+  if (!cachedText) {
+    console.error("handleAutoAttributeFileUpload called without first verifying data");
+    throw "Invalid function call";
+  }
+
+  const rows = cachedText.split(/\r?\n/);
+
+  for (const row of rows) {
+    const rowvals = validRow.exec(row);
+
+    if (!rowvals?.groups) continue;
+
+    coAuthorForm.coAuthors.push({
+      id: numContribs++,
+      name: rowvals.groups.name,
+      address: rowvals.groups.address,
+      weighting: Number(rowvals.groups.weight),
+    });
+  }
 }
 
 // Calculates the number of percentage points still available after adding together existing weightings
 const remainingAllocation = computed(() => {
-  return Math.max(100 - coAuthors.map((c) => c.weighting).reduce((prev, cur) => prev + cur, 0), 0);
+  return Math.max(100 - coAuthorForm.coAuthors.map((c) => c.weighting).reduce((prev, cur) => prev + cur, 0), 0);
 });
+
+const pieData = computed(() => {
+  return {
+    values: [remainingAllocation, ...coAuthorForm.coAuthors.map((v) => v.weighting)],
+    labels: ["Dr Frankenstein", ...coAuthorForm.coAuthors.map((v) => v.name)],
+  };
+});
+
+async function deploy() {
+  if (!pdfData.value) throw "Unable to deploy - no PDF provided";
+
+  console.log("LAUNCH");
+  deployed.value = !deployed.value;
+
+  const contributorAddresses = coAuthorForm.coAuthors.map((v) => v.address);
+  const contributorWeighting = coAuthorForm.coAuthors.map((v) => v.weighting);
+  //const priceStrat = marketType.value === "auction" ? PricingStrategy. : false;
+  let priceStrat: PricingStrategy;
+
+  switch (pricingForm.marketType) {
+    case "auction":
+      priceStrat = PricingStrategy.PrivateAuction;
+      break;
+    case "h-auction":
+      priceStrat = PricingStrategy.PrivateAuctionHarberger;
+      break;
+    default:
+      priceStrat = PricingStrategy.FixedRate;
+  }
+
+  const sellPrice = pricingForm.marketType !== "fixedPrice" ? 0 : pricingForm.pricePerLicence;
+
+  const publicationObject = new Publication(
+    setupData.title,
+    setupData.abstract,
+    setupData.keywords,
+    contributorAddresses,
+    contributorWeighting,
+    sellPrice,
+    priceStrat,
+    AuctionStatus.Pending,
+    pdfData.value
+  );
+
+  console.log(publicationObject);
+  this.LIST_PUBLICATION(publicationObject);
+
+  await store.listPublication()
+}
 </script>
 
 <script>
@@ -423,6 +624,7 @@ import VuePlotly from "@statnett/vue-plotly";
 //import { constants } from "fs";
 
 import pdf from "pdfvuer";
+import { AuctionStatus, PricingStrategy } from "@/utils/enums.js";
 
 export default {
   name: "manage",
@@ -583,7 +785,7 @@ export default {
         return this.coAuthor.map((v) => v.weighting).reduce((sum, value) => sum - value, 100);
       }
     },*/
-    pieData() {
+    /*pieData() {
       return [
         {
           values: [this.remainingAllocation, ...this.coAuthor.map((v) => v.weighting)],
@@ -596,7 +798,7 @@ export default {
           },
         },
       ];
-    },
+    },*/
     contributorsSummary() {
       return this.coAuthor.map((v, i) => `${v.name}: ${v.weighting}%`);
     },

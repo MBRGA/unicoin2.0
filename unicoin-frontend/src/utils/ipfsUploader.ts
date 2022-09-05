@@ -40,7 +40,7 @@ export class Publication {
   constructor(
     @JsonProperty({ required: true }) readonly title: string,
     @JsonProperty({ required: true }) readonly abstract: string,
-    @JsonProperty({ required: true }) readonly keyword: string,
+    @JsonProperty({ required: true }) readonly keywords: string[],
     @JsonProperty({ required: true }) readonly contributors: string[],
     @JsonProperty({ required: true }) readonly contributorsWeightings: number[],
     @JsonProperty({ required: true }) readonly sellPrice: number,
